@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">ApaPunAda</string>
+    <string name="intro_1">Quick Search</string>
+    <string name="intro_2">Variety of Food</string>
+    <string name="intro_3">Save Time</string>
+    <string name="intro_sub_1">Simple navigation and friendly search bar</string>
+    <string name="intro_sub_2">Have a glance on delicious food the menu</string>
+    <string name="intro_sub_3">Join the waitlist while on the way</string>
+    <string name="login">Login</string>
+    <string name="sign_up">Sign Up</string>
 </resources>
