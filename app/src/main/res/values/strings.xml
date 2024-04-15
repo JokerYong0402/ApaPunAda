@@ -8,6 +8,8 @@
     <string name="intro_sub_3">Join the waitlist while on the way</string>
     <string name="login">Login</string>
     <string name="sign_up">Sign Up</string>
+    <string name="profile">My Profile</string>
+    <string name="logout">LOGOUT</string>
     <string name="feedback">FEEDBACK</string>
     <string name="back_button">Back</string>
     <string name="feedback_1">Your Feedback Matters</string>
