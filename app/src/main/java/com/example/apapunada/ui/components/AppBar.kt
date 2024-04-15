@@ -66,7 +66,7 @@ fun MyTopAppBar(profileName: String, @DrawableRes img: Int) {
                 modifier = Modifier
                     .size(45.dp)
                     .clip(CircleShape)
-                    .clickable { /* */ }
+                    .clickable { /* TODO */ }
             )
         },
         scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
