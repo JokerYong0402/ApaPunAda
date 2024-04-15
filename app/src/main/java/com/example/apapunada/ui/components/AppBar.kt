@@ -86,12 +86,18 @@ fun MyBottomNavBar(selectedBar: Int = 1) {
 
     val navItems = listOf(
         Item(
-            title = { Text(text = "Home", color = primaryColor) },
+            title = {
+                Text(
+                    text = "Home",
+                    color = if (selectedBar == 1) primaryColor else Color.DarkGray
+                )}
+            ,
             icon = {
                 Icon(
                     Icons.Rounded.Home,
                     contentDescription = "Home",
-                    tint = primaryColor)
+                    tint = if (selectedBar == 1) primaryColor else Color.DarkGray
+                )
             }
         ),
         Item(
@@ -107,8 +113,19 @@ fun MyBottomNavBar(selectedBar: Int = 1) {
             icon = { Icon(Icons.Rounded.Favorite, contentDescription = "Rewards\"") }
         ),
         Item(
-            title = { Text(text = "More")},
-            icon = { Icon(Icons.Rounded.MoreVert, contentDescription = "More") }
+            title = {
+                Text(
+                    text = "More",
+                    color = if (selectedBar == 5) primaryColor else Color.DarkGray
+                )}
+            ,
+            icon = {
+                Icon(
+                    Icons.Rounded.MoreVert,
+                    contentDescription = "More",
+                    tint = if (selectedBar == 5) primaryColor else Color.DarkGray
+                )
+            }
         ),
     )
     
