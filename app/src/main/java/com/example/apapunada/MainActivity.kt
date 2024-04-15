@@ -16,6 +16,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.apapunada.ui.IntroductionPager
 import com.example.apapunada.ui.IntroductionScreen
+import com.example.apapunada.ui.ProfileScreen
 import com.example.apapunada.ui.components.MyBottomNavBar
 import com.example.apapunada.ui.components.MyTopAppBar
 import com.example.apapunada.ui.theme.ApaPunAdaTheme
@@ -39,18 +40,19 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun ApaPunAda() {
     Scaffold(
-        topBar = {
+        /*topBar = {
             MyTopAppBar(
                 "User_1",
                 R.drawable.profile_image
             )
-        },
-        bottomBar = { MyBottomNavBar(1) }
+        },*/
+        //bottomBar = { MyBottomNavBar(1) }
     ) { innerPadding ->
         Column(
             modifier = Modifier.padding(innerPadding)
         ) {
-            IntroductionPager()
+            //IntroductionPager()
+            ProfileScreen()
         }
     }
 }
