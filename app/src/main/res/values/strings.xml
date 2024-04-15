@@ -12,4 +12,14 @@
     <string name="back_button">Back</string>
     <string name="feedback_1">Your Feedback Matters</string>
     <string name="feedback_2">Are you satisfied with the service?</string>
+    <string name="feedback_3">Let us know how can we serve you better.</string>
+    <string name="feedback_4">Upload images. (0/3)</string>
+    <string name="feedback_5">Let us know how can we serve you better. (0/100)</string>
+    <string name="feedback_6">Tell us how can we improve...</string>
+<!--    <string name="feedback_button_1">Packaging</string>-->
+<!--    <string name="feedback_button_2">Menu</string>-->
+<!--    <string name="feedback_button_3">Delivery</string>-->
+<!--    <string name="feedback_button_4">App</string>-->
+<!--    <string name="feedback_button_5">Environment</string>-->
+<!--    <string name="feedback_button_6">Other</string>-->
 </resources>
