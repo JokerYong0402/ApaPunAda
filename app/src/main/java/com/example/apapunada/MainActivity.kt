@@ -9,10 +9,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.apapunada.ui.FeedbackPager
-import com.example.apapunada.ui.IntroductionPager
-import com.example.apapunada.ui.IntroductionScreen
-import com.example.apapunada.ui.ProfileScreen
+import com.example.apapunada.data.DataSample
+import com.example.apapunada.ui.HomeScreen
 import com.example.apapunada.ui.components.MyBottomNavBar
 import com.example.apapunada.ui.components.MyTopAppBar
 
@@ -46,8 +44,7 @@ fun ApaPunAda() {
         Column(
             modifier = Modifier.padding(innerPadding)
         ) {
-            //IntroductionPager()
-            ProfileScreen()
+            HomeScreen(DataSample.FoodMenu)
         }
     }
 }
