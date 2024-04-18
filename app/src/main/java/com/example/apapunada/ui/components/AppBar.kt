@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -20,6 +21,9 @@ import androidx.compose.material.icons.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.rounded.List
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.ShoppingCart
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -155,11 +159,11 @@ fun MyBottomNavBar(selectedBar: Int = 1) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyTopTitleBar(title: String) {
+fun MyTopTitleBar(title: String, navIcon: Boolean = true) {
     val scrollBehaviour = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color(0xFFe7e1f5),
+            containerColor = colorResource(R.color.primary_200),
             titleContentColor = Color.Black,
         ),
         title = {
@@ -174,14 +178,16 @@ fun MyTopTitleBar(title: String) {
             )
         },
         navigationIcon = {
-            IconButton(
-                onClick = { /*TODO*/ }
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.KeyboardArrowLeft,
-                    contentDescription = "Back",
-                    modifier = Modifier.fillMaxSize()
-                )
+            if (navIcon) {
+                IconButton(
+                    onClick = { /*TODO*/ }
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.KeyboardArrowLeft,
+                        contentDescription = "Back",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
         },
         scrollBehavior = scrollBehaviour,
@@ -191,11 +197,38 @@ fun MyTopTitleBar(title: String) {
     )
 }
 
+@Composable
+fun MyBottomButton(content: String) {
+    Card(
+        colors = CardDefaults.cardColors(colorResource(R.color.primary_200)),
+        shape = RoundedCornerShape(15.dp, 15.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(90.dp)
+    ) {
+        Button(
+            onClick = { /*TODO*/ },
+            shape = RoundedCornerShape(10.dp),
+            modifier = Modifier
+                .padding(dimensionResource(R.dimen.padding_medium), 20.dp)
+                .fillMaxSize()
+        ) {
+            Text(
+                text = content,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+            )
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun CommonUiPreview() {
     Scaffold(
-        topBar = { MyTopTitleBar(title = "Home") }
+        topBar = { MyTopTitleBar(title = "Order") },
+        bottomBar = { MyBottomButton(content = "Next") }
     ) { innerPadding ->
         Column(
             modifier = Modifier.padding(innerPadding)
