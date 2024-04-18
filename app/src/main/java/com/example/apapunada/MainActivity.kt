@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.apapunada.ui.MenuScreen
 import com.example.apapunada.ui.MoreScreen
 
 class MainActivity : ComponentActivity() {
@@ -25,7 +26,8 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun ApaPunAda() {
-    MoreScreen()
+    //MoreScreen()
+    MenuScreen()
 }
 
 @Preview(showBackground = true)

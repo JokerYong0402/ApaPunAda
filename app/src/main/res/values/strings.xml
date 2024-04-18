@@ -18,7 +18,8 @@
     <string name="feedback_4">Upload images. (0/3)</string>
     <string name="feedback_5">Let us know how can we serve you better. (0/100)</string>
     <string name="feedback_6">Tell us how can we improve...</string>
-<!--    <string name="feedback_button_1">Packaging</string>-->
+    <string name="menu">Menu</string>
+    <!--    <string name="feedback_button_1">Packaging</string>-->
 <!--    <string name="feedback_button_2">Menu</string>-->
 <!--    <string name="feedback_button_3">Delivery</string>-->
 <!--    <string name="feedback_button_4">App</string>-->
