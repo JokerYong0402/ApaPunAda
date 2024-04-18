@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
 import com.example.apapunada.data.DataSample
-import com.example.apapunada.data.MenuItem
+import com.example.apapunada.model.MenuItem
 import com.example.apapunada.ui.components.MyBottomNavBar
 import com.example.apapunada.ui.components.MyTopAppBar
 
