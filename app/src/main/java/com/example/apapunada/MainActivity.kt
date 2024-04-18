@@ -3,9 +3,13 @@ package com.example.apapunada
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.apapunada.ui.MoreScreen
+import com.example.apapunada.ui.DeleteProfileScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,7 +29,24 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun ApaPunAda() {
-    MoreScreen()
+    Scaffold(
+        /*topBar = {
+            MyTopAppBar(
+                "User_1",
+                R.drawable.profile_image
+            )
+        },*/
+        //bottomBar = { MyBottomNavBar(1) }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            //IntroductionPager()
+            //ProfileScreen()
+            //EditProfileScreen()
+            DeleteProfileScreen()
+        }
+    }
 }
 
 @Preview(showBackground = true)

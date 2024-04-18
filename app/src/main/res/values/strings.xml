@@ -10,6 +10,13 @@
     <string name="sign_up">Sign Up</string>
     <string name="profile">My Profile</string>
     <string name="logout">LOGOUT</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="save">Save</string>
+    <string name="ok">OK</string>
+    <string name="delete_profile">Delete Account</string>
+    <string name="submit">Submit</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
     <string name="feedback">FEEDBACK</string>
     <string name="back_button">Back</string>
     <string name="feedback_1">Your Feedback Matters</string>
