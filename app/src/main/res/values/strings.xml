@@ -31,4 +31,5 @@
 <!--    <string name="feedback_button_4">App</string>-->
 <!--    <string name="feedback_button_5">Environment</string>-->
 <!--    <string name="feedback_button_6">Other</string>-->
+	<string name="menu">Menu</string>
 </resources>
