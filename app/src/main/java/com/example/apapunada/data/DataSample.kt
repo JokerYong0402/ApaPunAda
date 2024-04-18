@@ -1,12 +1,8 @@
 package com.example.apapunada.data
 
 import com.example.apapunada.R
+import com.example.apapunada.model.MenuItem
 
-data class MenuItem(
-    val name: String,
-    val rating: Double,
-    val image: Int
-)
 object DataSample {
     val FoodMenu = listOf(
         MenuItem("Beef Burger", 4.9, R.drawable.feedback1),
