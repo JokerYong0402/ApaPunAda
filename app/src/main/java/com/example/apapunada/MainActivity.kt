@@ -10,6 +10,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.apapunada.ui.DeleteProfileScreen
+import com.example.apapunada.ui.EditProfileScreen
+import com.example.apapunada.ui.IntroductionPager
+import com.example.apapunada.ui.IntroductionScreen
+import com.example.apapunada.ui.ProfileScreen
+import com.example.apapunada.ui.components.MyBottomNavBar
+import com.example.apapunada.ui.components.MyTopAppBar
+import com.example.apapunada.ui.theme.ApaPunAdaTheme
+import com.example.apapunada.ui.MoreScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
