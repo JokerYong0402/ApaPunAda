@@ -210,7 +210,7 @@ fun IntroductionScreen(
                             .size(50.dp)
                             .padding(10.dp)
                             .clip(CircleShape)
-                            .clickable { imgPager = i },
+                            .clickable { imgPager = i /* TODO */},
                         onDraw = {
                             drawCircle(color = primaryColor, radius = this.size.minDimension / 3.5f)
                             drawCircle(color = primaryColor, radius = this.size.minDimension / 4.5f)
@@ -222,7 +222,7 @@ fun IntroductionScreen(
                             .size(50.dp)
                             .padding(10.dp)
                             .clip(CircleShape)
-                            .clickable { imgPager = i },
+                            .clickable { imgPager = i  /* TODO */},
                         onDraw = {
                             drawCircle(color = primaryColor, radius = this.size.minDimension / 3.5f)
                             drawCircle(color = Color.White, radius = this.size.minDimension / 4.5f)
