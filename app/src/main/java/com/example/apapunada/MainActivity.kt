@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.apapunada.ui.FeedbackPager
 import com.example.apapunada.ui.IntroductionPager
+import com.example.apapunada.ui.WaitlistPager
 import com.example.apapunada.ui.components.MyBottomNavBar
 import com.example.apapunada.ui.components.MyTopAppBar
 
@@ -44,7 +45,9 @@ fun ApaPunAda() {
         Column(
             modifier = Modifier.padding(innerPadding)
         ) {
-            IntroductionPager()
+            WaitlistPager()
+            //FeedbackPager()
+            //IntroductionPager()
         }
     }
 }

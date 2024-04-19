@@ -51,16 +51,21 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.semantics.Role.Companion.Button
+import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import com.example.apapunada.ui.components.MyBottomNavBar
+import com.example.apapunada.ui.components.MyTopTitleBar
 import com.example.apapunada.ui.theme.Purple40
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -74,7 +79,6 @@ fun FeedbackPager(initialPage: Int = 0) {
 fun FeedbackScreen(
     modifier: Modifier = Modifier
 ) {
-
     var textInput by remember { mutableStateOf("") }
 
     val options1 = listOf(
@@ -89,9 +93,8 @@ fun FeedbackScreen(
         "Other"
     )
 
-    var selectedOption by remember {
-        mutableStateOf("")
-    }
+    var selectedOption by remember { mutableStateOf("") }
+
     val onSelectionChange = { text: String ->
         selectedOption = text
     }
@@ -137,41 +140,15 @@ fun FeedbackScreen(
         else -> R.drawable.feedback1
     }
     //surface is to make it scrollable
-    Surface(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-
-        Column(
-            modifier = modifier
-                .fillMaxSize(),
-
-            ) {
-            TopAppBar(
-                modifier = modifier
-                    .shadow(2.dp),
-                title = {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-
-                            //.contentAlignment(Alignment.Center) // Centers horizontally
-                            .padding(
-                                top = 8.dp,
-                                bottom = 8.dp
-                            ) // Example padding for vertical centering
-                    ) {
-                        Text(text = stringResource(R.string.feedback))
-                    }
-
-                },
-
-                navigationIcon = {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back_button)
-                        )
-                    }
-                }
-            )
+    Scaffold(
+        topBar = { MyTopTitleBar(title = stringResource(R.string.feedback)) }
+    ) { innerPadding ->
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+            Column(modifier = Modifier.padding(innerPadding)){
 
             Column(
                 modifier = Modifier
@@ -425,20 +402,20 @@ fun FeedbackScreen(
                 )
                 EditTextField(
                     value = textInput,
-                    onValueChange = { textInput = it },
+                    onValueChange = {textInput = it},
                     modifier = Modifier
                         .fillMaxWidth()
                 )
             }
+                Divider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp, bottom = 10.dp)
+                )
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                Divider(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 30.dp, bottom = 8.dp)
-                )
                 Button(
 
                     colors = ButtonDefaults.buttonColors(
@@ -452,11 +429,12 @@ fun FeedbackScreen(
                 ) {
                     Text(text = "Submit")
                 }
-
             }
         }
     }
+    }
 }
+
 
 @Composable
 fun EditTextField(
@@ -481,14 +459,13 @@ fun EditTextField(
                 shape = RoundedCornerShape(
                     size = 12.dp,
                 )
-            )
-            ,
+            ),
         placeholder = { Text(
             text = stringResource(R.string.feedback_6),
             fontSize = 12.sp,
             color = colorResource(id = R.color.primary),
-            modifier = modifier
-                .padding(bottom = 100.dp)
+//            modifier = modifier
+//                .padding(bottom = 100.dp)
         )},
         //Design for the text that user type in
         textStyle = TextStyle(
@@ -499,9 +476,73 @@ fun EditTextField(
     )
 }
 
+@Composable
+fun successScreen(){
+    Column (
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        Column (
+            horizontalAlignment = Alignment.End,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(18.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.feedback5),
+                contentDescription = "feedback5",
+                modifier = Modifier
+                    .size(18.dp)
+            )
+        }
+        Column (
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 150.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.feedback4),
+                contentDescription = "feedback4",
+                modifier = Modifier
+                    .size(100.dp)
+            )
+        }
+        Column (
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = stringResource(id = R.string.feedback_7),
+                fontSize = 23.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(top = 30.dp)
+            )
+        }
+        Column (
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = stringResource(id = R.string.feedback_8),
+                fontSize = 18.sp,
+                color = Color.Gray,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(top = 30.dp)
+            )
+        }
+    }
+
+}
+
 @Preview(showBackground = true)
 @Composable
 fun FeedbackScreenPreview() {
+    //successScreen()
     FeedbackScreen(
         modifier = Modifier
     )
