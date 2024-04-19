@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.apapunada.ui.MoreScreen
+import com.example.apapunada.ui.OrderOptionScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun ApaPunAda() {
-    MoreScreen()
+    OrderOptionScreen()
 }
 
 @Preview(showBackground = true)

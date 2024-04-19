@@ -39,6 +39,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
@@ -159,8 +160,9 @@ fun MyBottomNavBar(selectedBar: Int = 1) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyTopTitleBar(title: String, navIcon: Boolean = true) {
+fun MyTopTitleBar(title: String) {
     val scrollBehaviour = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = colorResource(R.color.primary_200),
@@ -178,22 +180,21 @@ fun MyTopTitleBar(title: String, navIcon: Boolean = true) {
             )
         },
         navigationIcon = {
-            if (navIcon) {
-                IconButton(
-                    onClick = { /*TODO*/ }
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.KeyboardArrowLeft,
-                        contentDescription = "Back",
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
+            IconButton(
+                onClick = { /*TODO*/ }
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.KeyboardArrowLeft,
+                    contentDescription = "Back",
+                    modifier = Modifier.fillMaxSize()
+                )
             }
         },
         scrollBehavior = scrollBehaviour,
         modifier = Modifier
             .padding(dimensionResource(R.dimen.padding_small))
             .clip(RoundedCornerShape(16.dp))
+            .shadow(10.dp)
     )
 }
 

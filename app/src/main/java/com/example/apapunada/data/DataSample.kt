@@ -14,3 +14,4 @@ object DataSample {
         MenuItem("Carbonara Pasta", 4.7, R.drawable.emailicon),
     )
 }
+
