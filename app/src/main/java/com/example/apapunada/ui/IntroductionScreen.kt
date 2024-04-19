@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -29,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
@@ -179,6 +181,7 @@ fun IntroductionScreen(
                     Button(
                         onClick = { /*TODO*/ },
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                        shape = RoundedCornerShape(10.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp)
@@ -206,7 +209,8 @@ fun IntroductionScreen(
                         modifier = Modifier
                             .size(50.dp)
                             .padding(10.dp)
-                            .clickable { imgPager = i },
+                            .clip(CircleShape)
+                            .clickable { imgPager = i /* TODO */},
                         onDraw = {
                             drawCircle(color = primaryColor, radius = this.size.minDimension / 3.5f)
                             drawCircle(color = primaryColor, radius = this.size.minDimension / 4.5f)
@@ -217,7 +221,8 @@ fun IntroductionScreen(
                         modifier = Modifier
                             .size(50.dp)
                             .padding(10.dp)
-                            .clickable { imgPager = i },
+                            .clip(CircleShape)
+                            .clickable { imgPager = i  /* TODO */},
                         onDraw = {
                             drawCircle(color = primaryColor, radius = this.size.minDimension / 3.5f)
                             drawCircle(color = Color.White, radius = this.size.minDimension / 4.5f)
