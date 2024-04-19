@@ -350,6 +350,7 @@ fun PopUp(onDismiss: () -> Unit) {
     }
 }
 
+//Navigate to another screen
 @Composable
 fun VoucherRM1(onDismiss: () -> Unit) {
     
