@@ -199,7 +199,10 @@ fun MyTopTitleBar(title: String) {
 }
 
 @Composable
-fun MyBottomButton(content: String) {
+fun MyBottomButton(content: String, order: Boolean = false) {
+
+    val arrangement = if (order) { Arrangement.SpaceBetween } else { Arrangement.Center }
+
     Card(
         colors = CardDefaults.cardColors(colorResource(R.color.primary_200)),
         shape = RoundedCornerShape(15.dp, 15.dp),
@@ -214,12 +217,25 @@ fun MyBottomButton(content: String) {
                 .padding(dimensionResource(R.dimen.padding_medium), 20.dp)
                 .fillMaxSize()
         ) {
-            Text(
-                text = content,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = arrangement,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (order) {
+                    Text(text = "0 items")
+                }
+
+                Text(
+                    text = content,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                if (order) {
+                    Text(text = "RM 0.00")
+                }
+            }
         }
     }
 }

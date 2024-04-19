@@ -1,6 +1,7 @@
 package com.example.apapunada.data
 
 import com.example.apapunada.R
+import com.example.apapunada.model.Cuisine
 import com.example.apapunada.model.MenuItem
 
 object DataSample {
@@ -13,5 +14,13 @@ object DataSample {
         MenuItem("Low Rated 2", 2.6, R.drawable.intro3),
         MenuItem("Carbonara Pasta", 4.7, R.drawable.emailicon),
     )
-}
 
+    val FoodCuisines = listOf(
+        Cuisine(1, "Western"),
+        Cuisine(2, "Japanese"),
+        Cuisine(3, "Korean"),
+        Cuisine(4, "Malaysian"),
+        Cuisine(5, "Thai"),
+        Cuisine(6, "Beverages"),
+    )
+}
