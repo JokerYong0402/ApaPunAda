@@ -42,16 +42,25 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
-import com.example.apapunada.data.DataSample
 import com.example.apapunada.model.MenuItem
 import com.example.apapunada.ui.components.MyBottomNavBar
 import com.example.apapunada.ui.components.MyTopAppBar
 
 @Composable
 fun HomeScreen(
-    topFoods: List<MenuItem>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+//    hi: List<MenuItem> = FoodMenu
 ) {
+
+    val topFoods = listOf(
+        MenuItem("Beef Burger", 4.9, R.drawable.feedback1),
+        MenuItem("Low Rated 1", 1.4, R.drawable.intro3),
+        MenuItem("Nigga Steak", 4.8, R.drawable.profile_image),
+        MenuItem("Prawn Noodle", 4.6, R.drawable.intro3),
+        MenuItem("Chicken Chop", 5.0, R.drawable.feedback2),
+        MenuItem("Low Rated 2", 2.6, R.drawable.intro3),
+        MenuItem("Carbonara Pasta", 4.7, R.drawable.emailicon),
+    )
 
     val primaryColor = colorResource(R.color.primary)
     var imgPager = 1
@@ -66,7 +75,7 @@ fun HomeScreen(
         bottomBar = { MyBottomNavBar() }
     ) { innerPadding ->
         Column(
-            modifier = Modifier.padding(innerPadding)
+            modifier = modifier.padding(innerPadding)
         ) {
 
             Column(
@@ -309,5 +318,5 @@ fun HomeScreen(
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
-    HomeScreen(DataSample.FoodMenu)
+    HomeScreen()
 }

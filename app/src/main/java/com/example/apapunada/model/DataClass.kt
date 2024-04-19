@@ -23,7 +23,7 @@ data class User(
 data class Menu(
     val id: Int,
     val name: String,
-    val cuisine: Int, //fk
+    val cuisine: Cuisine, //fk
     val price: Double,
     val rating: Double,
     val image: Int,
