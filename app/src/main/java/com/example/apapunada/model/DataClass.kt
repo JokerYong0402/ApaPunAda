@@ -27,7 +27,8 @@ data class Menu(
     val price: Double,
     val rating: Double,
     val image: Int,
-    val description: String
+    val description: String,
+    val status: String
 )
 //serving?
 
@@ -56,11 +57,18 @@ data class Order(
     val id: Int,
     val orderId: Int,
     val username: String, //fk
-    val orderDetails: String, //JSON {menuId, qty}
-    val amount: Double,
+    val orderDetails: List<OrderDetails>,
+    val amount: Double = 0.0,
     val dateTime: String,
     val paymentStatus: Boolean,
-    val statusId: Int //fk
+    val statusId: OrderStatus //fk
+)
+
+data class OrderDetails(
+    val id: Int,
+    val menuId: Menu,
+    val qty: Int,
+    val total: Double = 0.0,
 )
 
 data class OrderStatus(

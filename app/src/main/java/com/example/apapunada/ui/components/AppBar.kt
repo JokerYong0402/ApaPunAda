@@ -52,6 +52,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
+import com.example.apapunada.model.Order
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -199,9 +200,9 @@ fun MyTopTitleBar(title: String) {
 }
 
 @Composable
-fun MyBottomButton(content: String, order: Boolean = false) {
+fun MyBottomButton(content: String, order: Order? = null) {
 
-    val arrangement = if (order) { Arrangement.SpaceBetween } else { Arrangement.Center }
+    val arrangement = if (order != null) { Arrangement.SpaceBetween } else { Arrangement.Center }
 
     Card(
         colors = CardDefaults.cardColors(colorResource(R.color.primary_200)),
@@ -222,8 +223,8 @@ fun MyBottomButton(content: String, order: Boolean = false) {
                 horizontalArrangement = arrangement,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                if (order) {
-                    Text(text = "0 items")
+                if (order != null) {
+                    Text(text = order.orderDetails.count().toString() + " items")
                 }
 
                 Text(
@@ -232,8 +233,8 @@ fun MyBottomButton(content: String, order: Boolean = false) {
                     fontWeight = FontWeight.Bold
                 )
 
-                if (order) {
-                    Text(text = "RM 0.00")
+                if (order != null) {
+                    Text(text = "RM " + formattedString(order.amount))
                 }
             }
         }
