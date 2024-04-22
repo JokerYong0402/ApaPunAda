@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -20,6 +21,9 @@ import androidx.compose.material.icons.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.rounded.List
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.ShoppingCart
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -35,6 +39,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
@@ -47,6 +52,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
+import com.example.apapunada.model.Order
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -157,9 +163,10 @@ fun MyBottomNavBar(selectedBar: Int = 1) {
 @Composable
 fun MyTopTitleBar(title: String) {
     val scrollBehaviour = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color(0xFFe7e1f5),
+            containerColor = colorResource(R.color.primary_200),
             titleContentColor = Color.Black,
         ),
         title = {
@@ -188,14 +195,64 @@ fun MyTopTitleBar(title: String) {
         modifier = Modifier
             .padding(dimensionResource(R.dimen.padding_small))
             .clip(RoundedCornerShape(16.dp))
+            .shadow(10.dp)
     )
+}
+
+@Composable
+fun MyBottomButton(content: String, order: Order? = null, price: Double? = null) {
+
+    val arrangement = if (order != null) { Arrangement.SpaceBetween } else { Arrangement.Center }
+
+    Card(
+        colors = CardDefaults.cardColors(colorResource(R.color.primary_200)),
+        shape = RoundedCornerShape(15.dp, 15.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(90.dp)
+    ) {
+        Button(
+            onClick = { /*TODO*/ },
+            shape = RoundedCornerShape(10.dp),
+            modifier = Modifier
+                .padding(dimensionResource(R.dimen.padding_medium), 20.dp)
+                .fillMaxSize()
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = arrangement,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (order != null) {
+                    Text(text = order.orderDetails.count().toString() + " items")
+                }
+
+                Text(
+                    text = content +
+                        if (price != null) {
+                            " (RM " + formattedString(price) + ")"
+                        } else {
+                               ""
+                        }
+                    ,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                if (order != null) {
+                    Text(text = "RM " + formattedString(order.amount))
+                }
+            }
+        }
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun CommonUiPreview() {
     Scaffold(
-        topBar = { MyTopTitleBar(title = "Home") }
+        topBar = { MyTopTitleBar(title = "Order") },
+        bottomBar = { MyBottomButton(content = "Next") }
     ) { innerPadding ->
         Column(
             modifier = Modifier.padding(innerPadding)
