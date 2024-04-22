@@ -31,16 +31,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
+import com.example.apapunada.data.OrderMethodSample.OrderMethod
+import com.example.apapunada.model.OrderOption
 import com.example.apapunada.ui.components.MyBottomButton
 import com.example.apapunada.ui.components.MyTopTitleBar
 
 @Composable
-fun OrderOptionScreen() {
-    val orderOptions = listOf(
-        Pair("Dine-in", R.drawable.ordermethod1),
-        Pair("Takeaway", R.drawable.ordermethod2),
-        Pair("Delivery", R.drawable.ordermethod3)
-    )
+fun OrderOptionScreen(
+    orderOptions: List<OrderOption> = OrderMethod
+) {
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(orderOptions[0]) }
 
     Scaffold(
@@ -63,7 +62,7 @@ fun OrderOptionScreen() {
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                //if dine-in TODO
+                // TODO if dine-in, need pop up
                 orderOptions.forEach { method ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -90,15 +89,15 @@ fun OrderOptionScreen() {
                             )
                     ) {
                         Image(
-                            painter = painterResource(method.second),
-                            contentDescription = method.first,
+                            painter = painterResource(method.methodImg),
+                            contentDescription = method.orderMethod,
                             modifier = Modifier
                                 .size(80.dp)
                                 .padding(start = 10.dp)
                         )
 
                         Text(
-                            text = method.first,
+                            text = method.orderMethod,
                             fontSize = 16.sp,
                         )
 

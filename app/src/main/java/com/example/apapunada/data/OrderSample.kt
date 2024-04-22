@@ -1,6 +1,7 @@
 package com.example.apapunada.data
 
 import com.example.apapunada.data.OrderDetailsSample.OrderDetails
+import com.example.apapunada.data.OrderMethodSample.OrderMethod
 import com.example.apapunada.data.OrderStatusSample.OrderStatus
 import com.example.apapunada.model.Order
 
@@ -10,6 +11,7 @@ object OrderSample {
             1,
             1,
             "user1",
+            OrderMethod[0],
             listOf(
                 OrderDetails[0]
             ),

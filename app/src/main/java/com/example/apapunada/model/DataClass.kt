@@ -57,6 +57,7 @@ data class Order(
     val id: Int,
     val orderId: Int,
     val username: String, //fk
+    val orderMethod: OrderOption,
     val orderDetails: List<OrderDetails>,
     val amount: Double = 0.0,
     val dateTime: String,
@@ -64,10 +65,19 @@ data class Order(
     val statusId: OrderStatus //fk
 )
 
+data class OrderOption(
+    val id: Int,
+    val orderMethod: String,
+    val methodImg: Int,
+    val addPrice: Double
+)
+
 data class OrderDetails(
     val id: Int,
     val menuId: Menu,
     val qty: Int,
+//    val size: SizeOption,
+    val remark: String,
     val total: Double = 0.0,
 )
 
@@ -75,4 +85,31 @@ data class OrderStatus(
     val id: Int,
     val statusId: Int,
     val status: String
+)
+
+data class SizeOption(
+    val id: Int,
+    val sizeName: String,
+    val addPrice: Double
+)
+
+data class TemperatureOption(
+    val id: Int,
+    val temperatureName: String,
+    val addPrice: Double
+)
+
+data class Voucher(
+    val id: Int,
+    val voucherName: String,
+    val value: Double
+)
+
+data class Feedback(
+    val id: Int,
+    val username: String,
+    val star: Int,
+    val category: String,
+    val images: List<Int>,
+    val comments: String
 )

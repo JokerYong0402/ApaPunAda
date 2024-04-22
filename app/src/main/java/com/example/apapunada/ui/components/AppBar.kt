@@ -200,7 +200,7 @@ fun MyTopTitleBar(title: String) {
 }
 
 @Composable
-fun MyBottomButton(content: String, order: Order? = null) {
+fun MyBottomButton(content: String, order: Order? = null, price: Double? = null) {
 
     val arrangement = if (order != null) { Arrangement.SpaceBetween } else { Arrangement.Center }
 
@@ -228,7 +228,13 @@ fun MyBottomButton(content: String, order: Order? = null) {
                 }
 
                 Text(
-                    text = content,
+                    text = content +
+                        if (price != null) {
+                            " (RM " + formattedString(price) + ")"
+                        } else {
+                               ""
+                        }
+                    ,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )

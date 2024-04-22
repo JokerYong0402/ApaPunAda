@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
 import com.example.apapunada.data.FoodCuisinesSample.FoodCuisines
-import com.example.apapunada.data.OrderMenuSample.OrderMenu
+import com.example.apapunada.data.MenuSample.Menus
 import com.example.apapunada.data.OrderSample.Orders
 import com.example.apapunada.model.Cuisine
 import com.example.apapunada.model.Menu
@@ -53,7 +53,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun OrderMenuScreen(
     tabs: List<Cuisine> = FoodCuisines,
-    orderMenu: List<Menu> = OrderMenu,
+    orderMenu: List<Menu> = Menus,
     orderId: Int = 0,
 ) {
     val scrollState = rememberScrollState()
@@ -83,7 +83,7 @@ fun OrderMenuScreen(
                                 selected = true,
                                 onClick = { 
                                           coroutineScope.launch {
-                                              scrollState.animateScrollTo(100)
+                                              scrollState.animateScrollTo(300)
                                               /*TODO*/
                                           }
                                 },
@@ -192,7 +192,7 @@ fun OrderMenuScreen(
     }
 }
 
-@Preview(showBackground = true, apiLevel = 33)
+@Preview(showBackground = true)
 @Composable
 fun OrderMenuScreenPreview() {
     OrderMenuScreen()
