@@ -359,7 +359,7 @@ fun EditProfileScreen() {
         }
         if (triggerPopUp) {
             able = false
-            PopUp(onOk = {
+            ProfilePopUp(onOk = {
                 triggerPopUp = false
                 able = true
             })
@@ -416,7 +416,7 @@ fun EditTextFieldProfile(
 }
 
 @Composable
-fun PopUp(onOk: () -> Unit) {
+fun ProfilePopUp(onOk: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -425,12 +425,12 @@ fun PopUp(onOk: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Surface(
-            modifier = Modifier.padding(dimensionResource(R.dimen.padding_big)),
+            modifier = Modifier.padding(dimensionResource(R.dimen.padding_large)),
             shape = RoundedCornerShape(20.dp),
             color = Color.White
         ) {
             Column(
-                modifier = Modifier.padding(dimensionResource(R.dimen.padding_big))
+                modifier = Modifier.padding(dimensionResource(R.dimen.padding_large))
             ) {
                 Text(
                     text = "SUCCESS",
