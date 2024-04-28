@@ -51,6 +51,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.apapunada.R
 import com.example.apapunada.model.Order
 
@@ -81,13 +83,17 @@ fun MyTopAppBar(profileName: String, @DrawableRes img: Int) {
 }
 
 @Composable
-fun MyBottomNavBar(selectedBar: Int = 1) {
+fun MyBottomNavBar(
+    selectedBar: Int = 1,
+    navController: NavHostController = rememberNavController()
+) {
     val primaryColor = colorResource(R.color.primary)
     val shape = RoundedCornerShape(15.dp, 15.dp, 0.dp, 0.dp)
 
     data class Item(
         val title: @Composable () -> Unit,
-        val icon: @Composable () -> Unit
+        val icon: @Composable () -> Unit,
+        val actions: () -> Unit,
     )
 
     val navItems = listOf(
@@ -104,19 +110,23 @@ fun MyBottomNavBar(selectedBar: Int = 1) {
                     contentDescription = "Home",
                     tint = if (selectedBar == 1) primaryColor else Color.DarkGray
                 )
-            }
+            },
+            actions = { navController.navigate("home") }
         ),
         Item(
             title = { Text(text = "Wait-list")},
-            icon = { Icon(Icons.Rounded.List, contentDescription = "Wait-list") }
+            icon = { Icon(Icons.Rounded.List, contentDescription = "Wait-list") },
+            actions = { navController.navigate("waitlist") }
         ),
         Item(
             title = { Text(text = "Order")},
-            icon = { Icon(Icons.Rounded.ShoppingCart, contentDescription = "Order") }
+            icon = { Icon(Icons.Rounded.ShoppingCart, contentDescription = "Order") },
+            actions = { navController.navigate("order") }
         ),
         Item(
             title = { Text(text = "Rewards")},
-            icon = { Icon(Icons.Rounded.Favorite, contentDescription = "Rewards\"") }
+            icon = { Icon(Icons.Rounded.Favorite, contentDescription = "Rewards\"") },
+            actions = { navController.navigate("rewards") }
         ),
         Item(
             title = {
@@ -131,7 +141,8 @@ fun MyBottomNavBar(selectedBar: Int = 1) {
                     contentDescription = "More",
                     tint = if (selectedBar == 5) primaryColor else Color.DarkGray
                 )
-            }
+            },
+            actions = { navController.navigate("more") }
         ),
     )
     
@@ -150,7 +161,7 @@ fun MyBottomNavBar(selectedBar: Int = 1) {
             navItems.forEachIndexed { _, item ->
                 NavigationBarItem(
                     selected = false,
-                    onClick = { /*TODO*/ },
+                    onClick = item.actions,
                     icon = item.icon,
                     label = item.title,
                 )
@@ -161,7 +172,10 @@ fun MyBottomNavBar(selectedBar: Int = 1) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyTopTitleBar(title: String) {
+fun MyTopTitleBar(
+    title: String,
+    onBackButtonClicked: () -> Unit = {}
+) {
     val scrollBehaviour = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
     CenterAlignedTopAppBar(
@@ -182,7 +196,7 @@ fun MyTopTitleBar(title: String) {
         },
         navigationIcon = {
             IconButton(
-                onClick = { /*TODO*/ }
+                onClick = onBackButtonClicked
             ) {
                 Icon(
                     imageVector = Icons.Rounded.KeyboardArrowLeft,

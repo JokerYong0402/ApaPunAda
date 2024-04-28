@@ -1,4 +1,4 @@
-package com.example.apapunada.ui
+package com.example.apapunada.ui.users
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -38,12 +38,13 @@ import com.example.apapunada.ui.components.MyTopTitleBar
 
 @Composable
 fun OrderOptionScreen(
-    orderOptions: List<OrderOption> = OrderMethod
+    orderOptions: List<OrderOption> = OrderMethod,
+    onBackButtonClicked: () -> Unit
 ) {
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(orderOptions[0]) }
 
     Scaffold(
-        topBar = { MyTopTitleBar(title = "Order") },
+        topBar = { MyTopTitleBar(title = "Order", onBackButtonClicked) },
         bottomBar = { MyBottomButton(content = "Next") }
     ) { innerPadding ->
         Column(
@@ -115,5 +116,5 @@ fun OrderOptionScreen(
 @Preview(showBackground = true)
 @Composable
 fun OrderOptionScreenPreview() {
-    OrderOptionScreen()
+    OrderOptionScreen(onBackButtonClicked = {})
 }

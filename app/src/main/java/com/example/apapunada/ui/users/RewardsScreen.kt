@@ -1,4 +1,4 @@
-package com.example.apapunada.ui
+package com.example.apapunada.ui.users
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -49,7 +49,10 @@ import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RewardsScreen(userPoint: Int) {
+fun RewardsScreen(
+    onBackButtonClicked: () -> Unit,
+    userPoint: Int
+) {
     var isPopUpVisible by remember { mutableStateOf(false) }
     var able by remember { mutableStateOf(true) }
     Box(modifier = Modifier.fillMaxSize()) {
@@ -77,7 +80,7 @@ fun RewardsScreen(userPoint: Int) {
                 navigationIcon = {
                     IconButton(
                         enabled = able,
-                        onClick = { /*TODO*/ }
+                        onClick = onBackButtonClicked
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.KeyboardArrowLeft,
@@ -359,5 +362,5 @@ fun VoucherRM1(onDismiss: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun RewardsScreenPreview() {
-    RewardsScreen(234)
+    RewardsScreen({}, 234)
 }

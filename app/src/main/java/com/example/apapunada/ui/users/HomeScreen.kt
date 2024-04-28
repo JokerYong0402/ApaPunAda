@@ -1,4 +1,4 @@
-package com.example.apapunada.ui
+package com.example.apapunada.ui.users
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -41,6 +41,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.apapunada.R
 import com.example.apapunada.data.MenuSample.Menus
 import com.example.apapunada.model.Menu
@@ -50,6 +52,7 @@ import com.example.apapunada.ui.components.MyTopAppBar
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
+    navController: NavHostController,
     topFoods: List<Menu> = Menus
 ) {
     val primaryColor = colorResource(R.color.primary)
@@ -62,7 +65,7 @@ fun HomeScreen(
                 R.drawable.profile_image
             )
         },
-        bottomBar = { MyBottomNavBar() }
+        bottomBar = { MyBottomNavBar(1, navController) }
     ) { innerPadding ->
         Column(
             modifier = modifier.padding(innerPadding)
@@ -308,5 +311,5 @@ fun HomeScreen(
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
-    HomeScreen()
+    HomeScreen(navController = rememberNavController())
 }

@@ -49,7 +49,10 @@ import com.example.apapunada.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    onBackButtonClicked: () -> Unit,
+    onLoginButtonClicked: () -> Unit
+) {
     val primaryColor = colorResource(R.color.primary)
     var passwordVisible by remember { mutableStateOf(false) }
     var username by remember { mutableStateOf("") }
@@ -61,7 +64,7 @@ fun LoginScreen() {
                 title = {},
                 navigationIcon = {
                     IconButton(
-                        onClick = { /*TODO*/ }
+                        onClick = onBackButtonClicked
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.ArrowBack,
@@ -179,7 +182,7 @@ fun LoginScreen() {
                     modifier = Modifier.width(325.dp)
                 ) {
                     Button(
-                        onClick = { /*TODO*/ },
+                        onClick = onLoginButtonClicked,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = primaryColor
                         ),
@@ -198,9 +201,9 @@ fun LoginScreen() {
         }
     }
 }
-//style = MaterialTheme.typography.headlineSmall
+
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    LoginScreen()
+    LoginScreen({}, {})
 }
