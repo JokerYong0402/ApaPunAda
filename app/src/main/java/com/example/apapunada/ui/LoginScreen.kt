@@ -46,6 +46,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
+import com.example.apapunada.ui.components.EnableScreenOrientation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,6 +54,7 @@ fun LoginScreen(
     onBackButtonClicked: () -> Unit,
     onLoginButtonClicked: () -> Unit
 ) {
+    EnableScreenOrientation()
     val primaryColor = colorResource(R.color.primary)
     var passwordVisible by remember { mutableStateOf(false) }
     var username by remember { mutableStateOf("") }

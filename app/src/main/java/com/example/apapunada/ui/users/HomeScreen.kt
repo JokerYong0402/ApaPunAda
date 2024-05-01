@@ -48,6 +48,7 @@ import com.example.apapunada.data.MenuSample.Menus
 import com.example.apapunada.model.Menu
 import com.example.apapunada.ui.components.MyBottomNavBar
 import com.example.apapunada.ui.components.MyTopAppBar
+import com.example.apapunada.ui.components.SetPortraitOrientationOnly
 
 @Composable
 fun HomeScreen(
@@ -55,6 +56,7 @@ fun HomeScreen(
     navController: NavHostController,
     topFoods: List<Menu> = Menus
 ) {
+    SetPortraitOrientationOnly()
     val primaryColor = colorResource(R.color.primary)
     var imgPager = 1
 
