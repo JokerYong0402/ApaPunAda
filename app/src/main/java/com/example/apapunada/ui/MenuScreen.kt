@@ -1,12 +1,16 @@
 package com.example.apapunada.ui
 
+import android.graphics.Paint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,13 +21,20 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,8 +43,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon.Companion.Text
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -41,151 +54,617 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
+import com.example.apapunada.data.DataOfPopularDishes
+import com.example.apapunada.data.DataSample
+import com.example.apapunada.model.PopularDishes
 import com.example.apapunada.ui.components.MyBottomNavBar
 import com.example.apapunada.ui.components.MyTopTitleBar
 
 @Composable
-fun MenuScreen() {
+fun MenuScreen( middlefood: List<PopularDishes>) {
     var textInput by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = { MyTopTitleBar(title = stringResource(R.string.menu)) },
-        bottomBar = { MyBottomNavBar() }
+        //bottomBar = { MyBottomNavBar() }
     ) { innerPadding ->
-        Surface(modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
         )
         {
             Column(
                 modifier = Modifier.padding(innerPadding)
             ) {
-            // content of page add here
-                Column(
+                // content of page add here
+                /*Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp)
-                        .padding(dimensionResource(R.dimen.padding_small)),
+                        .padding(horizontal = 5.dp, vertical = 5.dp),
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.SpaceEvenly
-                ){
+                ) {
                     Text(
                         text = "Apa Pun Ada Menu",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
                     )
-                }
-                Row (
+                }*/
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp)
-                        .padding(dimensionResource(R.dimen.padding_small)),
+                        .padding(horizontal = 10.dp, vertical  = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
 
-                ){
+                    ) {
                     Image(
                         painter = painterResource(R.drawable.searchicon),
                         contentDescription = "Search Icon",
                         modifier = Modifier
-                            //.padding(dimensionResource(R.dimen.padding_small))
+                            .padding(start = 15.dp)
                             //.fillMaxSize()
                             .size(
                                 width = 30.dp,
                                 height = 30.dp
                             ),
-                        alignment = Alignment.CenterEnd
+                        alignment = Alignment.Center
                     )
-                    SearchBar(
+                    MenuScreenSearchBar(
                         value = textInput,
-                        onValueChange = { textInput = it }
-                        ,
+                        onValueChange = { textInput = it },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(60.dp)
-                        )
+                    )
                 }
-                Row (
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(55.dp)
+                        .padding(horizontal = 5.dp, vertical = 5.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+
+                    ) {
+                    ElevatedButton(
+                        onClick = { /*TODO*/ },
+                        colors = ButtonDefaults.buttonColors(
+                            colorResource(R.color.white)
+                        ),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier
+                            .width(110.dp)
+                            .height(55.dp)
+                            .shadow(5.dp, shape = RoundedCornerShape(10.dp))
+                    ) {
+                        Text(
+                            text = "Western",
+                            fontSize = 13.sp,
+                            textAlign = TextAlign.Center,
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                    }
+                    ElevatedButton(
+                        onClick = { /*TODO*/ },
+                        colors = ButtonDefaults.buttonColors(
+                            colorResource(R.color.white)
+                        ),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier
+                            .width(110.dp)
+                            .height(55.dp)
+                            .shadow(5.dp, shape = RoundedCornerShape(10.dp))
+                    ) {
+                        Text(
+                            text = "Korean",
+                            fontSize = 13.sp,
+                            color = Color.Black,
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                    }
+                    ElevatedButton(
+                        onClick = { /*TODO*/ },
+                        colors = ButtonDefaults.buttonColors(
+                            colorResource(R.color.white)
+                        ),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier
+                            .width(110.dp)
+                            .height(55.dp)
+                            .shadow(5.dp, shape = RoundedCornerShape(10.dp))
+                    ) {
+                        Text(
+                            text = "Malaysian",
+                            fontSize = 13.sp,
+                            color = Color.Black,
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                    }
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(55.dp)
+                        .padding(horizontal = 5.dp, vertical = 5.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+
+                    ) {
+                    ElevatedButton(
+                        onClick = { /*TODO*/ },
+                        colors = ButtonDefaults.buttonColors(
+                            colorResource(R.color.white)
+                        ),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier
+                            .width(110.dp)
+                            .height(55.dp)
+                            .shadow(5.dp, shape = RoundedCornerShape(10.dp))
+                    ) {
+                        Text(
+                            text = "Japanese",
+                            fontSize = 13.sp,
+                            textAlign = TextAlign.Center,
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                    }
+                    ElevatedButton(
+                        onClick = { /*TODO*/ },
+                        colors = ButtonDefaults.buttonColors(
+                            colorResource(R.color.white)
+                        ),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier
+                            .width(110.dp)
+                            .height(55.dp)
+                            .shadow(5.dp, shape = RoundedCornerShape(10.dp))
+                    ) {
+                        Text(
+                            text = "Thai",
+                            fontSize = 13.sp,
+                            color = Color.Black,
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                    }
+                    ElevatedButton(
+                        onClick = { /*TODO*/ },
+                        colors = ButtonDefaults.buttonColors(
+                            colorResource(R.color.white)
+                        ),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier
+                            .width(110.dp)
+                            .height(55.dp)
+                            .shadow(5.dp, shape = RoundedCornerShape(10.dp))
+                    ) {
+                        Text(
+                            text = "Beverage",
+                            fontSize = 13.sp,
+                            color = Color.Black,
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                    }
+                }
+
+                Row( //Popular dish wording
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp)
-                        .padding(dimensionResource(R.dimen.padding_small)),
+                        .padding(horizontal = 15.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
+                    horizontalArrangement = Arrangement.Start,
 
-                    ){
+                    ) {
+                    Text(
+                        text = "Popular Dishes",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
 
+                        )
+                    Spacer(modifier = Modifier.width(130.dp))
+                    TextButton(
+                        onClick = {},
+                        modifier = Modifier.fillMaxSize()
+
+                    ) {
+                        Text(
+                            text = "View all--",
+                            color = colorResource(R.color.primary),
+                            fontSize = 15.sp,
+                            textAlign = TextAlign.End
+
+                        )
+
+                    }
                 }
-                /*Card(
+
+                Row( //Popular dishes pic
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(80.dp)
-                        .padding(horizontal = 35.dp, vertical = 15.dp),
-                    shape = RoundedCornerShape(50.dp)
+                        .height(200.dp)
+                        //.padding(vertical = 10.dp)
+                        .horizontalScroll(rememberScrollState()),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start,
+
+                    ) {
+                    middlefood.forEach { food ->
+                        if (food.popular >= 10000) {
+                            Card(
+                                colors = CardDefaults.cardColors(
+                                    containerColor = Color.White
+                                ),
+                                modifier = Modifier
+                                    .clickable { /*TODO*/ }
+                                    .size(
+                                        160.dp,
+                                        180.dp
+                                    )
+                                    .padding(horizontal = 8.dp)
+                                    .shadow(
+                                        elevation = 15.dp,
+                                    )
+                            ) {
+                                Column(
+                                    verticalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier
+                                        .padding(dimensionResource(R.dimen.padding_small))
+                                        .fillMaxSize()
+                                ) {
+                                    Image(
+                                        painter = painterResource(food.image),
+                                        contentDescription = "Beef Burger",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .height(120.dp)
+                                            .fillMaxWidth()
+                                            //.fillMaxSize()
+                                            .clip(RoundedCornerShape(20.dp, 20.dp))
+                                    )
+                                    Text(
+                                        text = food.name,
+                                        fontSize = 17.sp,
+                                        textAlign = TextAlign.Start
+                                    )
+                                    Row(
+                                        //modifier = Modifier
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Image(
+                                            painter = painterResource(R.drawable.fireicon),
+                                            contentDescription = "Beef Burger",
+                                            contentScale = ContentScale.Crop,
+                                            modifier = Modifier
+                                                .height(25.dp)
+                                                .width(25.dp)
+                                            //.clip(RoundedCornerShape(16.dp, 16.dp))
+                                        )
+                                        Text(
+                                            text = (food.popular).toString(),
+                                            fontSize = 14.sp,
+                                            textAlign = TextAlign.Start
+                                        )
 
 
-                ){
+                                    }
 
-                }*/
+
+                                }
+
+                            }
+                        }
+                    }
+                }
+
+                Row(
+                    //Popular dish wording
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp)
+                        .padding(horizontal = 15.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start,
+
+                    ) {
+                    Text(
+                        text = "Recommended",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+
+                        )
+                    Spacer(modifier = Modifier.width(130.dp))
+                    TextButton(
+                        onClick = {},
+                        modifier = Modifier
+                            .fillMaxSize(),
+                    ) {
+                        Text(
+                            text = "View all--",
+                            color = colorResource(R.color.primary),
+                            fontSize = 15.sp,
+                            textAlign = TextAlign.End
+
+                        )
+
+                    }
+                }
+
+                Row( //Popular dishes pic
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        //.padding(vertical = 10.dp)
+                        .horizontalScroll(rememberScrollState()),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start,
+
+                    ) {
+                    middlefood.forEach { food ->
+                        if (food.popular >= 10000) {
+                            Card(
+                                colors = CardDefaults.cardColors(
+                                    containerColor = Color.White
+                                ),
+                                modifier = Modifier
+                                    .size(
+                                        250.dp,
+                                        200.dp
+                                    )
+                                    .padding(horizontal = 8.dp)
+                                    .shadow(
+                                        elevation = 15.dp,
+                                    )
+                            ) {
+                                Column(
+                                    verticalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier
+                                        .padding(dimensionResource(R.dimen.padding_small))
+                                        .fillMaxSize()
+                                ) {
+                                    Image(
+                                        painter = painterResource(food.image),
+                                        contentDescription = "Beef Burger",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .height(120.dp)
+                                            .fillMaxWidth()
+                                            //.fillMaxSize()
+                                            .clip(RoundedCornerShape(20.dp, 20.dp))
+                                    )
+                                    Text(
+                                        text = food.name,
+                                        fontSize = 17.sp,
+                                        textAlign = TextAlign.Start
+                                    )
+                                    Row(
+                                        //modifier = Modifier
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Image(
+                                            painter = painterResource(R.drawable.staricon),
+                                            contentDescription = "Beef Burger",
+                                            contentScale = ContentScale.Crop,
+                                            modifier = Modifier
+                                                .height(25.dp)
+                                                .width(25.dp)
+                                            //.clip(RoundedCornerShape(16.dp, 16.dp))
+                                        )
+                                        Text(
+                                            text = (food.popular).toString(),
+                                            fontSize = 14.sp,
+                                            textAlign = TextAlign.Start
+                                        )
+
+
+                                    }
+
+
+                                }
+
+                            }
+                        }
+                    }
+                }
+                Row( //ALL dish wording
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp)
+                        .padding(horizontal = 15.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start,
+
+                    ) {
+                    Text(
+                        text = "All",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+
+                        )
+                    Spacer(modifier = Modifier.width(240.dp))
+                    TextButton(
+                        onClick = {},
+                        modifier = Modifier.fillMaxSize()
+
+                    ) {
+                        Text(
+                            text = "View all--",
+                            color = colorResource(R.color.primary),
+                            fontSize = 15.sp,
+                            textAlign = TextAlign.End
+
+                        )
+
+                    }
+                }
+                Row( //All dishes pic
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        //.padding(vertical = 10.dp)
+                        .horizontalScroll(rememberScrollState()),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start,
+
+                    ) {
+                    middlefood.forEach { food ->
+                        if (food.popular != 0) {
+                            Card(
+                                colors = CardDefaults.cardColors(
+                                    containerColor = Color.White
+                                ),
+                                modifier = Modifier
+                                    .clickable { /*TODO*/ }
+                                    .size(
+                                        160.dp,
+                                        180.dp
+                                    )
+                                    .padding(horizontal = 8.dp)
+                                    .shadow(
+                                        elevation = 15.dp,
+                                    )
+                            ) {
+                                Column(
+                                    verticalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier
+                                        .padding(dimensionResource(R.dimen.padding_small))
+                                        .fillMaxSize()
+                                ) {
+                                    Image(
+                                        painter = painterResource(food.image),
+                                        contentDescription = food.name,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .height(120.dp)
+                                            .fillMaxWidth()
+                                            //.fillMaxSize()
+                                            .clip(RoundedCornerShape(20.dp, 20.dp))
+                                    )
+                                    Text(
+                                        text = food.name,
+                                        fontSize = 17.sp,
+                                        textAlign = TextAlign.Start
+                                    )
+                                    Row(
+                                        //modifier = Modifier
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Image(
+                                            painter = painterResource(R.drawable.fireicon),
+                                            contentDescription = "",
+                                            contentScale = ContentScale.Crop,
+                                            modifier = Modifier
+                                                .height(25.dp)
+                                                .width(25.dp)
+                                            //.clip(RoundedCornerShape(16.dp, 16.dp))
+                                        )
+                                        Text(
+                                            text = (food.popular).toString(),
+                                            fontSize = 14.sp,
+                                            textAlign = TextAlign.Start
+                                        )
+
+
+                                    }
+
+
+                                }
+
+                            }
+                        }
+                    }
+                }
 
             }
         }
     }
 }
 
+
+
 @Composable
-fun SearchBar(
+fun MenuScreenSearchBar(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier
-){
+) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
+        singleLine = true,
         modifier = modifier
-            .padding(horizontal = 20.dp)
-            .background(color = Color.White)
+            .padding(start = 5.dp, end = 20.dp)
+            //.fillMaxSize()
             .height(60.dp)
             .clip(
                 shape = RoundedCornerShape(
-                    size = 12.dp,
+                    size = 20.dp,
 
-                ),
+                    ),
             )
+            .background(color = Color.LightGray)
             .border(
-                BorderStroke(width = 1.dp, colorResource(R.color.black)),
+                BorderStroke(width = 1.dp, colorResource(R.color.primary)),
                 shape = RoundedCornerShape(
-                    size = 12.dp,
+                    size = 20.dp,
                 )
-            )
-        ,
-        shape = RoundedCornerShape(12.dp),
+            ),
+        shape = RoundedCornerShape(20.dp),
         placeholder = {
             Text(
-            text = "Search",
-            fontSize = 10.sp,
-            color = colorResource(id = R.color.black),
-            modifier = modifier
+                text = "Search",
+                fontSize = 10.sp,
+                color = colorResource(id = R.color.black),
+                modifier = modifier
+                    .fillMaxSize()
+                    //.height(20.dp)
                 //.padding(bottom = 100.dp)
-        )},
+            )
+        },
         //Design for the text that user type in
         textStyle = TextStyle(
             fontSize = 12.sp,
             color = colorResource(id = R.color.white)
         ),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-        )
+    )
 }
-
-
 
 @Preview(showBackground = true)
 @Composable
 fun MenuScreenPreview() {
-    MenuScreen(
-    )
+    MenuScreen(DataOfPopularDishes.PopularMenu)
 }

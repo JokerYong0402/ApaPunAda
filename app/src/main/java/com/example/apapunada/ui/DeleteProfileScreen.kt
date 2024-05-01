@@ -153,7 +153,7 @@ fun DeleteProfileScreen() {
         }
         if (triggerDltPopUp) {
             dltable = false
-            DeletePopUp(onConfirm = {
+            DeleteProfilePopUp(onConfirm = {
                 triggerDltPopUp = false
                 dltable = true
             })
@@ -212,7 +212,7 @@ fun DeleteAcctComment(
 
 
 @Composable
-fun DeletePopUp(onConfirm: () -> Unit) {
+fun DeleteProfilePopUp(onConfirm: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()

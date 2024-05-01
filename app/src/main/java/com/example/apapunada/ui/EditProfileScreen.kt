@@ -19,12 +19,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,12 +48,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
 import com.example.apapunada.ui.components.MyTopTitleBar
+import androidx.compose.material3.ElevatedButton as ElevatedButton
 
 @Composable
 fun EditProfileScreen() {
     var textInput by remember { mutableStateOf("") }
-    var triggerPopUp by remember { mutableStateOf(true) }
+    //var triggerPopUp by remember { mutableStateOf(true) }
     var able by remember { mutableStateOf(true) }
+    var openAlertDialog by remember { mutableStateOf(false) }
+
 
     Scaffold(
         topBar = { MyTopTitleBar(title = stringResource(R.string.edit_profile)) },
@@ -68,7 +74,7 @@ fun EditProfileScreen() {
                 Column(//Profile Picture
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(180.dp),
+                        .height(190.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceEvenly
                 ) {
@@ -84,13 +90,17 @@ fun EditProfileScreen() {
                             .clip(CircleShape)
                             .padding(dimensionResource(R.dimen.padding_medium))
                     )
-                    Text(//Change profile picture
+                    TextButton(//Change profile picture
+                        onClick = {},
                         modifier = Modifier
-                            .clickable { },
-                        text = "Change Profile Picture",
-                        fontSize = 16.sp,
-                        color = colorResource(id = R.color.primary)
-                    )
+
+                    ){
+                        Text(
+                            "Change Profile Picture",
+
+                        )
+
+                    }
 
                 }
                 Row(//EDIT NAME
@@ -333,8 +343,8 @@ fun EditProfileScreen() {
                     }
                 }
 
-                Button(
-                    onClick = { triggerPopUp = true },
+                ElevatedButton(
+                    onClick = { openAlertDialog = true },
                     enabled = able,
                     colors = ButtonDefaults.buttonColors(
                         colorResource(R.color.primary)
@@ -356,13 +366,6 @@ fun EditProfileScreen() {
             }
 
 
-        }
-        if (triggerPopUp) {
-            able = false
-            PopUp(onOk = {
-                triggerPopUp = false
-                able = true
-            })
         }
     }
 }
@@ -415,54 +418,47 @@ fun EditTextFieldProfile(
         )
 }
 
-@Composable
-fun PopUp(onOk: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = Color.Black.copy(alpha = 0.5f)),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Surface(
-            modifier = Modifier.padding(dimensionResource(R.dimen.padding_big)),
-            shape = RoundedCornerShape(20.dp),
-            color = Color.White
-        ) {
-            Column(
-                modifier = Modifier.padding(dimensionResource(R.dimen.padding_big))
-            ) {
-                Text(
-                    text = "SUCCESS",
-                    fontSize = 16.sp
-                )
-
-                Text(
-                    text = "Your Profile has been Updated.",
-                    fontSize = 14.sp
-                )
-                Button(
-                    onClick = { },
-                    colors = ButtonDefaults.buttonColors(
-                        colorResource(R.color.primary)
-                    ),
-                    shape = RoundedCornerShape(50.dp),
-                    modifier = Modifier
-                        .width(200.dp)
-                        .height(65.dp)
-                        .padding(horizontal = 10.dp, vertical = 10.dp)
-                        .align(Alignment.CenterHorizontally)
-                ) {
-                    Text(
-                        text = stringResource(R.string.ok),
-                        fontSize = 16.sp
-                    )
+@Composable//TODO not yet done popup
+fun EditProfilePopUp(onDismissRequest: () -> Unit,
+          onConfirmation: () -> Unit,
+          dialogTitle: String,
+          dialogText: String )
+{
+    AlertDialog(
+        title = {
+            Text(text = dialogTitle)
+        },
+        text = {
+            Text(text = dialogText)
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirmation()
                 }
+            ) {
+                Text("Confirm")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text("Dismiss")
             }
         }
-    }
+    )
 }
 
+@Composable
+fun ChangeProfilePic(){
+
+}
 
 
 
