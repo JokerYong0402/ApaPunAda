@@ -1,4 +1,4 @@
-package com.example.apapunada.ui
+package com.example.apapunada.ui.users
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -64,7 +64,7 @@ fun DeleteProfileScreen() {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(dimensionResource(R.dimen.padding_big))
+                        .padding(dimensionResource(R.dimen.padding_large))
                         .height(180.dp),
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.Top
@@ -103,7 +103,7 @@ fun DeleteProfileScreen() {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(dimensionResource(R.dimen.padding_big))
+                        .padding(dimensionResource(R.dimen.padding_large))
                         .height(40.dp),
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.Top
@@ -222,13 +222,13 @@ fun DeleteProfilePopUp(onConfirm: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Surface(
-            modifier = Modifier.padding(dimensionResource(R.dimen.padding_big))
+            modifier = Modifier.padding(dimensionResource(R.dimen.padding_large))
                 .height(180.dp),
             shape = RoundedCornerShape(20.dp),
             color = Color.White,
         ) {
             Column(
-                modifier = Modifier.padding(dimensionResource(R.dimen.padding_big))
+                modifier = Modifier.padding(dimensionResource(R.dimen.padding_large))
             ) {
                 Text(
                     text = "CONFIRMATION",
