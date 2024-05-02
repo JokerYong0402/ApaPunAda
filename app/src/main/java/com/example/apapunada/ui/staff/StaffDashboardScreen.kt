@@ -3,14 +3,12 @@ package com.example.apapunada.ui.staff
 import android.content.res.Configuration
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.tooling.preview.Devices.TABLET
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-fun StaffHomeScreen(
-    modifier: Modifier = Modifier,
-) {
+fun StaffDashboardScreen() {
     val configuration = LocalConfiguration.current
     when (configuration.orientation) {
         Configuration.ORIENTATION_LANDSCAPE -> {
@@ -22,8 +20,24 @@ fun StaffHomeScreen(
     }
 }
 
+@Composable
+fun StaffDashboardPortrait() {
+
+}
+
+@Composable
+fun StaffDashboardLandscape() {
+
+}
+
 @Preview(showBackground = true)
 @Composable
-fun StaffHomeScreenPreview(){
-    StaffHomeScreen()
+fun StaffDashboardPortraitPreview(){
+    StaffDashboardScreen()
+}
+
+@Preview(showBackground = true, device = TABLET)
+@Composable
+fun StaffDashboardLandscapePreview(){
+    StaffDashboardScreen()
 }
