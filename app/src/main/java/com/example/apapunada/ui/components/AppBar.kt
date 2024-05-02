@@ -384,11 +384,6 @@ fun StaffAppBarLandscape(
     )
 }
 
-@Composable
-fun StaffSideBar() {
-
-}
-
 @Preview(showBackground = true, device = PHONE)
 @Composable
 fun CommonUiPortraitPreview() {

@@ -4,7 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -125,48 +125,51 @@ fun StaffUI(
         drawerState = drawerState,
         gesturesEnabled = true,
         drawerContent = {
-            ModalDrawerSheet(
-                modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .fillMaxHeight()
-            ) {
+            ModalDrawerSheet {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(colorResource(R.color.primary))
-                        .height(150.dp)
+                        .height(100.dp)
                 ) {
                     Text(text = stringResource(R.string.app_name))
                 }
 
-                Divider()
-                enumValues<StaffScreen>().forEach { screen ->
-                    NavigationDrawerItem(
-                        icon = {
-                            Icon(
-                                painter = painterResource(screen.icon),
-                                contentDescription = stringResource(screen.title),
-                                modifier = Modifier.size(25.dp)
-                            )
-                        },
-                        label = { Text(
-                            text = screen.name,
-                            color = Color.White
-                        ) },
-                        selected = true,
-                        onClick = {
-                            coroutineScope.launch {
-                                drawerState.close()
-                            }
-                            navController.navigate(screen.name){
-                                popUpTo(0)
-                            }
-                        },
-                        colors = NavigationDrawerItemDefaults.colors(
-                            colorResource(R.color.primary)
-                        ),
-                        modifier = Modifier.padding(5.dp)
-                    )
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState())
+                ) {
+                    enumValues<StaffScreen>().forEach { screen ->
+                        NavigationDrawerItem(
+                            icon = {
+                                Icon(
+                                    painter = painterResource(screen.icon),
+                                    contentDescription = stringResource(screen.title),
+                                    modifier = Modifier.size(25.dp)
+                                )
+                            },
+                            label = {
+                                Text(
+                                    text = screen.name,
+                                    color = Color.Black
+                                )
+                            },
+                            selected = true,
+                            onClick = {
+                                coroutineScope.launch {
+                                    drawerState.close()
+                                }
+                                navController.navigate(screen.name) {
+                                    popUpTo(0)
+                                }
+                            },
+                            colors = NavigationDrawerItemDefaults.colors(
+//                                colorResource(R.color.primary)
+                                Color.Transparent
+                            ),
+                            modifier = Modifier.padding(5.dp)
+                        )
+                        Divider()
+                    }
                 }
             }
         },
@@ -236,5 +239,5 @@ fun StaffNavigation(
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun ApaPunAdaAppPreview() {
-    ApaPunAdaApp()
+    StaffUI()
 }
