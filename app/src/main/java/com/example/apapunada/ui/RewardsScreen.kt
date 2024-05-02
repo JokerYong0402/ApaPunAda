@@ -235,7 +235,7 @@ fun RewardsScreen(userPoint: Int) {
         }
         if (isPopUpVisible) {
             able = false
-            PopUp(onDismiss = {
+            RewardPopUp(onDismiss = {
                 isPopUpVisible = false
                 able = true
             })
@@ -244,7 +244,7 @@ fun RewardsScreen(userPoint: Int) {
 }
 
 @Composable
-fun PopUp(onDismiss: () -> Unit) {
+fun RewardPopUp(onDismiss: () -> Unit) {
     Column(modifier = Modifier
         .fillMaxSize()
         .background(color = Color.Black.copy(alpha = 0.5f))

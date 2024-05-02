@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.apapunada.ui.AboutUsScreen
 import com.example.apapunada.ui.DeleteProfileScreen
 import com.example.apapunada.ui.EditProfileScreen
 import com.example.apapunada.ui.IntroductionPager
@@ -19,6 +21,7 @@ import com.example.apapunada.ui.components.MyTopAppBar
 import com.example.apapunada.ui.theme.ApaPunAdaTheme
 import com.example.apapunada.ui.MenuScreen
 import com.example.apapunada.ui.MoreScreen
+import com.example.apapunada.ui.VoucherRedeem
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,7 +56,9 @@ fun ApaPunAda() {
             //IntroductionPager()
             //ProfileScreen()
             //EditProfileScreen()
-            DeleteProfileScreen()
+            //DeleteProfileScreen()
+            //VoucherRedeem(painterResource(R.drawable.voucher_rm1),"RM1",234)
+            AboutUsScreen()
         }
     }
 }
