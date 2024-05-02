@@ -19,12 +19,15 @@ import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.rounded.List
+import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,8 +37,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,17 +53,27 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Devices.PHONE
+import androidx.compose.ui.tooling.preview.Devices.TABLET
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.apapunada.R
+import com.example.apapunada.StaffScreen
 import com.example.apapunada.model.Order
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyTopAppBar(profileName: String, @DrawableRes img: Int) {
+fun MyTopAppBar(
+    profileName: String, 
+    @DrawableRes img: Int
+) {
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+
     TopAppBar(
         title = {
             Text(text = stringResource(R.string.app_name).uppercase(),
@@ -77,7 +92,7 @@ fun MyTopAppBar(profileName: String, @DrawableRes img: Int) {
                     .clickable { /* TODO */ }
             )
         },
-        scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
+        scrollBehavior = scrollBehavior,
         modifier = Modifier.fillMaxWidth()
     )
 }
@@ -125,7 +140,7 @@ fun MyBottomNavBar(
         ),
         Item(
             title = { Text(text = "Rewards")},
-            icon = { Icon(Icons.Rounded.Favorite, contentDescription = "Rewards\"") },
+            icon = { Icon(Icons.Rounded.Favorite, contentDescription = "Rewards") },
             actions = { navController.navigate("rewards") }
         ),
         Item(
@@ -176,7 +191,7 @@ fun MyTopTitleBar(
     title: String,
     onBackButtonClicked: () -> Unit = {}
 ) {
-    val scrollBehaviour = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
@@ -205,7 +220,7 @@ fun MyTopTitleBar(
                 )
             }
         },
-        scrollBehavior = scrollBehaviour,
+        scrollBehavior = scrollBehavior,
         modifier = Modifier
             .padding(dimensionResource(R.dimen.padding_small))
             .clip(RoundedCornerShape(16.dp))
@@ -261,17 +276,140 @@ fun MyBottomButton(content: String, order: Order? = null, price: Double? = null)
     }
 }
 
-@Preview(showBackground = true)
+//@Composable
+//fun StaffTopAppBar(
+//    modifier: Modifier = Modifier,
+//    coroutineScope: CoroutineScope = rememberCoroutineScope()
+//) {
+//    val configuration = LocalConfiguration.current
+//    when (configuration.orientation) {
+//        Configuration.ORIENTATION_LANDSCAPE -> {
+//            StaffAppBarLandscape()
+//        }
+//        else -> {
+//            StaffAppBarPortrait()
+//        }
+//    }
+//}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CommonUiPreview() {
+fun StaffAppBarPortrait(
+    currentScreen: StaffScreen,
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
+    drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+) {
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+
+    CenterAlignedTopAppBar(
+        title = {
+            Text(
+                text = stringResource(currentScreen.title),
+                fontWeight = FontWeight.Bold,
+                fontSize = 24.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.width(250.dp)
+            )
+        },
+        navigationIcon = {
+            IconButton(
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState.open()
+                    }
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Menu,
+                    contentDescription = "side navigation bar",
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        },
+        actions = {
+            Image(
+                painter = painterResource(R.drawable.profile_image),
+                contentDescription = "staff",
+                modifier = Modifier
+                    .size(45.dp)
+            )
+        },
+        scrollBehavior = scrollBehavior,
+        modifier = Modifier
+            .padding(dimensionResource(R.dimen.padding_small))
+            .clip(RoundedCornerShape(16.dp))
+            .shadow(10.dp)
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun StaffAppBarLandscape(
+    modifier: Modifier = Modifier
+) {
+    val appName = stringResource(R.string.app_name)
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+
+    CenterAlignedTopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = colorResource(R.color.primary_200),
+            titleContentColor = Color.Black,
+        ),
+        title = {
+            Text(
+                text = appName,
+                fontWeight = FontWeight.Bold,
+                fontSize = 24.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.width(250.dp)
+            )
+        },
+        actions = {
+            Image(
+                painter = painterResource(R.drawable.profile_image),
+                contentDescription = "staff",
+                modifier = Modifier
+                    .size(45.dp)
+            )
+        },
+        scrollBehavior = scrollBehavior,
+        modifier = Modifier
+            .padding(dimensionResource(R.dimen.padding_small))
+            .clip(RoundedCornerShape(16.dp))
+            .shadow(10.dp)
+    )
+}
+
+@Preview(showBackground = true, device = PHONE)
+@Composable
+fun CommonUiPortraitPreview() {
     Scaffold(
-        topBar = { MyTopTitleBar(title = "Order") },
-        bottomBar = { MyBottomButton(content = "Next") }
+        topBar = { StaffAppBarPortrait(StaffScreen.Dashboard) },
+        bottomBar = { }
     ) { innerPadding ->
         Column(
             modifier = Modifier.padding(innerPadding)
         ) {
-            // content of page
+
+        }
+    }
+}
+
+@Preview(showBackground = true, device = TABLET)
+@Composable
+fun CommonUiLandscapePreview() {
+    Scaffold(
+        topBar = { StaffAppBarLandscape() },
+        bottomBar = {  }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier.padding(innerPadding)
+        ) {
+
         }
     }
 }

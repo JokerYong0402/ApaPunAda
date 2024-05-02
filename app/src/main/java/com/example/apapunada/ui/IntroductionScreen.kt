@@ -48,7 +48,7 @@ fun IntroductionPager(
     initialPage: Int = 0,
     onPagerChange: (Int) -> Unit = {},
     onLoginButtonClicked: () -> Unit,
-    onSignUpButtonClicked: () -> Unit ={}
+    onSignUpButtonClicked: () -> Unit = {}
 ) {
     val pagerState = rememberPagerState(initialPage) {
         3
@@ -59,7 +59,7 @@ fun IntroductionPager(
             selectedPage = currentPage + 1,
             onPagerClick = onPagerChange,
             onLoginButtonClicked = onLoginButtonClicked,
-            onSignUpButtonClicked = {}
+            onSignUpButtonClicked = onSignUpButtonClicked
             )
     }
 }
@@ -223,7 +223,10 @@ fun IntroductionScreen(
                             .size(50.dp)
                             .padding(10.dp)
                             .clip(CircleShape)
-                            .clickable { onPagerClick(i) },
+                            .clickable {
+                                onPagerClick(i)
+                                imgPager = i
+                                       },
                         onDraw = {
                             drawCircle(color = primaryColor, radius = this.size.minDimension / 3.5f)
                             drawCircle(color = primaryColor, radius = this.size.minDimension / 4.5f)
@@ -235,7 +238,10 @@ fun IntroductionScreen(
                             .size(50.dp)
                             .padding(10.dp)
                             .clip(CircleShape)
-                            .clickable { onPagerClick(i) },
+                            .clickable {
+                                onPagerClick(i)
+                                imgPager = i
+                                       },
                         onDraw = {
                             drawCircle(color = primaryColor, radius = this.size.minDimension / 3.5f)
                             drawCircle(color = Color.White, radius = this.size.minDimension / 4.5f)
