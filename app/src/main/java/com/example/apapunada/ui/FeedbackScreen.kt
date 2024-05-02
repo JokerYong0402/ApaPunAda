@@ -410,9 +410,20 @@ fun FeedbackScreen(
                     modifier = modifier
                         .padding(top = 50.dp, start = 30.dp)
                 )
-                uploadImage()
+                Image(
+                    painter = painterResource(id = R.drawable.feedback3),
+                    contentDescription = "1",
+                    modifier = Modifier
+                        .size(
+                            width = 100.dp,
+                            height = 70.dp
+                        )
+                        .clickable(
+                            onClick = {}
+                        )
+                        .padding(start = 30.dp)
+                )
             }
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -505,7 +516,7 @@ fun uploadImage() {
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     val context = LocalContext.current
     val bitmap = remember { mutableStateOf<Bitmap?>(null) }
-    
+
     val laucher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()){uri: Uri? ->
         imageUri = uri
     }
@@ -555,6 +566,69 @@ fun uploadImage() {
         }
     }
 }
+@Composable
+fun successScreen(){
+    Column (
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        Column (
+            horizontalAlignment = Alignment.End,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(18.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.feedback5),
+                contentDescription = "feedback5",
+                modifier = Modifier
+                    .size(18.dp)
+            )
+        }
+        Column (
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 150.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.feedback4),
+                contentDescription = "feedback4",
+                modifier = Modifier
+                    .size(100.dp)
+            )
+        }
+        Column (
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = stringResource(id = R.string.feedback_7),
+                fontSize = 23.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(top = 30.dp)
+            )
+        }
+        Column (
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = stringResource(id = R.string.feedback_8),
+                fontSize = 18.sp,
+                color = Color.Gray,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(top = 30.dp)
+            )
+        }
+    }
+
+}
+
 @Preview(showBackground = true)
 @Composable
 fun FeedbackScreenPreview() {
