@@ -2,6 +2,13 @@
 
 package com.example.apapunada.ui
 
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
@@ -40,6 +47,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -57,6 +65,8 @@ import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role.Companion.Button
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
@@ -137,7 +147,9 @@ fun FeedbackScreen(
         else -> R.drawable.feedback1
     }
     //surface is to make it scrollable
-    Surface(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+    Surface(modifier = Modifier
+        .fillMaxSize()
+        .verticalScroll(rememberScrollState())) {
 
         Column(
             modifier = modifier
@@ -398,20 +410,9 @@ fun FeedbackScreen(
                     modifier = modifier
                         .padding(top = 50.dp, start = 30.dp)
                 )
-                Image(
-                    painter = painterResource(id = R.drawable.feedback3),
-                    contentDescription = "1",
-                    modifier = Modifier
-                        .size(
-                            width = 100.dp,
-                            height = 70.dp
-                        )
-                        .clickable(
-                            onClick = {}
-                        )
-                        .padding(start = 30.dp)
-                )
+                uploadImage()
             }
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -499,6 +500,61 @@ fun EditTextField(
     )
 }
 
+@Composable
+fun uploadImage() {
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    val context = LocalContext.current
+    val bitmap = remember { mutableStateOf<Bitmap?>(null) }
+    
+    val laucher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()){uri: Uri? ->
+        imageUri = uri
+    }
+
+   Row (
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+       Image(
+           painter = painterResource(id = R.drawable.feedback3),
+           contentDescription = "1",
+           modifier = Modifier
+               .size(
+                   width = 100.dp,
+                   height = 70.dp
+               )
+               .clickable(
+                   onClick = {
+                       laucher.launch("image/*")
+                   }
+               )
+               .padding(start = 30.dp)
+       )
+
+        imageUri?.let {
+            if (Build.VERSION.SDK_INT < 28){
+                bitmap.value = MediaStore.Images
+                    .Media.getBitmap(context.contentResolver, it)
+            } else {
+                val source = ImageDecoder.createSource(context.contentResolver, it)
+                bitmap.value = ImageDecoder.decodeBitmap(source)
+            }
+
+            bitmap.value?.let { btm ->
+                Image(
+                    bitmap = btm.asImageBitmap(),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(
+                            width = 85.dp,
+                            height = 70.dp
+                        )
+                        .padding(start = 10.dp)
+                        .border(BorderStroke(1.dp, colorResource(id = R.color.primary)))
+                )
+            }
+        }
+    }
+}
 @Preview(showBackground = true)
 @Composable
 fun FeedbackScreenPreview() {

@@ -359,7 +359,7 @@ fun EditProfileScreen() {
         }
         if (triggerPopUp) {
             able = false
-            PopUp(onOk = {
+            PopUp1(onOk = {
                 triggerPopUp = false
                 able = true
             })
@@ -416,7 +416,7 @@ fun EditTextFieldProfile(
 }
 
 @Composable
-fun PopUp(onOk: () -> Unit) {
+fun PopUp1(onOk: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
