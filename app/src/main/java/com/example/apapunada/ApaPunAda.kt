@@ -41,10 +41,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import com.example.apapunada.ui.IntroductionPager
 import com.example.apapunada.ui.LoginScreen
+import com.example.apapunada.ui.MenuScreen
 import com.example.apapunada.ui.components.StaffAppBarPortrait
 import com.example.apapunada.ui.staff.StaffDashboardScreen
 import com.example.apapunada.ui.users.HomeScreen
-import com.example.apapunada.ui.users.MenuScreen
 import com.example.apapunada.ui.users.MoreScreen
 import com.example.apapunada.ui.users.OrderOptionScreen
 import com.example.apapunada.ui.users.RewardsScreen
