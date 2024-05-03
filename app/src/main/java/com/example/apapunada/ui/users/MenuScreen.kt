@@ -60,14 +60,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
-import com.example.apapunada.data.DataOfPopularDishes
-import com.example.apapunada.data.DataSample
-import com.example.apapunada.model.PopularDishes
+import com.example.apapunada.data.MenuSample
+import com.example.apapunada.model.Menu
 import com.example.apapunada.ui.components.MyBottomNavBar
 import com.example.apapunada.ui.components.MyTopTitleBar
 
 @Composable
-fun MenuScreen( middlefood: List<PopularDishes>) {
+fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
+
     var textInput by remember { mutableStateOf("") }
 
     Scaffold(
@@ -322,8 +322,8 @@ fun MenuScreen( middlefood: List<PopularDishes>) {
                     horizontalArrangement = Arrangement.Start,
 
                     ) {
-                    middlefood.forEach { food ->
-                        if (food.popular >= 10000) {
+                    menus.forEach { menu ->
+                        if (menu.rating >= 3.0) {
                             Card(
                                 colors = CardDefaults.cardColors(
                                     containerColor = Color.White
@@ -346,7 +346,7 @@ fun MenuScreen( middlefood: List<PopularDishes>) {
                                         .fillMaxSize()
                                 ) {
                                     Image(
-                                        painter = painterResource(food.image),
+                                        painter = painterResource(menu.image),
                                         contentDescription = "Beef Burger",
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
@@ -356,7 +356,7 @@ fun MenuScreen( middlefood: List<PopularDishes>) {
                                             .clip(RoundedCornerShape(20.dp, 20.dp))
                                     )
                                     Text(
-                                        text = food.name,
+                                        text = menu.name,
                                         fontSize = 17.sp,
                                         textAlign = TextAlign.Start
                                     )
@@ -374,7 +374,7 @@ fun MenuScreen( middlefood: List<PopularDishes>) {
                                             //.clip(RoundedCornerShape(16.dp, 16.dp))
                                         )
                                         Text(
-                                            text = (food.popular).toString(),
+                                            text = (menu.rating).toString(),
                                             fontSize = 14.sp,
                                             textAlign = TextAlign.Start
                                         )
@@ -390,8 +390,7 @@ fun MenuScreen( middlefood: List<PopularDishes>) {
                     }
                 }
 
-                Row(
-                    //Popular dish wording
+                Row( //Recommended dish wording
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp)
@@ -423,7 +422,7 @@ fun MenuScreen( middlefood: List<PopularDishes>) {
                     }
                 }
 
-                Row( //Popular dishes pic
+                Row( //Recommended dishes pic
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(200.dp)
@@ -433,13 +432,14 @@ fun MenuScreen( middlefood: List<PopularDishes>) {
                     horizontalArrangement = Arrangement.Start,
 
                     ) {
-                    middlefood.forEach { food ->
-                        if (food.popular >= 10000) {
+                    menus.forEach { menu ->
+                        if (menu.rating >= 3.0) {
                             Card(
                                 colors = CardDefaults.cardColors(
                                     containerColor = Color.White
                                 ),
                                 modifier = Modifier
+                                    .clickable{/*TODO*/}
                                     .size(
                                         250.dp,
                                         200.dp
@@ -456,7 +456,7 @@ fun MenuScreen( middlefood: List<PopularDishes>) {
                                         .fillMaxSize()
                                 ) {
                                     Image(
-                                        painter = painterResource(food.image),
+                                        painter = painterResource(menu.image),
                                         contentDescription = "Beef Burger",
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
@@ -466,7 +466,7 @@ fun MenuScreen( middlefood: List<PopularDishes>) {
                                             .clip(RoundedCornerShape(20.dp, 20.dp))
                                     )
                                     Text(
-                                        text = food.name,
+                                        text = menu.name,
                                         fontSize = 17.sp,
                                         textAlign = TextAlign.Start
                                     )
@@ -484,7 +484,7 @@ fun MenuScreen( middlefood: List<PopularDishes>) {
                                             //.clip(RoundedCornerShape(16.dp, 16.dp))
                                         )
                                         Text(
-                                            text = (food.popular).toString(),
+                                            text = (menu.rating).toString(),
                                             fontSize = 14.sp,
                                             textAlign = TextAlign.Start
                                         )
@@ -540,8 +540,8 @@ fun MenuScreen( middlefood: List<PopularDishes>) {
                     horizontalArrangement = Arrangement.Start,
 
                     ) {
-                    middlefood.forEach { food ->
-                        if (food.popular != 0) {
+                    menus.forEach { menu ->
+                        if (menu.rating != 0.00) {
                             Card(
                                 colors = CardDefaults.cardColors(
                                     containerColor = Color.White
@@ -564,17 +564,16 @@ fun MenuScreen( middlefood: List<PopularDishes>) {
                                         .fillMaxSize()
                                 ) {
                                     Image(
-                                        painter = painterResource(food.image),
-                                        contentDescription = food.name,
+                                        painter = painterResource(menu.image),
+                                        contentDescription = menu.name,
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
                                             .height(120.dp)
                                             .fillMaxWidth()
-                                            //.fillMaxSize()
                                             .clip(RoundedCornerShape(20.dp, 20.dp))
                                     )
                                     Text(
-                                        text = food.name,
+                                        text = menu.name,
                                         fontSize = 17.sp,
                                         textAlign = TextAlign.Start
                                     )
@@ -592,7 +591,7 @@ fun MenuScreen( middlefood: List<PopularDishes>) {
                                             //.clip(RoundedCornerShape(16.dp, 16.dp))
                                         )
                                         Text(
-                                            text = (food.popular).toString(),
+                                            text = (menu.rating).toString(),
                                             fontSize = 14.sp,
                                             textAlign = TextAlign.Start
                                         )
@@ -666,5 +665,5 @@ fun MenuScreenSearchBar(
 @Preview(showBackground = true)
 @Composable
 fun MenuScreenPreview() {
-    MenuScreen(DataOfPopularDishes.PopularMenu)
+    MenuScreen(MenuSample.Menus)
 }

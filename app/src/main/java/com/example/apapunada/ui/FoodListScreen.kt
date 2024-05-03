@@ -47,29 +47,31 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.apapunada.ApaPunAda
 import com.example.apapunada.R
-import com.example.apapunada.data.DataOfPopularDishes
-import com.example.apapunada.model.PopularDishes
+import com.example.apapunada.data.FoodCuisinesSample
+import com.example.apapunada.data.MenuSample
+import com.example.apapunada.data.MenuSample.Menus
+import com.example.apapunada.model.Cuisine
+import com.example.apapunada.model.Menu
 import com.example.apapunada.ui.components.MyTopTitleBar
 
 @Composable
 fun FoodListScreen(
     menuType: String,
-    middlefood: List<PopularDishes>
+    menus: List<Menu> = Menus
 ) {
     var textInput by remember { mutableStateOf("") }
 
-    var filteredFood: List<PopularDishes> = listOf()
+    var filteredFood: List<Menu> = listOf()
 
     if (menuType != "Recommended" && menuType != "Popular") {
-        middlefood.forEach { food ->
-            if (food.category == menuType) {
-                filteredFood = filteredFood + food
+        menus.forEach { menu ->
+            if (menu.cuisine.cuisineName == menuType) {
+                filteredFood = filteredFood + menu
             }
         }
     } else {
-        filteredFood = middlefood
+        filteredFood = menus
     }
 
     Scaffold(
@@ -102,11 +104,8 @@ fun FoodListScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(60.dp)
+                        .height(70.dp)
                     .padding(horizontal = 10.dp, vertical  = 10.dp),
-
-                //.padding(horizontal = 10.dp, vertical = 5.dp),
-                    //.padding(dimensionResource(R.dimen.padding_small)),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
 
@@ -173,7 +172,7 @@ fun FoodListScreen(
                                         ) {
                                             Image(
                                                 painter = painterResource(filteredFood[i].image),
-                                                contentDescription = "Beef Burger",
+                                                contentDescription = filteredFood[i].description,
                                                 contentScale = ContentScale.Crop,
                                                 modifier = Modifier
                                                     .height(120.dp)
@@ -317,8 +316,6 @@ fun FoodListSearchBar(
                 color = colorResource(id = R.color.black),
                 modifier = modifier
                     .fillMaxSize()
-                //.height(20.dp)
-                //.padding(bottom = 100.dp)
             )
         },
         //Design for the text that user type in
@@ -334,5 +331,5 @@ fun FoodListSearchBar(
 @Preview(showBackground = true)
 @Composable
 fun FoodListScreenPreview() {
-    FoodListScreen("Thai", DataOfPopularDishes.PopularMenu)
+    FoodListScreen("Japanese")
 }
