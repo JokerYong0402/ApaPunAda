@@ -3,6 +3,7 @@ package com.example.apapunada
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import com.example.apapunada.ui.FoodDetailScreen
 import com.example.apapunada.ui.theme.ApaPunAdaTheme
 
 class MainActivity : ComponentActivity() {
