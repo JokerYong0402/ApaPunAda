@@ -19,6 +19,19 @@ object OrderSample {
             "10/04/202 12:00:00",
             false,
             OrderStatus[0]
-            )
+        ),
+        Order(
+            2,
+            2,
+            "user1",
+            OrderMethod[0],
+            listOf(
+                OrderDetails[0]
+            ),
+            0.0,
+            "10/04/202 12:00:00",
+            false,
+            OrderStatus[0]
+        )
     )
 }
