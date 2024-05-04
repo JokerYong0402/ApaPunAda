@@ -5,6 +5,9 @@
       <entry key="DeleteProfileScreenPreview">
         <State />
       </entry>
+      <entry key="EditProfileScreenPreview">
+        <State />
+      </entry>
       <entry key="app">
         <State>
           <targetSelectedWithDropDown>
