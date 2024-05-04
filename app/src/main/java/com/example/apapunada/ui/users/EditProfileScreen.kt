@@ -1,5 +1,6 @@
 package com.example.apapunada.ui.users
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,7 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -36,12 +36,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,11 +60,9 @@ fun EditProfileScreen() {
     var able by remember { mutableStateOf(true) }
 
     if (openAlertDialog) {
-        AlertDialogExample(
+        EditProfileAlertDialog(
             onDismissRequest = { openAlertDialog = false },
-            onConfirmation = { openAlertDialog = false
-                println("Confirmation registered") // Add logic here to handle confirmation.
-            },
+            onConfirmation = { openAlertDialog = false },
             dialogTitle = "SUCCESS",
             dialogText = "Your profile has been updated.",
         )
@@ -415,25 +412,18 @@ fun EditTextFieldProfile(
             color = colorResource(id = R.color.black),
             modifier = modifier
                 //.padding(bottom = 100.dp)
-        )
-                      },
-
-        //Design for the text that user type in
-        textStyle = TextStyle(
-            fontSize = 14.sp,
-            color = colorResource(id = R.color.black)
-        ),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+        ) },
         )
 }
 
 @Composable
-fun AlertDialogExample(
+fun EditProfileAlertDialog(
     onDismissRequest: () -> Unit,
     onConfirmation: () -> Unit,
     dialogTitle: String,
     dialogText: String,
 ) {
+    val context = LocalContext.current
     AlertDialog(
         title = {
             Text(text = dialogTitle)
@@ -447,6 +437,7 @@ fun AlertDialogExample(
         confirmButton = {
             TextButton(
                 onClick = {
+                    Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
                     onConfirmation()
                 }
             ) {
