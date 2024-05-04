@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -348,7 +349,7 @@ fun ProfileScreen() {
                     }
                 }
 
-                Button(
+                ElevatedButton(
                     onClick = { /*TODO*/ },
                     colors = ButtonDefaults.buttonColors(
                         colorResource(R.color.primary)
@@ -365,7 +366,7 @@ fun ProfileScreen() {
                     )
                 }
 
-                Row(//Date Of Birth
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(80.dp)
@@ -374,7 +375,7 @@ fun ProfileScreen() {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
-                    Column(//second column
+                    Column(
                         modifier = Modifier
                             .padding(horizontal = 35.dp, vertical = 10.dp)
 

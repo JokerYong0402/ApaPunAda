@@ -14,7 +14,9 @@ object MenuSample {
             4.9,
             R.drawable.feedback1,
             "Burger with beef meat",
-            "Active"
+            "Active",
+            "",
+            ""
         ),
         Menu(
             2,
@@ -24,7 +26,9 @@ object MenuSample {
             4.9,
             R.drawable.ordermethod2,
             "Burger with beef meat",
-            "Active"
+            "Active",
+            "",
+            ""
         ),
         Menu(
             3,
@@ -34,7 +38,9 @@ object MenuSample {
             4.9,
             R.drawable.ordermethod3,
             "Burger with beef meat",
-            "Active"
+            "Active",
+            "",
+            ""
         ),
         Menu(
             4,
@@ -44,7 +50,9 @@ object MenuSample {
             4.9,
             R.drawable.profile_image,
             "Burger with beef meat",
-            "Active"
+            "Active",
+            "",
+            ""
         ),
         Menu(
             5,
@@ -54,7 +62,9 @@ object MenuSample {
             4.9,
             R.drawable.intro2,
             "Burger with beef meat",
-            "Active"
+            "Active",
+            "",
+            ""
         ),
         Menu(
             6,
@@ -64,7 +74,9 @@ object MenuSample {
             4.9,
             R.drawable.more,
             "Burger with beef meat",
-            "Active"
+            "Active",
+            "",
+            ""
         )
     )
 }

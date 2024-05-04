@@ -28,7 +28,9 @@ data class Menu(
     val rating: Double,
     val image: Int,
     val description: String,
-    val status: String
+    val status: String,
+    val ingredient: String,
+    val nutrition: String
 )
 //serving?
 

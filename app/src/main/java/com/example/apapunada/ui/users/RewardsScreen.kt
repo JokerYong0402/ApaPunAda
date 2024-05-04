@@ -279,7 +279,7 @@ fun RewardPopUp(onDismiss: () -> Unit) {
                     imageVector = Icons.Rounded.Close,
                     contentDescription = "Close",
                     modifier = Modifier
-                        .padding(10.dp)
+                        .padding(top = 10.dp)
                         .size(30.dp)
                         .clickable(
                             onClick = onDismiss
