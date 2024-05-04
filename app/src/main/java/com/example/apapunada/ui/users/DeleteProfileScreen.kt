@@ -209,11 +209,11 @@ fun DeleteAcctComment(
         },
 
         //Design for the text that user type in
-        textStyle = TextStyle(
-            fontSize = 14.sp,
-            color = colorResource(id = R.color.black)
-        ),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+        //textStyle = TextStyle(
+        //    fontSize = 14.sp,
+        //    color = colorResource(id = R.color.black)
+        //),
+        //keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
     )
 }
 
