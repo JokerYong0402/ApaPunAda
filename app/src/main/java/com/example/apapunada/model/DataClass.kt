@@ -60,7 +60,8 @@ data class Order(
     val orderMethod: OrderOption,
     val orderDetails: List<OrderDetails>,
     val amount: Double = 0.0,
-    val dateTime: String,
+    val date: String,
+    val time: String,
     val paymentStatus: Boolean,
     val statusId: OrderStatus //fk
 )
