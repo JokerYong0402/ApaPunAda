@@ -13,12 +13,14 @@ object OrderSample {
             "user1",
             OrderMethod[0],
             listOf(
-                OrderDetails[0]
+                OrderDetails[0],
+                OrderDetails[1],
             ),
             0.0,
-            "10/04/202 12:00:00",
+            "Apr 01, 2024",
+            "3:52 PM",
             false,
-            OrderStatus[0]
+            OrderStatus[3]
         ),
         Order(
             2,
@@ -26,10 +28,11 @@ object OrderSample {
             "user1",
             OrderMethod[0],
             listOf(
-                OrderDetails[0]
+                OrderDetails[2]
             ),
             0.0,
-            "10/04/202 12:00:00",
+            "Apr 01, 2024",
+            "3:52 PM",
             false,
             OrderStatus[0]
         )
