@@ -8,7 +8,7 @@ object OrderDetailsSample {
             1,
             MenuSample.Menus[0],
             2,
-            "No vegetables",
+            "",
             20.0
         ),
         OrderDetails(
