@@ -41,7 +41,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import com.example.apapunada.ui.IntroductionPager
 import com.example.apapunada.ui.LoginScreen
-import com.example.apapunada.ui.MenuScreen
 import com.example.apapunada.ui.components.StaffAppBarPortrait
 import com.example.apapunada.ui.staff.StaffDashboardScreen
 import com.example.apapunada.ui.users.HomeScreen
@@ -213,7 +212,7 @@ fun StaffNavigation(
 
         composable(route = StaffScreen.Menu.name){
             currentScreen(StaffScreen.Menu)
-            MenuScreen()
+//            MenuScreen()
         }
 
         composable(route = StaffScreen.Waitlist.name){
