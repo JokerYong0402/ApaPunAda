@@ -89,8 +89,9 @@ fun FoodListScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(40.dp)
-                ){
+                        //.height(40.dp)
+                        .padding(horizontal = 10.dp, vertical  = 10.dp),
+                    ){
                     Text(
                         text = menuType,
                         fontSize = 25.sp,
@@ -104,7 +105,7 @@ fun FoodListScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(70.dp)
+                        .height(100.dp)
                     .padding(horizontal = 10.dp, vertical  = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
@@ -127,7 +128,7 @@ fun FoodListScreen(
                         onValueChange = { textInput = it },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(60.dp)
+                            //.height(60.dp)
                     )
                 }
                 Column(
@@ -293,15 +294,15 @@ fun FoodListSearchBar(
         onValueChange = onValueChange,
         singleLine = true,
         modifier = modifier
-            .padding(start = 5.dp, end = 30.dp, top = 8.dp, bottom = 8.dp)
+            .padding(start = 5.dp,top = 10.dp, bottom = 10.dp, end = 20.dp)
             //.fillMaxWidth()
-            .height(60.dp)
+            .height(50.dp)
             .clip(
                 shape = RoundedCornerShape(
                     size = 20.dp,
                     ),
             )
-            .background(color = Color.LightGray)
+            .background(color = Color.White)
             .border(
                 BorderStroke(width = 1.dp, colorResource(R.color.primary)),
                 shape = RoundedCornerShape(
@@ -312,18 +313,18 @@ fun FoodListSearchBar(
         placeholder = {
             Text(
                 text = "Search",
-                fontSize = 10.sp,
+                fontSize = 14.sp,
                 color = colorResource(id = R.color.black),
                 modifier = modifier
                     .fillMaxSize()
             )
         },
         //Design for the text that user type in
-        textStyle = TextStyle(
-            fontSize = 12.sp,
-            color = colorResource(id = R.color.white)
-        ),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+        //textStyle = TextStyle(
+        //    fontSize = 12.sp,
+        //    color = colorResource(id = R.color.white)
+        //),
+        //keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
     )
 }
 
@@ -331,5 +332,5 @@ fun FoodListSearchBar(
 @Preview(showBackground = true)
 @Composable
 fun FoodListScreenPreview() {
-    FoodListScreen("Japanese")
+    FoodListScreen("Thai")
 }

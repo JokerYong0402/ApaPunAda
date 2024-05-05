@@ -15,24 +15,24 @@ object MenuSample {
             R.drawable.feedback1,
             "Burger with beef meat",
             "Active",
-            "",
+            "100g ground beef\n1 sesame bun,split toasted & buttered\n1 sliced tomatoes\n1 lettuce leaf\n1 sliced cheddar cheese\n1 teaspoon ketchup",
             ""
         ),
         Menu(
             2,
-            "Beef Burger",
+            "Steak",
             FoodCuisines[1],
             15.00,
             4.9,
             R.drawable.ordermethod2,
-            "Burger with beef meat",
+            "Grilled Beef Tenderlion",
             "Active",
             "",
             ""
         ),
         Menu(
             3,
-            "Beef Burger",
+            "Kimchi Stew",
             FoodCuisines[3],
             17.00,
             4.9,
@@ -44,7 +44,7 @@ object MenuSample {
         ),
         Menu(
             4,
-            "Beef Burger",
+            "Tom Yum Soup",
             FoodCuisines[5],
             4.00,
             4.9,
@@ -56,7 +56,7 @@ object MenuSample {
         ),
         Menu(
             5,
-            "Beef Burger",
+            "Salmon Sahshimi",
             FoodCuisines[2],
             2.00,
             4.9,
@@ -68,7 +68,7 @@ object MenuSample {
         ),
         Menu(
             6,
-            "Beef Burger",
+            "Japanese Curry Rice",
             FoodCuisines[2],
             2.00,
             4.9,
