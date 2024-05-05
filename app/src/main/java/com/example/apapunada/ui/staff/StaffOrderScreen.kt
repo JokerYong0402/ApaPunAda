@@ -150,7 +150,7 @@ fun StaffOrderScreen(
                     )
 
                     Text(
-                        text = order.orderId.toString(),
+                        text = order.orderId,
                         fontSize = 22.sp,
                         modifier = Modifier
                             .width(headerList[1].second)
@@ -366,7 +366,7 @@ fun DialogOfOrderDetail(
                                     fontSize = 22.sp
                                 )
                                 Text(
-                                    text = order.orderId.toString(),
+                                    text = order.orderId,
                                     fontSize = 20.sp
                                 )
                             }

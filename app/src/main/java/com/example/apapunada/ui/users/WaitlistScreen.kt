@@ -54,6 +54,7 @@ import com.example.apapunada.model.Cuisine
 import com.example.apapunada.model.Menu
 import com.example.apapunada.model.WaitList
 import com.example.apapunada.ui.components.MyTopTitleBar
+import com.example.apapunada.ui.components.PopupWindowDialog
 
 @Composable
 fun WaitlistPager(initialPage: Int = 0) {
@@ -664,7 +665,7 @@ fun WaitlistScreen(
     var setView :String by remember{ mutableStateOf("5 mins 0 secs") }
     var cuntNumStart by remember { mutableStateOf(false) }
 
-    val cuntNum = object :CountDownTimer(10000, 1000){
+    val cuntNum = object :CountDownTimer(300000, 1000){
         override fun onTick(millisUntilFinished: Long){
             numsInSecond = millisUntilFinished/1000
             numsInMinute = numsInSecond/60
@@ -1117,13 +1118,15 @@ fun WaitlistScreen(
                                             queue = 1
                                             cuntNum.cancel()  // Cancel the ongoing countdown
                                             cuntNumStart = false  // Reset the start flag (optional)
-                                            numsInSecond = 10  // Reset seconds to initial value (optional)
-                                            numsInMinute = 0  // Reset minutes to initial value (optional)
+                                            numsInSecond = 0  // Reset seconds to initial value (optional)
+                                            numsInMinute = 5  // Reset minutes to initial value (optional)
                                             setView = "$numsInMinute mins $numsInSecond secs" // Update display with initial value
                                             cuntNum.cancel()
                                             println("Confirmation registered")
                                         },
                                         dialogTitle = stringResource(id = R.string.waitlist_8),
+                                        confirmMessage = "Quit",
+                                        containerColor = Color.Red
                                     )
                                 }
 
@@ -1159,74 +1162,74 @@ fun WaitlistScreen(
     }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun PopupWindowDialog(
-    onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit,
-    dialogTitle: String,
-){
-    val primaryColor = colorResource(R.color.primary)
-
-    AlertDialog(
-        containerColor = Color.White,
-        shape = RoundedCornerShape(5.dp),
-        title = {
-            Text(
-                modifier = Modifier
-                .padding(
-                    start = 10.dp,
-                    end = 10.dp,
-                    top = 10.dp,
-                    bottom = 30.dp
-                ),
-                fontWeight = FontWeight.Bold,
-                text = dialogTitle
-            )
-        },
-        onDismissRequest = {
-            onDismissRequest()
-        },
-        confirmButton = {
-            TextButton(
-                modifier = Modifier
-                    .padding(
-                        start = 5.dp
-                    )
-                    .size(width = 75.dp, height = 35.dp),
-                shape = RoundedCornerShape(5.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Red,
-                    contentColor = Color.White
-                ),
-                onClick = {
-                    onConfirmation()
-                }
-            ) {
-                Text("Quit")
-            }
-        },
-        dismissButton = {
-            TextButton(
-                modifier = Modifier
-                    .padding(
-                        start = 70.dp
-                    )
-                    .size(width = 75.dp, height = 35.dp),
-                shape = RoundedCornerShape(5.dp),
-                border = BorderStroke(width = 1.dp, primaryColor),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = primaryColor
-                ),
-                onClick = {
-                    onDismissRequest()
-                }
-            ) {
-                Text("Cancel")
-            }
-        }
-    )
-}
+//@Composable
+//fun PopupWindowDialog(
+//    onDismissRequest: () -> Unit,
+//    onConfirmation: () -> Unit,
+//    dialogTitle: String,
+//){
+//    val primaryColor = colorResource(R.color.primary)
+//
+//    AlertDialog(
+//        containerColor = Color.White,
+//        shape = RoundedCornerShape(5.dp),
+//        title = {
+//            Text(
+//                modifier = Modifier
+//                .padding(
+//                    start = 10.dp,
+//                    end = 10.dp,
+//                    top = 10.dp,
+//                    bottom = 30.dp
+//                ),
+//                fontWeight = FontWeight.Bold,
+//                text = dialogTitle
+//            )
+//        },
+//        onDismissRequest = {
+//            onDismissRequest()
+//        },
+//        confirmButton = {
+//            TextButton(
+//                modifier = Modifier
+//                    .padding(
+//                        start = 5.dp
+//                    )
+//                    .size(width = 75.dp, height = 35.dp),
+//                shape = RoundedCornerShape(5.dp),
+//                colors = ButtonDefaults.buttonColors(
+//                    containerColor = Color.Red,
+//                    contentColor = Color.White
+//                ),
+//                onClick = {
+//                    onConfirmation()
+//                }
+//            ) {
+//                Text("Quit")
+//            }
+//        },
+//        dismissButton = {
+//            TextButton(
+//                modifier = Modifier
+//                    .padding(
+//                        start = 70.dp
+//                    )
+//                    .size(width = 75.dp, height = 35.dp),
+//                shape = RoundedCornerShape(5.dp),
+//                border = BorderStroke(width = 1.dp, primaryColor),
+//                colors = ButtonDefaults.buttonColors(
+//                    containerColor = Color.White,
+//                    contentColor = primaryColor
+//                ),
+//                onClick = {
+//                    onDismissRequest()
+//                }
+//            ) {
+//                Text("Cancel")
+//            }
+//        }
+//    )
+//}
 
 @Composable
 fun PopupWindowAlert(
