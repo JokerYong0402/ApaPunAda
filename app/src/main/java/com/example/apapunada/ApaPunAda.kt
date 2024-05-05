@@ -43,6 +43,9 @@ import com.example.apapunada.ui.IntroductionPager
 import com.example.apapunada.ui.LoginScreen
 import com.example.apapunada.ui.components.StaffAppBarPortrait
 import com.example.apapunada.ui.staff.StaffDashboardScreen
+import com.example.apapunada.ui.staff.StaffOrderScreen
+import com.example.apapunada.ui.users.FeedbackScreen
+import com.example.apapunada.ui.users.FeedbackSuccessScreen
 import com.example.apapunada.ui.users.HomeScreen
 import com.example.apapunada.ui.users.MoreScreen
 import com.example.apapunada.ui.users.OrderOptionScreen
@@ -90,6 +93,18 @@ fun ApaPunAdaApp(
             composable("waitlist") {
                 WaitlistScreen(
                     onBackButtonClicked = { navController.navigateUp() }
+                )
+            }
+
+            composable("feedback"){
+                FeedbackScreen(
+                    onSubmit = { navController.navigate("feedbacksuccess")}
+                )
+            }
+
+            composable("feedbacksuccess") {
+                FeedbackSuccessScreen(
+                    onClick = { navController.navigate("home")}
                 )
             }
 
@@ -212,7 +227,7 @@ fun StaffNavigation(
 
         composable(route = StaffScreen.Menu.name){
             currentScreen(StaffScreen.Menu)
-            //MenuScreen()
+//            MenuScreen()
         }
 
         composable(route = StaffScreen.Waitlist.name){
@@ -224,9 +239,7 @@ fun StaffNavigation(
 
         composable(route = StaffScreen.Ordering.name){
             currentScreen(StaffScreen.Ordering)
-            OrderOptionScreen(
-                onBackButtonClicked = { navController.navigateUp() }
-            )
+            StaffOrderScreen()
         }
 
         composable(route = StaffScreen.Feedback.name){

@@ -9,7 +9,21 @@ object OrderDetailsSample {
             MenuSample.Menus[0],
             2,
             "",
-            0.0
+            20.0
+        ),
+        OrderDetails(
+            2,
+            MenuSample.Menus[3],
+            1,
+            "",
+            4.0
+        ),
+        OrderDetails(
+            3,
+            MenuSample.Menus[5],
+            5,
+            "",
+            10.0
         )
     )
 }

@@ -8,17 +8,44 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,59 +53,38 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.TopAppBar
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
-import com.example.apapunada.ui.components.MyTopTitleBar
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.Role.Companion.Button
-import com.example.apapunada.ui.theme.Purple40
+import com.example.apapunada.ui.components.PopupWindowDialog
+import coil.compose.AsyncImage
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FeedbackPager(initialPage: Int = 0) {
-    FeedbackScreen()
+    FeedbackScreen(
+        onSubmit = {}
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedbackScreen(
+    onSubmit: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -107,6 +113,18 @@ fun FeedbackScreen(
     val primary100Color = colorResource(id = R.color.primary_100)
 
     var result by remember { mutableStateOf(1) }
+
+    var callPopupWindowDialog by remember { mutableStateOf(false) }
+
+    if (callPopupWindowDialog) {
+        PopupWindowDialog(
+            onDismissRequest = { callPopupWindowDialog = false },
+            onConfirmation = { onSubmit() },
+            dialogTitle = stringResource(id = R.string.feedback_9),
+            confirmMessage = "Submit",
+            containerColor = primaryColor
+        )
+    }
 
     var imageResource1 = when (result) {
         1 -> R.drawable.feedback1
@@ -143,6 +161,22 @@ fun FeedbackScreen(
         4 -> R.drawable.feedback2
         else -> R.drawable.feedback1
     }
+
+    //upload image
+    var selectedImageUris by remember {
+        mutableStateOf<List<Uri?>>(emptyList())
+    }
+
+    val multiplePhotosPickerLauncher = rememberLauncherForActivityResult(
+
+        contract = ActivityResultContracts.PickMultipleVisualMedia(
+            maxItems = 3
+        ),
+        onResult = {
+            selectedImageUris = it
+        }
+    )
+
     //surface is to make it scrollable
     Surface(modifier = Modifier
         .fillMaxSize()
@@ -402,36 +436,52 @@ fun FeedbackScreen(
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = stringResource(id = R.string.feedback_4),
+                    text = stringResource(id = R.string.feedback_4,selectedImageUris.size),
                     textAlign = TextAlign.Start,
                     modifier = modifier
                         .padding(top = 50.dp, start = 30.dp)
                 )
-                Image(
-                    painter = painterResource(id = R.drawable.feedback3),
-                    contentDescription = "1",
-                    modifier = Modifier
-                        .size(
-                            width = 100.dp,
-                            height = 70.dp
-                        )
-                        .clickable(
-                            onClick = {}
-                        )
-                        .padding(start = 30.dp)
-                )
+                Row {
+                    Image(
+                        painter = painterResource(id = R.drawable.feedback3),
+                        contentDescription = "1",
+                        modifier = Modifier
+                            .size(
+                                width = 100.dp,
+                                height = 70.dp
+                            )
+                            .clickable(
+                                onClick = {
+                                    multiplePhotosPickerLauncher.launch(
+                                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                    )
+                                }
+                            )
+                            .padding(start = 30.dp)
+                    )
+                    LazyRow {
+                        items(selectedImageUris){selectedImageUri->
+                            AsyncImage(
+                                modifier = Modifier
+                                    .size(
+                                        width = 85.dp,
+                                        height = 70.dp
+                                    )
+                                    .padding(start = 10.dp)
+                                    .border(BorderStroke(1.dp, colorResource(id = R.color.primary))),
+                                model = selectedImageUri,
+                                contentDescription = null,
+                                contentScale = ContentScale.FillBounds
+                            )
+                        }
+                    }
+                }
             }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
             )
             {
-                Text(
-                    text = stringResource(id = R.string.feedback_5),
-                    textAlign = TextAlign.Start,
-                    modifier = modifier
-                        .padding(top = 30.dp, start = 30.dp)
-                )
                 EditTextField(
                     value = textInput,
                     onValueChange = { textInput = it },
@@ -457,7 +507,9 @@ fun FeedbackScreen(
                     modifier = modifier
                         .widthIn(min = 300.dp)
                         .align(Alignment.CenterHorizontally),
-                    onClick = {}
+                    onClick = {
+                        callPopupWindowDialog = true
+                    }
                 ) {
                     Text(text = "Submit")
                 }
@@ -473,9 +525,25 @@ fun EditTextField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ){
+    val maxChar = 100
+
+    Text(
+        text = stringResource(id = R.string.feedback_5,value.length),
+        textAlign = TextAlign.Start,
+        modifier = modifier
+            .padding(
+                top = 30.dp,
+                start = 30.dp
+            )
+    )
     OutlinedTextField(
         value = value,
-        onValueChange = onValueChange,
+        onValueChange = { newValue ->
+            //to stop the user input in the textfield if the number of character is exceed the maxChar
+            if (newValue.length <= maxChar) {
+                onValueChange(newValue)
+            }
+        },
         modifier = modifier
             .padding(horizontal = 30.dp)
             .background(color = Color.Transparent)
@@ -508,128 +576,67 @@ fun EditTextField(
     )
 }
 
-@Composable
-fun uploadImage() {
-    var imageUri by remember { mutableStateOf<Uri?>(null) }
-    val context = LocalContext.current
-    val bitmap = remember { mutableStateOf<Bitmap?>(null) }
-
-    val laucher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()){uri: Uri? ->
-        imageUri = uri
-    }
-
-   Row (
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-       Image(
-           painter = painterResource(id = R.drawable.feedback3),
-           contentDescription = "1",
-           modifier = Modifier
-               .size(
-                   width = 100.dp,
-                   height = 70.dp
-               )
-               .clickable(
-                   onClick = {
-                       laucher.launch("image/*")
-                   }
-               )
-               .padding(start = 30.dp)
-       )
-
-        imageUri?.let {
-            if (Build.VERSION.SDK_INT < 28){
-                bitmap.value = MediaStore.Images
-                    .Media.getBitmap(context.contentResolver, it)
-            } else {
-                val source = ImageDecoder.createSource(context.contentResolver, it)
-                bitmap.value = ImageDecoder.decodeBitmap(source)
-            }
-
-            bitmap.value?.let { btm ->
-                Image(
-                    bitmap = btm.asImageBitmap(),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(
-                            width = 85.dp,
-                            height = 70.dp
-                        )
-                        .padding(start = 10.dp)
-                        .border(BorderStroke(1.dp, colorResource(id = R.color.primary)))
-                )
-            }
-        }
-    }
-}
-@Composable
-fun successScreen(){
-    Column (
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        Column (
-            horizontalAlignment = Alignment.End,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(18.dp)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.feedback5),
-                contentDescription = "feedback5",
-                modifier = Modifier
-                    .size(18.dp)
-            )
-        }
-        Column (
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 150.dp)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.feedback4),
-                contentDescription = "feedback4",
-                modifier = Modifier
-                    .size(100.dp)
-            )
-        }
-        Column (
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            Text(
-                text = stringResource(id = R.string.feedback_7),
-                fontSize = 23.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .padding(top = 30.dp)
-            )
-        }
-        Column (
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            Text(
-                text = stringResource(id = R.string.feedback_8),
-                fontSize = 18.sp,
-                color = Color.Gray,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(top = 30.dp)
-            )
-        }
-    }
-
-}
+//@Composable
+//fun uploadImage() {
+//    var imageUri by remember { mutableStateOf<Uri?>(null) }
+//    val context = LocalContext.current
+//    val bitmap = remember { mutableStateOf<Bitmap?>(null) }
+//
+//    val laucher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()){uri: Uri? ->
+//        imageUri = uri
+//    }
+//
+//   Row (
+//        modifier = Modifier
+//            .fillMaxSize()
+//    ) {
+//       Image(
+//           painter = painterResource(id = R.drawable.feedback3),
+//           contentDescription = "1",
+//           modifier = Modifier
+//               .size(
+//                   width = 100.dp,
+//                   height = 70.dp
+//               )
+//               .clickable(
+//                   onClick = {
+//                       laucher.launch("image/*")
+//                   }
+//               )
+//               .padding(start = 30.dp)
+//       )
+//
+//        imageUri?.let {
+//            if (Build.VERSION.SDK_INT < 28){
+//                bitmap.value = MediaStore.Images
+//                    .Media.getBitmap(context.contentResolver, it)
+//            } else {
+//                val source = ImageDecoder.createSource(context.contentResolver, it)
+//                bitmap.value = ImageDecoder.decodeBitmap(source)
+//            }
+//
+//            bitmap.value?.let { btm ->
+//                Image(
+//                    bitmap = btm.asImageBitmap(),
+//                    contentDescription = null,
+//                    modifier = Modifier
+//                        .size(
+//                            width = 85.dp,
+//                            height = 70.dp
+//                        )
+//                        .padding(start = 10.dp)
+//                        .border(BorderStroke(1.dp, colorResource(id = R.color.primary)))
+//                )
+//            }
+//        }
+//    }
+//}
 
 @Preview(showBackground = true)
 @Composable
 fun FeedbackScreenPreview() {
     FeedbackScreen(
+        onSubmit = {},
         modifier = Modifier
     )
 }

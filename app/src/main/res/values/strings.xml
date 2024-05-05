@@ -22,11 +22,12 @@
     <string name="feedback_1">Your Feedback Matters</string>
     <string name="feedback_2">Are you satisfied with the service?</string>
     <string name="feedback_3">Let us know how can we serve you better.</string>
-    <string name="feedback_4">Upload images. (0/3)</string>
-    <string name="feedback_5">Let us know how can we serve you better. ($it/100)</string>
+    <string name="feedback_4">Upload images. (%s/3)</string>
+    <string name="feedback_5">Let us know how can we serve you better. (%s/100)</string>
     <string name="feedback_6">Tell us how can we improve...</string>
     <string name="feedback_7">Thanks for your feedback!</string>
     <string name="feedback_8">We appreciate your feedback—it fuels our improvement process.</string>
+    <string name="feedback_9">Are you sure you want to submit the feedback form?</string>
     <string name="waitlist">Waitlist</string>
     <string name="waitlist_1">Welcome, Ali</string>
     <string name="waitlist_2">Size : </string>
