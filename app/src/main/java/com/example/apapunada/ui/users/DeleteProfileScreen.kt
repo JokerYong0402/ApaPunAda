@@ -1,5 +1,6 @@
 package com.example.apapunada.ui.users
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -15,12 +16,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -45,8 +49,20 @@ import com.example.apapunada.ui.components.MyTopTitleBar
 @Composable
 fun DeleteProfileScreen() {
     var textInputDelete by remember { mutableStateOf("") }
-    var triggerDltPopUp by remember { mutableStateOf(true) }
+    var openAlertDialog by remember { mutableStateOf(false) }
     var dltable by remember { mutableStateOf(true) }
+
+
+    if(openAlertDialog) {
+        DeleteProfileAlertDialog(
+            onDismissRequest = { openAlertDialog = false },
+            onConfirmation = {
+                openAlertDialog = false
+            },
+            dialogTitle = "Confirmation",
+            dialogText = "Are you sure want to delete this account?",
+        )
+    }
 
     Scaffold(
         topBar = { MyTopTitleBar(title = stringResource(R.string.delete_profile)) },
@@ -132,7 +148,7 @@ fun DeleteProfileScreen() {
                     )
                 }
                 Button(
-                    onClick = { triggerDltPopUp = true },
+                    onClick = { openAlertDialog = true },
                     enabled = dltable,
                     colors = ButtonDefaults.buttonColors(
                         colorResource(R.color.primary)
@@ -151,13 +167,6 @@ fun DeleteProfileScreen() {
                 }
             }
         }
-        if (triggerDltPopUp) {
-            dltable = false
-            DeleteProfilePopUp(onConfirm = {
-                triggerDltPopUp = false
-                dltable = true
-            })
-        }
     }
 }
 
@@ -170,7 +179,6 @@ fun DeleteAcctComment(
 ){
     OutlinedTextField(/* TODO  text box error when typing not same place with placeholder*/
         value = value,
-        singleLine = true,
         onValueChange = onValueChange,
 
         modifier = modifier
@@ -194,7 +202,6 @@ fun DeleteAcctComment(
             Text(
                 text = "Give us some feedback...",
                 fontSize = 14.sp,
-                //fontstyle = FontStyle.Italic,
                 color = colorResource(id = R.color.black),
                 modifier = modifier
                 .padding(bottom = 70.dp)
@@ -202,102 +209,53 @@ fun DeleteAcctComment(
         },
 
         //Design for the text that user type in
-        textStyle = TextStyle(
-            fontSize = 14.sp,
-            color = colorResource(id = R.color.black)
-        ),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+        //textStyle = TextStyle(
+        //    fontSize = 14.sp,
+        //    color = colorResource(id = R.color.black)
+        //),
+        //keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
     )
 }
 
 
 @Composable
-fun DeleteProfilePopUp(onConfirm: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-
-            .background(color = Color.Black.copy(alpha = 0.5f)),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Surface(
-            modifier = Modifier.padding(dimensionResource(R.dimen.padding_large))
-                .height(180.dp),
-            shape = RoundedCornerShape(20.dp),
-            color = Color.White,
-        ) {
-            Column(
-                modifier = Modifier.padding(dimensionResource(R.dimen.padding_large))
+fun DeleteProfileAlertDialog(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    dialogTitle: String,
+    dialogText: String,
+) {
+    val context = LocalContext.current
+    AlertDialog(
+        title = {
+            Text(text = dialogTitle)
+        },
+        text = {
+            Text(text = dialogText)
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    Toast.makeText(context, "Deleted Successfully",Toast.LENGTH_SHORT).show()
+                    onConfirmation()
+                }
             ) {
-                Text(
-                    text = "CONFIRMATION",
-                    fontSize = 17.sp
-                )
-
-                Text(
-                    text = " Are you sure want to delete this account?",
-                    fontSize = 14.sp
-                )
+                Text("Confirm")
             }
-
-            Row(
-                modifier = Modifier
-                    //.padding(horizontal = 20.dp, vertical = 50.dp)
-                    .fillMaxWidth()
-                    .padding(top = 50.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly
-            )
-            {
-                Button(//cancel button
-                    onClick = { },
-                    colors = ButtonDefaults.buttonColors(
-                        colorResource(R.color.white)
-                    ),
-                    //shape = RoundedCornerShape(50.dp),
-                    modifier = Modifier
-                        .width(140.dp)
-                        .height(65.dp)
-                        .padding(horizontal = 10.dp, vertical = 5.dp)
-                        .border(2.dp, colorResource(R.color.primary),RoundedCornerShape(50.dp))
-                        .clip(
-                        shape = RoundedCornerShape(
-                            size = 50.dp,
-                        ),
-                )
-                ) {
-                    Text(
-                        text = stringResource(R.string.cancel),
-                        fontSize = 16.sp,
-                        color = colorResource(R.color.primary)
-                    )
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
                 }
-                Button(//confirm button
-                    onClick = { },
-                    colors = ButtonDefaults.buttonColors(
-                        colorResource(R.color.primary)
-                    ),
-                    shape = RoundedCornerShape(50.dp),
-                    modifier = Modifier
-                        .width(140.dp)
-                        .height(65.dp)
-                        //.border(2.dp, colorResource(R.color.primary),RoundedCornerShape(50.dp))
-                        .clip(
-                            shape = RoundedCornerShape(
-                                size = 50.dp,
-                            ),
-                            )
-                        .padding(horizontal = 10.dp, vertical = 5.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.confirm),
-                        fontSize = 16.sp
-                    )
-                }
+            ) {
+                Text("Cancel")
             }
         }
-    }
+    )
 }
 
 

@@ -1,5 +1,6 @@
 package com.example.apapunada.ui.users
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,14 +18,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,12 +36,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,10 +49,24 @@ import com.example.apapunada.ui.components.MyTopTitleBar
 
 @Composable
 fun EditProfileScreen() {
-    var textInput by remember { mutableStateOf("") }
-    var triggerPopUp by remember { mutableStateOf(true) }
+    var editedname by remember { mutableStateOf("") }
+    var editedgender by remember { mutableStateOf("") }
+    var editeddob by remember { mutableStateOf("") }
+    var editedemail by remember { mutableStateOf("") }
+    var editedpassword by remember { mutableStateOf("") }
+    var editedphonenum by remember { mutableStateOf("") }
+
+    var openAlertDialog by remember { mutableStateOf(false) }
     var able by remember { mutableStateOf(true) }
 
+    if (openAlertDialog) {
+        EditProfileAlertDialog(
+            onDismissRequest = { openAlertDialog = false },
+            onConfirmation = { openAlertDialog = false },
+            dialogTitle = "SUCCESS",
+            dialogText = "Your profile has been updated.",
+        )
+    }
     Scaffold(
         topBar = { MyTopTitleBar(title = stringResource(R.string.edit_profile)) },
         //bottomBar = { MyBottomNavBar() }
@@ -125,8 +140,8 @@ fun EditProfileScreen() {
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
                         EditTextFieldProfile(
-                            value = textInput,
-                            onValueChange = { textInput = it },
+                            value = editedname,
+                            onValueChange = { editedname = it },
                             modifier = Modifier
                             //    .fillMaxWidth()
                         )
@@ -165,8 +180,8 @@ fun EditProfileScreen() {
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
                         EditTextFieldProfile(
-                            value = textInput,
-                            onValueChange = { textInput = it },
+                            value = editedgender,
+                            onValueChange = { editedgender = it },
                             modifier = Modifier
                             //    .fillMaxWidth()
                         )
@@ -205,8 +220,8 @@ fun EditProfileScreen() {
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
                         EditTextFieldProfile(
-                            value = textInput,
-                            onValueChange = { textInput = it },
+                            value = editeddob,
+                            onValueChange = { editeddob = it },
                             modifier = Modifier
                             //    .fillMaxWidth()
                         )
@@ -245,8 +260,8 @@ fun EditProfileScreen() {
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
                         EditTextFieldProfile(
-                            value = textInput,
-                            onValueChange = { textInput = it },
+                            value = editedemail,
+                            onValueChange = { editedemail = it },
                             modifier = Modifier
                             //    .fillMaxWidth()
                         )
@@ -285,8 +300,8 @@ fun EditProfileScreen() {
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
                         EditTextFieldProfile(
-                            value = textInput,
-                            onValueChange = { textInput = it },
+                            value = editedpassword,
+                            onValueChange = { editedpassword = it },
                             modifier = Modifier
                             //    .fillMaxWidth()
                         )
@@ -325,8 +340,8 @@ fun EditProfileScreen() {
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
                         EditTextFieldProfile(
-                            value = textInput,
-                            onValueChange = { textInput = it },
+                            value = editedphonenum,
+                            onValueChange = { editedphonenum = it },
                             modifier = Modifier
                             //    .fillMaxWidth()
                         )
@@ -334,7 +349,7 @@ fun EditProfileScreen() {
                 }
 
                 Button(
-                    onClick = { triggerPopUp = true },
+                    onClick = { openAlertDialog = true },
                     enabled = able,
                     colors = ButtonDefaults.buttonColors(
                         colorResource(R.color.primary)
@@ -357,13 +372,7 @@ fun EditProfileScreen() {
 
 
         }
-        if (triggerPopUp) {
-            able = false
-            ProfilePopUp(onOk = {
-                triggerPopUp = false
-                able = true
-            })
-        }
+
     }
 }
 
@@ -398,72 +407,45 @@ fun EditTextFieldProfile(
         ,
         placeholder = {
             Text(
-            text = "F",
+            text = "",
             fontSize = 14.sp,
             color = colorResource(id = R.color.black),
             modifier = modifier
                 //.padding(bottom = 100.dp)
-        )
-                      },
-
-        //Design for the text that user type in
-        textStyle = TextStyle(
-            fontSize = 14.sp,
-            color = colorResource(id = R.color.black)
-        ),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+        ) },
         )
 }
 
 @Composable
-fun ProfilePopUp(onOk: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = Color.Black.copy(alpha = 0.5f)),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Surface(
-            modifier = Modifier.padding(dimensionResource(R.dimen.padding_large)),
-            shape = RoundedCornerShape(20.dp),
-            color = Color.White
-        ) {
-            Column(
-                modifier = Modifier.padding(dimensionResource(R.dimen.padding_large))
-            ) {
-                Text(
-                    text = "SUCCESS",
-                    fontSize = 16.sp
-                )
-
-                Text(
-                    text = "Your Profile has been Updated.",
-                    fontSize = 14.sp
-                )
-                Button(
-                    onClick = { },
-                    colors = ButtonDefaults.buttonColors(
-                        colorResource(R.color.primary)
-                    ),
-                    shape = RoundedCornerShape(50.dp),
-                    modifier = Modifier
-                        .width(200.dp)
-                        .height(65.dp)
-                        .padding(horizontal = 10.dp, vertical = 10.dp)
-                        .align(Alignment.CenterHorizontally)
-                ) {
-                    Text(
-                        text = stringResource(R.string.ok),
-                        fontSize = 16.sp
-                    )
+fun EditProfileAlertDialog(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    dialogTitle: String,
+    dialogText: String,
+) {
+    val context = LocalContext.current
+    AlertDialog(
+        title = {
+            Text(text = dialogTitle)
+        },
+        text = {
+            Text(text = dialogText)
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
+                    onConfirmation()
                 }
+            ) {
+                Text("Confirm")
             }
         }
-    }
+    )
 }
-
-
 
 
 @Preview(showBackground = true)

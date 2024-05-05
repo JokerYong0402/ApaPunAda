@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -100,9 +101,9 @@ fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
                 }*/
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth().fillMaxHeight()
                         //.height(60.dp)
-                        .padding(horizontal = 5.dp, vertical  = 5.dp),
+                        .padding(horizontal = 10.dp, vertical  = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
 
@@ -650,11 +651,11 @@ fun MenuScreenSearchBar(
             )
         },
         //Design for the text that user type in
-        //textStyle = TextStyle(
-        //    fontSize = 12.sp,
-        //    color = colorResource(id = R.color.white)
-        //),
-        //keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+        /*textStyle = TextStyle(
+            fontSize = 12.sp,
+            color = colorResource(id = R.color.black)
+        ),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)*/
     )
 }
 
