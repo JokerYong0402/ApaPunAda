@@ -3,14 +3,15 @@ package com.example.apapunada.data
 import com.example.apapunada.data.OrderDetailsSample.OrderDetails
 import com.example.apapunada.data.OrderMethodSample.OrderMethod
 import com.example.apapunada.data.OrderStatusSample.OrderStatus
+import com.example.apapunada.data.UserSample.Users
 import com.example.apapunada.model.Order
 
 object OrderSample {
     val Orders = listOf(
         Order(
             1,
-            1,
-            "user1",
+            "S00001",
+            Users[0],
             OrderMethod[0],
             listOf(
                 OrderDetails[0],
@@ -29,8 +30,22 @@ object OrderSample {
         ),
         Order(
             2,
-            2,
-            "user1",
+            "S00002",
+            Users[0],
+            OrderMethod[0],
+            listOf(
+                OrderDetails[2]
+            ),
+            0.0,
+            "Apr 01, 2024",
+            "3:52 PM",
+            false,
+            OrderStatus[0]
+        ),
+        Order(
+            3,
+            "S00003",
+            Users[0],
             OrderMethod[0],
             listOf(
                 OrderDetails[2]

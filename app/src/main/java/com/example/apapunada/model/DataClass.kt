@@ -55,8 +55,8 @@ data class WaitList(
 
 data class Order(
     val id: Int,
-    val orderId: Int,
-    val username: String, //fk
+    val orderId: String,
+    val user: User, //fk
     val orderMethod: OrderOption,
     val orderDetails: List<OrderDetails>,
     val amount: Double = 0.0,
