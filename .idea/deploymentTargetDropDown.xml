@@ -2,8 +2,21 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="DeleteProfileScreenPreview">
-        <State />
+      <entry key="StaffOrderScreenPreview">
+        <State>
+          <targetSelectedWithDropDown>
+            <Target>
+              <type value="QUICK_BOOT_TARGET" />
+              <deviceKey>
+                <Key>
+                  <type value="VIRTUAL_DEVICE_PATH" />
+                  <value value="C:\Users\Yong\.android\avd\Pixel_Tablet_API_34.avd" />
+                </Key>
+              </deviceKey>
+            </Target>
+          </targetSelectedWithDropDown>
+          <timeTargetWasSelectedWithDropDown value="2024-05-04T07:17:07.319744400Z" />
+        </State>
       </entry>
       <entry key="app">
         <State>
@@ -18,7 +31,7 @@
               </deviceKey>
             </Target>
           </targetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2024-05-02T06:04:16.650283Z" />
+          <timeTargetWasSelectedWithDropDown value="2024-05-05T06:29:00.445836800Z" />
         </State>
       </entry>
     </value>
