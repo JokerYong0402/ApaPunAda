@@ -125,7 +125,7 @@ fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
                         onValueChange = { textInput = it },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(60.dp)
+                            //.height(60.dp)
                     )
                 }
                 Row(
@@ -366,7 +366,7 @@ fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Image(
-                                            painter = painterResource(R.drawable.fireicon),
+                                            painter = painterResource(R.drawable.staricon),
                                             contentDescription = "Beef Burger",
                                             contentScale = ContentScale.Crop,
                                             modifier = Modifier
@@ -583,7 +583,7 @@ fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Image(
-                                            painter = painterResource(R.drawable.fireicon),
+                                            painter = painterResource(R.drawable.staricon),
                                             contentDescription = "",
                                             contentScale = ContentScale.Crop,
                                             modifier = Modifier
@@ -626,13 +626,11 @@ fun MenuScreenSearchBar(
         onValueChange = onValueChange,
         singleLine = true,
         modifier = modifier
-            .padding(start = 5.dp, end = 20.dp)
-            //.fillMaxSize()
-            .height(60.dp)
+            .padding(start = 5.dp,top = 10.dp, bottom = 10.dp, end = 20.dp)
+            .height(50.dp)
             .clip(
                 shape = RoundedCornerShape(
                     size = 20.dp,
-
                     ),
             )
             .background(color = Color.White)
@@ -646,12 +644,10 @@ fun MenuScreenSearchBar(
         placeholder = {
             Text(
                 text = "Search",
-                fontSize = 10.sp,
+                fontSize = 14.sp,
                 color = colorResource(id = R.color.black),
                 modifier = modifier
                     .fillMaxSize()
-                    //.height(20.dp)
-                //.padding(bottom = 100.dp)
             )
         },
         //Design for the text that user type in

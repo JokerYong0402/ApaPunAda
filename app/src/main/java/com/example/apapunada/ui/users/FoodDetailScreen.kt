@@ -68,7 +68,6 @@ fun FoodDetailScreen(
                         .fillMaxSize()
                 ) {
                     Image(
-                        //painter = painterResource(R.drawable.fish_chipspic),
                         painter = painterResource(food.image),
                         contentDescription = "",
                         //contentScale = ContentScale.Crop,
@@ -178,7 +177,7 @@ fun FoodDetailScreen(
                                             .width(25.dp)
                                     )
                                     Text(
-                                        text = "1",
+                                        text = "1", /*TODO add a serving person into database*/
                                         fontSize = 25.sp,
                                         textAlign = TextAlign.Center,
                                         fontWeight = FontWeight.Bold
@@ -205,14 +204,12 @@ fun FoodDetailScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 20.dp),
-                                //.horizontalScroll(rememberScrollState()),
                                 verticalAlignment = Alignment.Top,
                                 horizontalArrangement = Arrangement.Start,
                             ){
                                 Text(
                                     text = food.description,
-                                    fontSize = 20.sp,
-                                    //fontWeight = FontWeight.Bold
+                                    fontSize = 18.sp,
                                 )
                             }
                             Divider(
@@ -243,14 +240,13 @@ fun FoodDetailScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 20.dp),
-                                //.horizontalScroll(rememberScrollState()),
                                 verticalAlignment = Alignment.Top,
                                 horizontalArrangement = Arrangement.Start,
                             ){
                                 Text(
-                                    text = "1 beef\n2 sliced lemon",
-                                    fontSize = 20.sp,
-                                    //fontWeight = FontWeight.Bold
+                                    text = food.ingredient,
+                                    fontSize = 17.sp,
+                                    lineHeight = 30.sp
                                 )
                             }
                             Divider(
@@ -263,7 +259,6 @@ fun FoodDetailScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 20.dp, vertical = 25.dp),
-                                //.horizontalScroll(rememberScrollState()),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.Center,
                             ){
@@ -278,7 +273,6 @@ fun FoodDetailScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 20.dp, vertical = 15.dp),
-                                //.horizontalScroll(rememberScrollState()),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.Start,
                             ) {

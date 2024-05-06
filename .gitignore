@@ -22,3 +22,4 @@ local.properties
 /.idea/gradle.xml
 /.idea/deploymentTargetDropDown.xml
 /.idea/compiler.xml
+.idea/deploymentTargetDropDown.xml
