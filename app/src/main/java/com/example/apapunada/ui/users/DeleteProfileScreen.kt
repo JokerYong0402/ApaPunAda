@@ -40,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -180,7 +181,6 @@ fun DeleteAcctComment(
     OutlinedTextField(/* TODO  text box error when typing not same place with placeholder*/
         value = value,
         onValueChange = onValueChange,
-
         modifier = modifier
             .padding(dimensionResource(R.dimen.padding_medium))
             .background(color = Color.White)
