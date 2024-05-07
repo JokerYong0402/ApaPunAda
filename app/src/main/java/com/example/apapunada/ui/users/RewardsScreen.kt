@@ -1,4 +1,4 @@
-package com.example.apapunada.ui
+package com.example.apapunada.ui.users
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -49,7 +49,10 @@ import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RewardsScreen(userPoint: Int) {
+fun RewardsScreen(
+    onBackButtonClicked: () -> Unit,
+    userPoint: Int
+) {
     var isPopUpVisible by remember { mutableStateOf(false) }
     var able by remember { mutableStateOf(true) }
     Box(modifier = Modifier.fillMaxSize()) {
@@ -77,7 +80,7 @@ fun RewardsScreen(userPoint: Int) {
                 navigationIcon = {
                     IconButton(
                         enabled = able,
-                        onClick = { /*TODO*/ }
+                        onClick = onBackButtonClicked
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.KeyboardArrowLeft,
@@ -235,7 +238,7 @@ fun RewardsScreen(userPoint: Int) {
         }
         if (isPopUpVisible) {
             able = false
-            PopUp(onDismiss = {
+            RewardPopUp(onDismiss = {
                 isPopUpVisible = false
                 able = true
             })
@@ -244,7 +247,7 @@ fun RewardsScreen(userPoint: Int) {
 }
 
 @Composable
-fun PopUp(onDismiss: () -> Unit) {
+fun RewardPopUp(onDismiss: () -> Unit) {
     Column(modifier = Modifier
         .fillMaxSize()
         .background(color = Color.Black.copy(alpha = 0.5f))
@@ -276,7 +279,7 @@ fun PopUp(onDismiss: () -> Unit) {
                     imageVector = Icons.Rounded.Close,
                     contentDescription = "Close",
                     modifier = Modifier
-                        .padding(10.dp)
+                        .padding(top = 10.dp)
                         .size(30.dp)
                         .clickable(
                             onClick = onDismiss
@@ -359,5 +362,5 @@ fun VoucherRM1(onDismiss: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun RewardsScreenPreview() {
-    RewardsScreen(234)
+    RewardsScreen({}, 234)
 }

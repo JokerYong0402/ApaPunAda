@@ -1,4 +1,4 @@
-package com.example.apapunada.ui
+package com.example.apapunada.ui.users
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box

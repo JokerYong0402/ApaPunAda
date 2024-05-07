@@ -46,10 +46,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
+import com.example.apapunada.ui.components.EnableScreenOrientation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    onBackButtonClicked: () -> Unit,
+    onLoginButtonClicked: () -> Unit
+) {
+    EnableScreenOrientation()
     val primaryColor = colorResource(R.color.primary)
     var passwordVisible by remember { mutableStateOf(false) }
     var username by remember { mutableStateOf("") }
@@ -61,7 +66,7 @@ fun LoginScreen() {
                 title = {},
                 navigationIcon = {
                     IconButton(
-                        onClick = { /*TODO*/ }
+                        onClick = onBackButtonClicked
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.ArrowBack,
@@ -179,7 +184,7 @@ fun LoginScreen() {
                     modifier = Modifier.width(325.dp)
                 ) {
                     Button(
-                        onClick = { /*TODO*/ },
+                        onClick = onLoginButtonClicked,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = primaryColor
                         ),
@@ -198,9 +203,9 @@ fun LoginScreen() {
         }
     }
 }
-//style = MaterialTheme.typography.headlineSmall
+
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    LoginScreen()
+    LoginScreen({}, {})
 }

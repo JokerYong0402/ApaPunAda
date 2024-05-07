@@ -44,20 +44,33 @@ import com.example.apapunada.R
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun IntroductionPager(initialPage: Int = 0) {
+fun IntroductionPager(
+    initialPage: Int = 0,
+    onPagerChange: (Int) -> Unit = {},
+    onLoginButtonClicked: () -> Unit,
+    onSignUpButtonClicked: () -> Unit = {}
+) {
     val pagerState = rememberPagerState(initialPage) {
         3
     }
 
     HorizontalPager(state = pagerState) {currentPage ->
-        IntroductionScreen(selectedPage = currentPage + 1)
+        IntroductionScreen(
+            selectedPage = currentPage + 1,
+            onPagerClick = onPagerChange,
+            onLoginButtonClicked = onLoginButtonClicked,
+            onSignUpButtonClicked = onSignUpButtonClicked
+            )
     }
 }
 
 @Composable
 fun IntroductionScreen(
     modifier: Modifier = Modifier,
-    selectedPage: Int
+    selectedPage: Int,
+    onPagerClick: (Int) -> Unit,
+    onLoginButtonClicked: () -> Unit,
+    onSignUpButtonClicked: () -> Unit = {}
 ){
     val primaryColor = colorResource(R.color.primary)
     var imgPager by remember { mutableStateOf(selectedPage) }
@@ -163,7 +176,7 @@ fun IntroductionScreen(
                     modifier = Modifier.size(325.dp, 110.dp)
                 ) {
                     Button(
-                        onClick = { /*TODO*/ },
+                        onClick = onLoginButtonClicked,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = primaryColor
                         ),
@@ -179,7 +192,7 @@ fun IntroductionScreen(
                     }
 
                     Button(
-                        onClick = { /*TODO*/ },
+                        onClick = onSignUpButtonClicked,
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier
@@ -210,7 +223,10 @@ fun IntroductionScreen(
                             .size(50.dp)
                             .padding(10.dp)
                             .clip(CircleShape)
-                            .clickable { imgPager = i /* TODO */},
+                            .clickable {
+                                onPagerClick(i)
+                                imgPager = i
+                                       },
                         onDraw = {
                             drawCircle(color = primaryColor, radius = this.size.minDimension / 3.5f)
                             drawCircle(color = primaryColor, radius = this.size.minDimension / 4.5f)
@@ -222,7 +238,10 @@ fun IntroductionScreen(
                             .size(50.dp)
                             .padding(10.dp)
                             .clip(CircleShape)
-                            .clickable { imgPager = i  /* TODO */},
+                            .clickable {
+                                onPagerClick(i)
+                                imgPager = i
+                                       },
                         onDraw = {
                             drawCircle(color = primaryColor, radius = this.size.minDimension / 3.5f)
                             drawCircle(color = Color.White, radius = this.size.minDimension / 4.5f)
@@ -237,8 +256,5 @@ fun IntroductionScreen(
 @Preview(showBackground = true)
 @Composable
 fun IntroductionScreenPreview() {
-    IntroductionScreen(
-        modifier = Modifier,
-        selectedPage = 1
-    )
+    IntroductionPager(onLoginButtonClicked = {}, onSignUpButtonClicked = {})
 }

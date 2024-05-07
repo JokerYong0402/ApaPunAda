@@ -1,12 +1,14 @@
-package com.example.apapunada.ui
+package com.example.apapunada.ui.users
 
+import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,53 +19,73 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
 import com.example.apapunada.ui.components.MyTopTitleBar
 
-
 @Composable
-fun ProfileScreen() {
+fun EditProfileScreen() {
+    var editedname by remember { mutableStateOf("") }
+    var editedgender by remember { mutableStateOf("") }
+    var editeddob by remember { mutableStateOf("") }
+    var editedemail by remember { mutableStateOf("") }
+    var editedpassword by remember { mutableStateOf("") }
+    var editedphonenum by remember { mutableStateOf("") }
+
+    var openAlertDialog by remember { mutableStateOf(false) }
+    var able by remember { mutableStateOf(true) }
+
+    if (openAlertDialog) {
+        EditProfileAlertDialog(
+            onDismissRequest = { openAlertDialog = false },
+            onConfirmation = { openAlertDialog = false },
+            dialogTitle = "SUCCESS",
+            dialogText = "Your profile has been updated.",
+        )
+    }
     Scaffold(
-        topBar = { MyTopTitleBar(title = stringResource(R.string.profile)) },
+        topBar = { MyTopTitleBar(title = stringResource(R.string.edit_profile)) },
         //bottomBar = { MyBottomNavBar() }
     ) { innerPadding ->
-        Surface(modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState()))
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        )
         {
             Column(
                 modifier = Modifier.padding(innerPadding)
             ) {
-                // content of page add here
-                Row(//PROFILE CARD
+                Column(//Profile Picture
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(140.dp)
-                        .padding(dimensionResource(R.dimen.padding_medium))
-                        .border(
-                            3.dp,
-                            colorResource(R.color.primary),
-                            shape = RoundedCornerShape(12.dp)
-                        ),
-                    verticalAlignment = Alignment.CenterVertically
-
+                        .height(180.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Image(//contain image
                         painter = painterResource(R.drawable.profile_image),
@@ -71,47 +93,22 @@ fun ProfileScreen() {
                         modifier = Modifier
                             //.fillMaxSize()
                             .size(
-                                width = 100.dp,
-                                height = 100.dp
+                                width = 150.dp,
+                                height = 150.dp
                             )
                             .clip(CircleShape)
                             .padding(dimensionResource(R.dimen.padding_medium))
                     )
-                    Column(//second column
+                    Text(//Change profile picture
                         modifier = Modifier
-                            .width(210.dp)
-                            .height(100.dp),
-                        horizontalAlignment = Alignment.Start,
-                        verticalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        Text(
-                            text = "Ryan Moey",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp,
-
-                            )
-                        Text(
-                            text = "ryanmoeykx@gmail.com",
-                            fontSize = 15.sp
-                        )
-
-
-                    }
-                    Image(//edit icon
-                        painter = painterResource(R.drawable.editicon),
-                        contentDescription = "edit",
-                        modifier = Modifier
-                            //.fillMaxSize()
-                            .size(
-                                width = 30.dp,
-                                height = 30.dp
-                            )
-                            .clickable {}
+                            .clickable { },
+                        text = "Change Profile Picture",
+                        fontSize = 16.sp,
+                        color = colorResource(id = R.color.primary)
                     )
 
                 }
-
-                Row(//NAME
+                Row(//EDIT NAME
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(80.dp)
@@ -121,6 +118,7 @@ fun ProfileScreen() {
                             colorResource(R.color.primary),
                             shape = RoundedCornerShape(50.dp)
                         ),
+
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Image(
@@ -141,17 +139,16 @@ fun ProfileScreen() {
                         horizontalAlignment = Alignment.Start,
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        Text(
-                            text = "Name",
-                            fontSize = 16.sp,
-
-                            )
+                        EditTextFieldProfile(
+                            value = editedname,
+                            onValueChange = { editedname = it },
+                            modifier = Modifier
+                            //    .fillMaxWidth()
+                        )
                     }
                 }
 
-                Spacer(modifier = Modifier)
-
-                Row(//GENDER
+                Row(//EDIT GENDER
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(80.dp)
@@ -166,7 +163,7 @@ fun ProfileScreen() {
                 ) {
                     Image(
                         painter = painterResource(R.drawable.gendericon),
-                        contentDescription = "Name Icon",
+                        contentDescription = "Gender Icon",
                         modifier = Modifier
                             .padding(dimensionResource(R.dimen.padding_medium))
                             //.fillMaxSize()
@@ -182,15 +179,16 @@ fun ProfileScreen() {
                         horizontalAlignment = Alignment.Start,
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        Text(
-                            text = "Gender",
-                            fontSize = 16.sp,
-
-                            )
+                        EditTextFieldProfile(
+                            value = editedgender,
+                            onValueChange = { editedgender = it },
+                            modifier = Modifier
+                            //    .fillMaxWidth()
+                        )
                     }
                 }
 
-                Row(//Date Of Birth
+                Row(//EDIT DATE OF BIRTH
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(80.dp)
@@ -205,7 +203,7 @@ fun ProfileScreen() {
                 ) {
                     Image(
                         painter = painterResource(R.drawable.dobicon),
-                        contentDescription = "Name Icon",
+                        contentDescription = "Gender Icon",
                         modifier = Modifier
                             .padding(dimensionResource(R.dimen.padding_medium))
                             //.fillMaxSize()
@@ -221,17 +219,16 @@ fun ProfileScreen() {
                         horizontalAlignment = Alignment.Start,
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        Text(
-                            text = "Date of Birth",
-                            fontSize = 16.sp,
-
-                            )
+                        EditTextFieldProfile(
+                            value = editeddob,
+                            onValueChange = { editeddob = it },
+                            modifier = Modifier
+                            //    .fillMaxWidth()
+                        )
                     }
                 }
 
-                Spacer(modifier = Modifier)
-
-                Row(//Email Address
+                Row(//EDIT EMAIL ADDRESS
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(80.dp)
@@ -246,7 +243,7 @@ fun ProfileScreen() {
                 ) {
                     Image(
                         painter = painterResource(R.drawable.emailicon),
-                        contentDescription = "Name Icon",
+                        contentDescription = "Gender Icon",
                         modifier = Modifier
                             .padding(dimensionResource(R.dimen.padding_medium))
                             //.fillMaxSize()
@@ -262,15 +259,16 @@ fun ProfileScreen() {
                         horizontalAlignment = Alignment.Start,
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        Text(
-                            text = "Email Address",
-                            fontSize = 16.sp,
-
-                            )
+                        EditTextFieldProfile(
+                            value = editedemail,
+                            onValueChange = { editedemail = it },
+                            modifier = Modifier
+                            //    .fillMaxWidth()
+                        )
                     }
                 }
 
-                Row(//Pssword
+                Row(//EDIT PASSWORD
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(80.dp)
@@ -285,7 +283,7 @@ fun ProfileScreen() {
                 ) {
                     Image(
                         painter = painterResource(R.drawable.passwordicon),
-                        contentDescription = "Name Icon",
+                        contentDescription = "Gender Icon",
                         modifier = Modifier
                             .padding(dimensionResource(R.dimen.padding_medium))
                             //.fillMaxSize()
@@ -301,15 +299,16 @@ fun ProfileScreen() {
                         horizontalAlignment = Alignment.Start,
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        Text(
-                            text = "Password",
-                            fontSize = 16.sp,
-
-                            )
+                        EditTextFieldProfile(
+                            value = editedpassword,
+                            onValueChange = { editedpassword = it },
+                            modifier = Modifier
+                            //    .fillMaxWidth()
+                        )
                     }
                 }
 
-                Row(//Phone number
+                Row(//EDIT PHONE NUMBER
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(80.dp)
@@ -324,7 +323,7 @@ fun ProfileScreen() {
                 ) {
                     Image(
                         painter = painterResource(R.drawable.phonenumbericon),
-                        contentDescription = "Name Icon",
+                        contentDescription = "Gender Icon",
                         modifier = Modifier
                             .padding(dimensionResource(R.dimen.padding_medium))
                             //.fillMaxSize()
@@ -340,76 +339,117 @@ fun ProfileScreen() {
                         horizontalAlignment = Alignment.Start,
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        Text(
-                            text = "Phone No",
-                            fontSize = 16.sp,
-
-                            )
+                        EditTextFieldProfile(
+                            value = editedphonenum,
+                            onValueChange = { editedphonenum = it },
+                            modifier = Modifier
+                            //    .fillMaxWidth()
+                        )
                     }
                 }
 
                 Button(
-                    onClick = { /*TODO*/ },
+                    onClick = { openAlertDialog = true },
+                    enabled = able,
                     colors = ButtonDefaults.buttonColors(
                         colorResource(R.color.primary)
                     ),
-                    shape = RoundedCornerShape(10.dp),
+                    shape = RoundedCornerShape(50.dp),
                     modifier = Modifier
                         .width(300.dp)
-                        .height(50.dp)
+                        .height(65.dp)
+                        .padding(horizontal = 10.dp, vertical = 10.dp)
                         .align(Alignment.CenterHorizontally)
+
                 ) {
                     Text(
-                        text = stringResource(R.string.logout),
+                        text = stringResource(R.string.save),
                         fontSize = 18.sp
                     )
                 }
 
-                Row(//Date Of Birth
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(80.dp)
-                        .padding(horizontal = 35.dp, vertical = 15.dp),
-
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Column(//second column
-                        modifier = Modifier
-                            .padding(horizontal = 35.dp, vertical = 10.dp)
-
-                            .width(300.dp)
-                            .height(100.dp),
-
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        Text(
-                            modifier =  Modifier
-                                .clickable {  },
-                            text = "Request Account Deletion",
-                            fontSize = 16.sp,
-                            color = colorResource(id = R.color.primary)
-
-                            )
-                    }
-                }
-
-
             }
 
-        }
 
+        }
 
     }
 }
 
 
 
+@Composable
+fun EditTextFieldProfile(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+){
+    OutlinedTextField(
+        value = value,
+        singleLine = true,
+        onValueChange = onValueChange,
+        modifier = modifier
+            //.padding(horizontal = 30.dp)
+            .background(color = Color.Transparent)
+            .height(100.dp)
+            .width(300.dp)
+            .clip(
+                shape = RoundedCornerShape(
+                    size = 20.dp,
+                ),
+            )
+            .border(
+                BorderStroke(width = 1.dp, colorResource(id = R.color.white)),
+                shape = RoundedCornerShape(
+                    size = 20.dp,
+                )
+            )
+        ,
+        placeholder = {
+            Text(
+            text = "",
+            fontSize = 14.sp,
+            color = colorResource(id = R.color.black),
+            modifier = modifier
+                //.padding(bottom = 100.dp)
+        ) },
+        )
+}
+
+@Composable
+fun EditProfileAlertDialog(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    dialogTitle: String,
+    dialogText: String,
+) {
+    val context = LocalContext.current
+    AlertDialog(
+        title = {
+            Text(text = dialogTitle)
+        },
+        text = {
+            Text(text = dialogText)
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
+                    onConfirmation()
+                }
+            ) {
+                Text("Confirm")
+            }
+        }
+    )
+}
+
+
 @Preview(showBackground = true)
 @Composable
-fun ProfileScreenPreview() {
-    ProfileScreen(
-
-    )
+fun EditProfileScreenPreview() {
+    EditProfileScreen()
 }

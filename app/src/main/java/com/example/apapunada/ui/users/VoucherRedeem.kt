@@ -1,4 +1,4 @@
-package com.example.apapunada.ui
+package com.example.apapunada.ui.users
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -238,6 +238,7 @@ fun VoucherRedeem(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Image(
+                            //Display all the voucher owned by the user
                             painter = painterResource(R.drawable.voucher_rm10_redeemed),
                             contentDescription = "Voucher RM10 Redeemed",
                             modifier = Modifier
@@ -248,6 +249,13 @@ fun VoucherRedeem(
                     }
                 }
             }
+        }
+        if (isPopUpVisible) {
+            able = false
+            RewardPopUp(onDismiss = {
+                isPopUpVisible = false
+                able = true
+            })
         }
         if (redeemPressed) {
             able = false

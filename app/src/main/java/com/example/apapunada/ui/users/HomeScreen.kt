@@ -1,4 +1,4 @@
-package com.example.apapunada.ui
+package com.example.apapunada.ui.users
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -41,18 +41,22 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.apapunada.R
-import com.example.apapunada.data.DataSample
-import com.example.apapunada.model.MenuItem
+import com.example.apapunada.data.MenuSample.Menus
+import com.example.apapunada.model.Menu
 import com.example.apapunada.ui.components.MyBottomNavBar
 import com.example.apapunada.ui.components.MyTopAppBar
+import com.example.apapunada.ui.components.SetPortraitOrientationOnly
 
 @Composable
 fun HomeScreen(
-    topFoods: List<MenuItem>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navController: NavHostController,
+    topFoods: List<Menu> = Menus
 ) {
-
+    SetPortraitOrientationOnly()
     val primaryColor = colorResource(R.color.primary)
     var imgPager = 1
 
@@ -63,10 +67,10 @@ fun HomeScreen(
                 R.drawable.profile_image
             )
         },
-        bottomBar = { MyBottomNavBar() }
+        bottomBar = { MyBottomNavBar(1, navController) }
     ) { innerPadding ->
         Column(
-            modifier = Modifier.padding(innerPadding)
+            modifier = modifier.padding(innerPadding)
         ) {
 
             Column(
@@ -309,5 +313,5 @@ fun HomeScreen(
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
-    HomeScreen(DataSample.FoodMenu)
+    HomeScreen(navController = rememberNavController())
 }

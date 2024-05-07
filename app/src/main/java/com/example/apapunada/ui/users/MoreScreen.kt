@@ -1,4 +1,4 @@
-package com.example.apapunada.ui
+package com.example.apapunada.ui.users
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -37,12 +37,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.apapunada.R
 import com.example.apapunada.ui.components.MyBottomNavBar
 import com.example.apapunada.ui.components.MyTopAppBar
 
 @Composable
-fun MoreScreen() {
+fun MoreScreen(
+    modifier: Modifier = Modifier,
+    navController: NavHostController
+) {
 
     val primaryColor = colorResource(R.color.primary)
     val point = 100
@@ -54,7 +59,7 @@ fun MoreScreen() {
                 R.drawable.profile_image
             )
         },
-        bottomBar = { MyBottomNavBar(5) }
+        bottomBar = { MyBottomNavBar(5, navController) }
     ) { innerPadding ->
         Column(
             modifier = Modifier.padding(innerPadding)
@@ -230,5 +235,5 @@ fun MoreScreen() {
 @Preview(showBackground = true)
 @Composable
 fun MoreScreenPreview() {
-    MoreScreen()
+    MoreScreen(navController = rememberNavController())
 }
