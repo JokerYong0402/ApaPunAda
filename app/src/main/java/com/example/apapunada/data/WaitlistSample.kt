@@ -6,27 +6,35 @@ object WaitlistSample {
     val Waitlists = listOf(
         WaitList(
             1,
-            "WengCheng",
+            "Johnson Kong Weng Cheng",
             5,
             "9:00am",
             10,
-            "Accept"
+            "Accepted"
         ),
         WaitList(
             2,
-            "RyanMoey",
+            "Ryan Moey Kai Xiang",
             7,
             "9:05am",
             5,
-            "Wait"
+            "Queue"
         ),
         WaitList(
             3,
-            "Jiaying",
+            "Joker Yong Jia Ying",
             3,
             "9:07am",
             3,
-            "Cancel"
+            "Cancelled"
+        ),
+        WaitList(
+            4,
+            "Jack Yoong Hong Sheng",
+            9,
+            "9:09am",
+            1,
+            "Queue"
         )
     )
 }
