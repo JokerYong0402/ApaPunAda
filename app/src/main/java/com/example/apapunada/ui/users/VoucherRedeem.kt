@@ -59,6 +59,7 @@ import com.example.apapunada.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VoucherRedeem(
+    onBackButtonClicked: () -> Unit,
     image: Painter,
     voucherRM: String,
     userPoints: Int
@@ -97,7 +98,7 @@ fun VoucherRedeem(
                     navigationIcon = {
                         IconButton(
                             enabled = able,
-                            onClick = { /*TODO*/ }
+                            onClick = onBackButtonClicked
                         ) {
                             Icon(
                                 imageVector = Icons.Rounded.KeyboardArrowLeft,
@@ -368,5 +369,5 @@ fun Redeem(
 @Preview(showBackground = true)
 @Composable
 fun VoucherRedeemPreview() {
-    VoucherRedeem(painterResource(R.drawable.voucher_rm1), "RM1", 123)
+    VoucherRedeem({},painterResource(R.drawable.voucher_rm1), "RM1", 123)
 }
