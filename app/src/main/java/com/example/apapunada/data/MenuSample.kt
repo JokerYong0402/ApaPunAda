@@ -9,7 +9,7 @@ object MenuSample {
         Menu(
             1,
             "Beef Burger",
-            FoodCuisines[1],
+            FoodCuisines[0],
             10.00,
             4.9,
             R.drawable.feedback1,
@@ -21,7 +21,7 @@ object MenuSample {
         Menu(
             2,
             "Steak",
-            FoodCuisines[1],
+            FoodCuisines[0],
             15.00,
             4.9,
             R.drawable.ordermethod2,
@@ -33,7 +33,7 @@ object MenuSample {
         Menu(
             3,
             "Kimchi Stew",
-            FoodCuisines[3],
+            FoodCuisines[2],
             17.00,
             4.9,
             R.drawable.ordermethod3,
@@ -45,7 +45,7 @@ object MenuSample {
         Menu(
             4,
             "Tom Yum Soup",
-            FoodCuisines[5],
+            FoodCuisines[4],
             4.00,
             4.9,
             R.drawable.profile_image,
@@ -57,7 +57,7 @@ object MenuSample {
         Menu(
             5,
             "Salmon Sahshimi",
-            FoodCuisines[2],
+            FoodCuisines[1],
             2.00,
             4.9,
             R.drawable.intro2,
@@ -69,7 +69,7 @@ object MenuSample {
         Menu(
             6,
             "Japanese Curry Rice",
-            FoodCuisines[2],
+            FoodCuisines[1],
             2.00,
             4.9,
             R.drawable.more,
