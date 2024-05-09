@@ -68,6 +68,8 @@ import com.example.apapunada.data.OrderStatusSample
 import com.example.apapunada.model.Feedback
 import com.example.apapunada.model.Order
 import com.example.apapunada.model.OrderStatus
+import com.example.apapunada.ui.components.SearchBar
+import com.example.apapunada.ui.components.SelectField
 import com.example.apapunada.ui.components.formattedString
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -85,18 +87,17 @@ fun StaffFeedbackScreen(
         Pair("Comments", 350.dp)
     )
 
-    val fieldList = listOf(
-        "Party",
-        "Star",
-        "Category",
-        "Images",
-        "Comments"
-    )
-
     var image = "content://media/picker/0/com.android.providers.media.photopicker/media/100000042,https://www.sidechef.com/recipe/bf2ae123-0553-4605-a564-e790d69d29fb.jpg?d=1408x1120,https://images.deliveryhero.io/image/foodpanda/recipes/chicken-chop-recipe-1.jpg"
     var images = image.split(",")
 
     var textInput by remember { mutableStateOf("") }
+
+    val fieldList = listOf(
+        "Party",
+        "Star",
+        "Category",
+        "Comments"
+    )
 
     Column(
         modifier = Modifier
@@ -104,9 +105,9 @@ fun StaffFeedbackScreen(
             .padding(dimensionResource(R.dimen.padding_large))
     ) {
         Row {
-            SelectField()
+            SelectField(field = fieldList)
             Spacer(modifier = Modifier.size(10.dp))
-            FeedbackSearchBar(
+            SearchBar(
                 value = textInput,
                 onValueChange = { textInput = it },
                 modifier = Modifier
@@ -221,127 +222,7 @@ fun StaffFeedbackScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SelectField() {
-    val context = LocalContext.current
-    var expanded by remember { mutableStateOf(false) }
-    var selectedField by remember { mutableStateOf("Field") }
-    var primaryColor = colorResource(id = R.color.primary)
 
-    val fieldList = listOf(
-        "Party",
-        "Star",
-        "Category",
-        "Comments"
-    )
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
-    ) {
-        OutlinedTextField(
-            value = selectedField,
-            onValueChange = {},
-            label = {
-                Row (
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.feedback6),
-                        contentDescription = "Filter",
-                        modifier = Modifier
-                            .size(15.dp)
-                            .background(Color.Transparent)
-                    )
-                    Text(
-                        color =  primaryColor,
-                        text = "  Field",
-                        fontSize = 15.sp,
-                        modifier = Modifier
-                            .background(Color.Transparent)
-                    )
-                }
-
-            },
-            readOnly = true,
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-            },
-            modifier = Modifier
-                .menuAnchor()
-                .background(Color.Transparent)
-                .width(180.dp),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                focusedIndicatorColor = primaryColor, // Change the focused outline color
-                unfocusedIndicatorColor = colorResource(id = R.color.primary_200), // Change the unfocused outline color
-            )
-        )
-
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { /*TODO*/ },
-            modifier = Modifier
-                .background(Color.White)
-        ) {
-            fieldList.forEach { field ->
-                DropdownMenuItem(
-                    text = { Text(text = field) },
-                    onClick = {
-                        selectedField = field
-                        expanded = false
-                        Toast.makeText(context, field, Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun FeedbackSearchBar(
-    value: String,
-    onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier
-){
-    val primaryColor = colorResource(id = R.color.primary)
-
-    OutlinedTextField(
-        value = value,
-        singleLine = true,
-        onValueChange = onValueChange,
-        leadingIcon = {
-            Image(
-                painter = painterResource(id = R.drawable.feedback8),
-                contentDescription = "search",
-                alignment = Alignment.CenterEnd,
-                modifier = modifier
-                    .size(20.dp)
-            )
-        },
-        modifier = modifier
-            .padding(top = 7.5.dp)
-            .background(color = Color.Transparent)
-            .height(56.dp)
-            .width(180.dp),
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White,
-            focusedIndicatorColor = primaryColor, // Change the focused outline color
-            unfocusedIndicatorColor = colorResource(id = R.color.primary_200), // Change the unfocused outline color
-        ),
-        placeholder = {
-            Text(
-                text = "  Search",
-                fontSize = 14.sp,
-                color = colorResource(id = R.color.black)
-            )
-        },
-    )
-}
 
 @Composable
 @Preview(showBackground = true, device = Devices.TABLET)
