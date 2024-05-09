@@ -45,6 +45,7 @@ import com.example.apapunada.ui.components.StaffAppBarPortrait
 import com.example.apapunada.ui.staff.StaffDashboardScreen
 import com.example.apapunada.ui.staff.StaffFeedbackScreen
 import com.example.apapunada.ui.staff.StaffOrderScreen
+import com.example.apapunada.ui.users.FeedbackNav
 //import com.example.apapunada.ui.staff.StaffWaitlistScreen
 import com.example.apapunada.ui.users.FeedbackScreen
 import com.example.apapunada.ui.users.FeedbackSuccessScreen
@@ -99,15 +100,7 @@ fun ApaPunAdaApp(
             }
 
             composable("feedback"){
-                FeedbackScreen(
-                    onSubmit = { navController.navigate("feedbacksuccess")}
-                )
-            }
-
-            composable("feedbacksuccess") {
-                FeedbackSuccessScreen(
-                    onClick = { navController.navigate("home")}
-                )
+                FeedbackNav(navController = navController)
             }
 
             composable("order") {

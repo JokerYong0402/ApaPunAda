@@ -42,6 +42,8 @@
     <string name="waitlist_11">Oh no! Your reservation is expired!</string>
     <string name="waitlist_12">Your reservation had expired since you did not register in the counter within 5 minutes. Kindly register in the counter within 5 minutes for the next reservation. Thank you and sorry for any inconveniences caused.</string>
     <string name="waitlist_13">Your table is ready, Ali!</string>
+    <string name="feedback_success">Feedback Success</string>
+    <string name="home">Home</string>
     <!--    <string name="feedback_button_1">Packaging</string>-->
 <!--    <string name="feedback_button_2">Menu</string>-->
 <!--    <string name="feedback_button_3">Delivery</string>-->
