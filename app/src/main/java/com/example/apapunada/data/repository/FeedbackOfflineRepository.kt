@@ -9,7 +9,7 @@ class FeedbackOfflineRepository(private val feedbackDao: FeedbackDao): FeedbackR
 
     override suspend fun insertFeedback(feedback: Feedback) = feedbackDao.insertFeedback(feedback)
 
-    override suspend fun updateFeedback(feedback: Feedback) = feedbackDao.updateFeedback(feedback)
+    override suspend fun updateFeedback(feedback: Feedback) { feedbackDao.updateFeedback(feedback) }
 
     override suspend fun deleteFeedback(feedback: Feedback) = feedbackDao.deleteFeedback(feedback)
 }
