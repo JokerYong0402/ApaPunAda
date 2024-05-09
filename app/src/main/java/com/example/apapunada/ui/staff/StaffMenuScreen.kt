@@ -30,7 +30,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Create
+import androidx.compose.material.icons.rounded.Email
+import androidx.compose.material.icons.rounded.List
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -50,6 +53,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -74,6 +78,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material.dialog.Dialog
@@ -94,7 +99,7 @@ import com.example.apapunada.ui.users.EditTextFieldProfile
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun StaffMenuScreen(
-    menuType: String,
+    //menuType: String,
     dishCuisine: List<Cuisine> = FoodCuisinesSample.FoodCuisines,
     menus: List<Menu> = MenuSample.Menus
 ) {
@@ -104,17 +109,19 @@ fun StaffMenuScreen(
         Pair("Picture", 180.dp),
         Pair("Foodname", 250.dp),
         Pair("Cuisine",180.dp),
-        Pair("Amount", 180.dp),
+        Pair("Amount(RM)", 180.dp),
         Pair("Status", 160.dp),
-        Pair("Action", 200.dp),
+        Pair("Action", 180.dp),
 
     )
     var openAddDishDialog by remember { mutableStateOf(false) }
-    var openEditDishDialog by remember { mutableStateOf(false) }
+    var openEditDishDialog by remember { mutableStateOf(true) }
     var openStatusDishDialog by remember { mutableStateOf(false) }
-
+    var openDishDetailDialog by remember { mutableStateOf(false) }
 
     var search by remember { mutableStateOf("") }
+
+    var currentMenu by remember { mutableStateOf(menus[0]) }
 
     if (openAddDishDialog) {
         AddDishDialog(
@@ -127,14 +134,25 @@ fun StaffMenuScreen(
         EditDishDialog(
             onDismissRequest = { openEditDishDialog = false },
             onConfirmation = { openEditDishDialog = false },
-        )
+            menu = currentMenu,
+            )
     }
 
     if (openStatusDishDialog) {
         ChangeDishStatusDialog(
             onDismissRequest = { openStatusDishDialog = false },
             onConfirmation = { openStatusDishDialog = false },
-        )
+            menu = currentMenu,
+            )
+    }
+
+
+    if (openDishDetailDialog) {
+        DishDetailDialog(
+            onDismissRequest = { openDishDetailDialog = false },
+            menu = currentMenu,
+            labelList = headerList
+            )
     }
 
     var expandedSearchCuisine by remember { mutableStateOf(false) }
@@ -154,7 +172,6 @@ fun StaffMenuScreen(
                 .horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
-
         ){
             Text(
                 text = "Menu Management",
@@ -215,6 +232,7 @@ fun StaffMenuScreen(
                 horizontalAlignment = Alignment.End,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(start = 25.dp)
             ) {
                 Button(//add dish button
                     onClick = { openAddDishDialog = true },
@@ -246,9 +264,7 @@ fun StaffMenuScreen(
             verticalAlignment = Alignment.CenterVertically
 
         ){
-
             CuisineButtonAll()
-
             dishCuisine.forEach{ cuisine ->
                 ElevatedButton(
                     onClick = { /* Filter menus by this cuisine (if applicable) */ },
@@ -274,6 +290,7 @@ fun StaffMenuScreen(
                 }
             }
         }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -377,7 +394,10 @@ fun StaffMenuScreen(
                                 .padding(end = 50.dp)
                         ) {
                             IconButton(
-                                onClick = { openEditDishDialog = true }
+                                onClick = {
+                                    currentMenu = getMenu(i)
+                                    openEditDishDialog = true
+                                }
                             ) {
                                 Icon(
                                     imageVector = Icons.Rounded.Create,
@@ -387,11 +407,27 @@ fun StaffMenuScreen(
                             }
 
                             IconButton(
-                                onClick = { openStatusDishDialog = true }
+                                onClick = {
+                                    currentMenu = getMenu(i)
+                                    openStatusDishDialog = true
+                                }
                             ) {
                                 Icon(
                                     imageVector = Icons.Rounded.Settings,
-                                    contentDescription = "Delete button",
+                                    contentDescription = "Change Status button",
+                                    modifier = Modifier.size(30.dp)
+                                )
+                            }
+
+                            IconButton(
+                                onClick = {
+                                    currentMenu = getMenu(i)
+                                    openDishDetailDialog = true
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Email,
+                                    contentDescription = "Detail button",
                                     modifier = Modifier.size(30.dp)
                                 )
                             }
@@ -781,15 +817,16 @@ fun AddDishDialog(
 fun EditDishDialog(
     onDismissRequest: () -> Unit,
     onConfirmation: () -> Unit,
-) {
+    menu: Menu,
+    ) {
     val context = LocalContext.current
-    var editdishname by remember { mutableStateOf("") }
-    var editdishdescription by remember { mutableStateOf("") }
-    var editdishrating by remember { mutableStateOf("") }
-    var editdishingredient by remember { mutableStateOf("") }
-    var editdishcuisine by remember { mutableStateOf("") }
-    var editdishprice by remember { mutableStateOf("") }
-    var editdishstatus by remember { mutableStateOf("") }
+    var editdishname by remember { mutableStateOf(menu.name) }
+    var editdishdescription by remember { mutableStateOf(menu.description) }
+    var editdishrating by remember { mutableStateOf(menu.rating.toString()) }
+    var editdishingredient by remember { mutableStateOf(menu.ingredient) }
+    var editdishcuisine by remember { mutableStateOf(menu.cuisine.cuisineName) }
+    var editdishprice by remember { mutableStateOf(menu.price.toString()) }
+    var editdishstatus by remember { mutableStateOf(menu.status) }
     var editdishservingsize by remember { mutableStateOf("") }
 
     var isUploadImage by remember { mutableStateOf(false) }
@@ -803,6 +840,7 @@ fun EditDishDialog(
     var expandedEditStatus by remember { mutableStateOf(false) }
     var selectedEditStatus by remember { mutableStateOf("") }
     val menustatus = listOf("Available","Unavailable")
+
 
     androidx.compose.ui.window.Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
@@ -902,6 +940,22 @@ fun EditDishDialog(
                         }
                     }
                 }
+                OutlinedTextField(//edit dish rating
+                    value = editdishrating,
+                    onValueChange = { editdishrating = it },
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        fontSize = 18.sp,
+                        color = Color.Black
+                    ),
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                    label = {Text(
+                        text = "Dish Rating",
+                        fontSize = 17.sp,
+                    )},
+                    modifier = Modifier
+                        .padding(vertical = 20.dp)
+                )
                 OutlinedTextField(//edit dish price
                     value = editdishprice,
                     onValueChange = { editdishprice = it },
@@ -916,7 +970,7 @@ fun EditDishDialog(
                         fontSize = 17.sp,
                     )},
                     modifier = Modifier
-                        .padding(vertical = 20.dp)
+                        .padding(bottom = 20.dp)
                 )
                 ExposedDropdownMenuBox(//edit dish status
                     expanded = expandedEditStatus,
@@ -983,7 +1037,7 @@ fun EditDishDialog(
                     ),
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                     label = {Text(
-                        text = "Dish Price",
+                        text = "Dish Serving",
                         fontSize = 17.sp,
                     )},
                     modifier = Modifier
@@ -1023,14 +1077,15 @@ fun EditDishDialog(
 fun ChangeDishStatusDialog(
     onDismissRequest: () -> Unit,
     onConfirmation: () -> Unit,
+    menu: Menu,
 ){
     val context = LocalContext.current
     var expandedChangeStatus by remember { mutableStateOf(false) }
-    var selectedChangeStatus by remember { mutableStateOf("") }
+    var selectedChangeStatus by remember { mutableStateOf(menu.status) }
     val Changestatuoptions = listOf("Available","Unavailable")
     var changestatus by remember { mutableStateOf("") }
 
-    var dialogTitle = "Change Status of Dish"
+    val dialogTitle = "Change Status of Dish"
     androidx.compose.ui.window.Dialog(onDismissRequest = { onDismissRequest() })
     {
         Card(
@@ -1057,8 +1112,8 @@ fun ChangeDishStatusDialog(
                     onExpandedChange = { expandedChangeStatus = !expandedChangeStatus }
                 ) {
                     OutlinedTextField(
-                        value = changestatus,
-                        onValueChange = { changestatus = it },
+                        value = selectedChangeStatus,
+                        onValueChange = { selectedChangeStatus = it },
                         label = {
                             Text(
                                 text = "Dish Availability",
@@ -1121,15 +1176,187 @@ fun ChangeDishStatusDialog(
 
 }
 
+@Composable
+fun DishDetailDialog(
+    onDismissRequest: () -> Unit = {},
+    menu: Menu,
+    labelList: List<Pair<String, Dp>>
+
+) {
+    val image = menu.image
+    val name = menu.name
+    val price = menu.price
+    val rating = menu.rating
+    val description = menu.description
+    val status = menu.status
+    val ingredient = menu.ingredient
+    val cuisine = menu.cuisine.cuisineName
+
+    val userHeader = listOf(
+        // (Header name, Column width)
+        Pair("Picture", 100.dp),
+        Pair("Foodname", 100.dp),
+        Pair("Cuisine", 100.dp),
+        Pair("Description", 100.dp),
+        Pair("Gender", 100.dp),
+        Pair("Date of Birth", 100.dp),
+        Pair("Points", 100.dp),
+        Pair("Status", 100.dp)
+    )
+
+    androidx.compose.ui.window.Dialog(onDismissRequest = { onDismissRequest() }) {
+        Card(
+            colors = CardDefaults.cardColors(Color.White),
+            elevation = CardDefaults.cardElevation(15.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(600.dp)
+                .padding(horizontal = dimensionResource(R.dimen.padding_medium))
+        ) {
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(dimensionResource(R.dimen.padding_medium))
+            ) {
+                Image(
+                    painter = painterResource(image),
+                    contentDescription = "User Image",
+                    modifier = Modifier
+                        .size(70.dp)
+                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(50.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 30.dp)
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(20.dp),
+                        modifier = Modifier
+                            .width(150.dp)
+                    ) {
+                        Column {
+                            Text(
+                                text = userHeader[0].first,
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 22.sp
+                            )
+                            Text(
+                                text = name,
+                                fontSize = 20.sp
+                            )
+                        }
+
+                        Column {
+                            Text(
+                                text = userHeader[1].first,
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 22.sp
+                            )
+                            Text(
+                                text = price.toString(),
+                                fontSize = 20.sp
+                            )
+                        }
+
+                        Column {
+                            Text(
+                                text = userHeader[2].first,
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 22.sp
+                            )
+                            Text(
+                                text = rating.toString(),
+                                fontSize = 20.sp
+                            )
+                        }
+
+                        Column {
+                            Text(
+                                text = userHeader[3].first,
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 22.sp
+                            )
+                            Text(
+                                text = description,
+                                fontSize = 20.sp
+                            )
+                        }
+                    }
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(15.dp),
+                        modifier = Modifier.width(150.dp)
+                    ) {
+                        Column {
+                            Text(
+                                text = userHeader[4].first,
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 22.sp
+                            )
+                            Text(
+                                text = ingredient,
+                                fontSize = 20.sp
+                            )
+                        }
+
+                        Column {
+                            Text(
+                                text = userHeader[5].first,
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 22.sp
+                            )
+                            Text(
+                                text = cuisine,
+                                fontSize = 20.sp
+                            )
+                        }
+
+
+                        Column {
+                            Text(
+                                text = userHeader[7].first,
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 22.sp
+                            )
+                            Text(
+                                text = status,
+                                fontSize = 20.sp
+                            )
+                        }
+                    }
+                }
+
+                // Buttons
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = { onDismissRequest() }) {
+                        Text(text = "Dismiss")
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun getMenu(
+    index: Int,
+    menus: List<Menu> = Menus
+): Menu {
+    return menus[index]
+}
+
+
 @Preview(showBackground = true, device = Devices.TABLET)
 @Composable
 fun StaffMenuLandscapePreview(){
-    StaffMenuScreen("Recommended")
+    StaffMenuScreen()
 }
 
 @Preview(showBackground = true, device = Devices.PHONE)
 @Composable
 fun StaffMenuScreenPhonePreview() {
-    StaffMenuScreen("Recommended")
+    StaffMenuScreen()
 }
 
