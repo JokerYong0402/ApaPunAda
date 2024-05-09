@@ -43,8 +43,8 @@ import com.example.apapunada.R
 import com.example.apapunada.data.FoodCuisinesSample.FoodCuisines
 import com.example.apapunada.data.MenuSample.Menus
 import com.example.apapunada.data.OrderSample.Orders
-import com.example.apapunada.model.Cuisine
-import com.example.apapunada.model.Menu
+import com.example.apapunada.data.dataclass.Cuisine
+import com.example.apapunada.data.dataclass.Menu
 import com.example.apapunada.ui.components.MyBottomButton
 import com.example.apapunada.ui.components.MyTopTitleBar
 import com.example.apapunada.ui.components.formattedString

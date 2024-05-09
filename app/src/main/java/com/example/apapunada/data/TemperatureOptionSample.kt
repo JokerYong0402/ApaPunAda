@@ -1,6 +1,6 @@
 package com.example.apapunada.data
 
-import com.example.apapunada.model.TemperatureOption
+import com.example.apapunada.data.dataclass.TemperatureOption
 
 object TemperatureOptionSample {
     val temperatureOptions = listOf(

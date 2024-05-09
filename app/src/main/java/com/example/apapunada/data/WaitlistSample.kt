@@ -1,6 +1,6 @@
 package com.example.apapunada.data
 
-import com.example.apapunada.model.WaitList
+import com.example.apapunada.data.dataclass.WaitList
 
 object WaitlistSample {
     val Waitlists = listOf(

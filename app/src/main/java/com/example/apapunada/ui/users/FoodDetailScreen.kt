@@ -42,7 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
 import com.example.apapunada.data.MenuSample.Menus
-import com.example.apapunada.model.Menu
+import com.example.apapunada.data.dataclass.Menu
 import com.example.apapunada.ui.components.MyTopTitleBar
 import com.example.apapunada.ui.components.formattedString
 

@@ -1,7 +1,7 @@
 package com.example.apapunada.data
 
 import com.example.apapunada.R
-import com.example.apapunada.model.OrderOption
+import com.example.apapunada.data.dataclass.OrderOption
 
 object OrderMethodSample {
     val OrderMethod = listOf(

@@ -1,7 +1,7 @@
 package com.example.apapunada.data
 
 import com.example.apapunada.R
-import com.example.apapunada.model.User
+import com.example.apapunada.data.dataclass.User
 
 object UserSample {
     val Users = listOf(

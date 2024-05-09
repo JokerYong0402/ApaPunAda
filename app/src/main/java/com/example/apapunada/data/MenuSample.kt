@@ -2,7 +2,7 @@ package com.example.apapunada.data
 
 import com.example.apapunada.R
 import com.example.apapunada.data.FoodCuisinesSample.FoodCuisines
-import com.example.apapunada.model.Menu
+import com.example.apapunada.data.dataclass.Menu
 
 object MenuSample {
     val Menus = listOf(

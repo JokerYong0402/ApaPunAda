@@ -62,7 +62,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.apapunada.R
 import com.example.apapunada.StaffScreen
-import com.example.apapunada.model.Order
+import com.example.apapunada.data.dataclass.Order
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

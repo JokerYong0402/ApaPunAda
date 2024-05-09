@@ -1,6 +1,6 @@
 package com.example.apapunada.data
 
-import com.example.apapunada.model.OrderStatus
+import com.example.apapunada.data.dataclass.OrderStatus
 
 object OrderStatusSample {
     val OrderStatus = listOf(

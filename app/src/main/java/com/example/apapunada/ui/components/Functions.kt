@@ -20,10 +20,32 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.apapunada.R
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 fun formattedString(value: Double): String {
     return String.format("%.2f", value)
 }
+
+fun formattedDate(millis: Long, option: String?): String {
+    val date = Date(millis)
+
+    val formatter = when (option) {
+        "date" -> {
+            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        }
+        "time" -> {
+            SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+        }
+        else -> {
+            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        }
+    }
+
+    return formatter.format(date)
+}
+
 
 @Composable
 fun SetPortraitOrientationOnly() {

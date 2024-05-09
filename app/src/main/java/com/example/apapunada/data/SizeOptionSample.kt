@@ -1,6 +1,6 @@
 package com.example.apapunada.data
 
-import com.example.apapunada.model.SizeOption
+import com.example.apapunada.data.dataclass.SizeOption
 
 object SizeOptionSample {
     val sizeOptions = listOf(

@@ -1,6 +1,6 @@
 package com.example.apapunada.data
 
-import com.example.apapunada.model.Cuisine
+import com.example.apapunada.data.dataclass.Cuisine
 
 object FoodCuisinesSample {
     val FoodCuisines = listOf(

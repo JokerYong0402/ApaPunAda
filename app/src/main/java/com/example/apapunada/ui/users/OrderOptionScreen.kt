@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
 import com.example.apapunada.data.OrderMethodSample.OrderMethod
-import com.example.apapunada.model.OrderOption
+import com.example.apapunada.data.dataclass.OrderOption
 import com.example.apapunada.ui.components.MyBottomButton
 import com.example.apapunada.ui.components.MyTopTitleBar
 

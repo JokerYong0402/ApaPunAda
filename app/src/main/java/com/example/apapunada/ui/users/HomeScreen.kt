@@ -45,7 +45,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.apapunada.R
 import com.example.apapunada.data.MenuSample.Menus
-import com.example.apapunada.model.Menu
+import com.example.apapunada.data.dataclass.Menu
 import com.example.apapunada.ui.components.MyBottomNavBar
 import com.example.apapunada.ui.components.MyTopAppBar
 import com.example.apapunada.ui.components.SetPortraitOrientationOnly

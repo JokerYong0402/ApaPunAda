@@ -53,8 +53,8 @@ import androidx.compose.ui.window.Dialog
 import com.example.apapunada.R
 import com.example.apapunada.data.OrderSample.Orders
 import com.example.apapunada.data.OrderStatusSample
-import com.example.apapunada.model.Order
-import com.example.apapunada.model.OrderStatus
+import com.example.apapunada.data.dataclass.Order
+import com.example.apapunada.data.dataclass.OrderStatus
 import com.example.apapunada.ui.components.formattedString
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -142,7 +142,7 @@ fun StaffOrderScreen(
                         .height(100.dp)
                 ) {
                     Text(
-                        text = order.id.toString(),
+                        text = order.orderID.toString(),
                         fontSize = 22.sp,
                         modifier = Modifier
                             .width(headerList[0].second)
@@ -150,7 +150,7 @@ fun StaffOrderScreen(
                     )
 
                     Text(
-                        text = order.orderId,
+                        text = order.orderID.toString(),
                         fontSize = 22.sp,
                         modifier = Modifier
                             .width(headerList[1].second)
@@ -159,7 +159,7 @@ fun StaffOrderScreen(
                     Row {
 //                        Icon(painter = painterResource(R.id))
                         Text(
-                            text = order.user.username,
+                            text = order.userID.toString(),
                             fontSize = 22.sp,
                             modifier = Modifier
                                 .width(headerList[2].second)
@@ -174,21 +174,21 @@ fun StaffOrderScreen(
                     )
 
                     Text(
-                        text = order.date,
+                        text = order.dateTime.toString(),
                         fontSize = 22.sp,
                         modifier = Modifier
                             .width(headerList[4].second)
                     )
 
                     Text(
-                        text = order.time,
+                        text = System.currentTimeMillis().toString(),
                         fontSize = 22.sp,
                         modifier = Modifier
                             .width(headerList[5].second)
                     )
 
                     Text(
-                        text = order.statusId.status,
+                        text = order.orderStatus,
                         fontSize = 22.sp,
                         modifier = Modifier
                             .width(headerList[6].second)
@@ -248,7 +248,7 @@ fun DialogOfEditOrder(
 ) {
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
-    var selectedStatus by remember { mutableStateOf(order.statusId) }
+    var selectedStatus by remember { mutableStateOf(order.orderStatus) }
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
@@ -431,7 +431,7 @@ fun DialogOfOrderDetail(
                                     fontSize = 22.sp
                                 )
                                 Text(
-                                    text = order.statusId.status,
+                                    text = order.status.status,
                                     fontSize = 20.sp
                                 )
                             }

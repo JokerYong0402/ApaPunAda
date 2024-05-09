@@ -47,12 +47,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
-import com.example.apapunada.data.FoodCuisinesSample
-import com.example.apapunada.data.MenuSample
 import com.example.apapunada.data.WaitlistSample
-import com.example.apapunada.model.Cuisine
-import com.example.apapunada.model.Menu
-import com.example.apapunada.model.WaitList
+import com.example.apapunada.data.dataclass.WaitList
 import com.example.apapunada.ui.components.MyTopTitleBar
 import com.example.apapunada.ui.components.PopupWindowDialog
 
