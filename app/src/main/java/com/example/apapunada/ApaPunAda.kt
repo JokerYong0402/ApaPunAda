@@ -43,7 +43,9 @@ import com.example.apapunada.ui.IntroductionPager
 import com.example.apapunada.ui.LoginScreen
 import com.example.apapunada.ui.components.StaffAppBarPortrait
 import com.example.apapunada.ui.staff.StaffDashboardScreen
+import com.example.apapunada.ui.staff.StaffFeedbackScreen
 import com.example.apapunada.ui.staff.StaffOrderScreen
+//import com.example.apapunada.ui.staff.StaffWaitlistScreen
 import com.example.apapunada.ui.users.FeedbackScreen
 import com.example.apapunada.ui.users.FeedbackSuccessScreen
 import com.example.apapunada.ui.users.HomeScreen
@@ -133,7 +135,7 @@ fun StaffUI(
     navController: NavHostController = rememberNavController(),
 ) {
     var currentScreen by remember { mutableStateOf(StaffScreen.Dashboard) }
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Open)
     val coroutineScope = rememberCoroutineScope()
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -230,12 +232,10 @@ fun StaffNavigation(
 //            MenuScreen()
         }
 
-        composable(route = StaffScreen.Waitlist.name){
-            currentScreen(StaffScreen.Waitlist)
-            WaitlistScreen(
-                onBackButtonClicked = { navController.navigateUp() }
-            )
-        }
+//        composable(route = StaffScreen.Waitlist.name){
+//            currentScreen(StaffScreen.Waitlist)
+//            StaffWaitlistScreen()
+//        }
 
         composable(route = StaffScreen.Ordering.name){
             currentScreen(StaffScreen.Ordering)
@@ -243,7 +243,7 @@ fun StaffNavigation(
         }
 
         composable(route = StaffScreen.Feedback.name){
-
+            StaffFeedbackScreen()
         }
     }
 }
