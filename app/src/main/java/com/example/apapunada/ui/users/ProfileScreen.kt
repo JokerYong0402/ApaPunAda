@@ -1,5 +1,6 @@
 package com.example.apapunada.ui.users
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -27,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -45,8 +47,10 @@ import com.example.apapunada.ui.components.MyTopTitleBar
 
 @Composable
 fun ProfileScreen(
-    person: User = UserSample.Users[0]
-
+    person: User = UserSample.Users[0],
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    onLogin: () -> Unit
 ) {
     Scaffold(
         topBar = { MyTopTitleBar(title = stringResource(R.string.profile)) },
@@ -101,7 +105,7 @@ fun ProfileScreen(
 
                             )
                         Text(
-                            text = person.point.toString(),
+                            text = "Point : " + person.point.toString(),
                             fontSize = 18.sp
                         )
 
@@ -357,8 +361,12 @@ fun ProfileScreen(
                     }
                 }
 
+                val context = LocalContext.current
+
                 ElevatedButton(
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                        Toast.makeText(context, "Logout Successfully", Toast.LENGTH_SHORT).show()
+                    },
                     colors = ButtonDefaults.buttonColors(
                         colorResource(R.color.primary)
                     ),
@@ -420,6 +428,8 @@ fun ProfileScreen(
 @Composable
 fun ProfileScreenPreview() {
     ProfileScreen(
-
+        onEdit = {},
+        onDelete = {},
+        onLogin = {}
     )
 }
