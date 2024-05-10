@@ -7,6 +7,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -32,6 +33,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -43,6 +46,8 @@ import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
 import com.example.apapunada.data.WaitlistSample.Waitlists
 import com.example.apapunada.model.WaitList
+import com.example.apapunada.ui.components.DropDownMenu
+import com.example.apapunada.ui.components.SearchBar
 import com.example.apapunada.ui.components.formattedString
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -50,12 +55,19 @@ import com.example.apapunada.ui.components.formattedString
 fun StaffWaitlistScreen(
     waitlists: List<WaitList> = Waitlists
 ) {
+    val config  = LocalConfiguration.current
+    val width by remember(config) {
+        mutableStateOf(config.screenWidthDp)
+    }
+
     var callAccept by remember { mutableStateOf(false) }
     var callCancel by remember { mutableStateOf(false) }
 
     var isSelected by remember { mutableStateOf("current") }
 
     val primaryColor = colorResource(R.color.primary)
+
+    var textInput by remember { mutableStateOf("") }
 
     if (callAccept) {
         AcceptWaitlist()
@@ -85,6 +97,17 @@ fun StaffWaitlistScreen(
         Pair("Status", 200.dp)
     )
 
+    val currentList = listOf(
+        "Party",
+        "Size"
+    )
+
+    val historyList = listOf(
+        "Party",
+        "Size",
+        "Status"
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -95,6 +118,8 @@ fun StaffWaitlistScreen(
                 .padding(bottom = 5.dp)
         ) {
             OutlinedButton(
+                modifier = Modifier
+                    .padding(top = 12.dp),
                 border = BorderStroke(width = 1.dp, color = primaryColor),
                 colors = ButtonDefaults.outlinedButtonColors( // Access default colors
                     containerColor = if (isSelected == "current") primaryColor else Color.White, // Set custom background color
@@ -109,6 +134,8 @@ fun StaffWaitlistScreen(
                 Text(text = "Current")
             }
             OutlinedButton(
+                modifier = Modifier
+                    .padding(top = 12.dp),
                 border = BorderStroke(width = 1.dp, color = primaryColor),
                 colors = ButtonDefaults.buttonColors( // Access default colors
                     containerColor = if (isSelected == "current") Color.White else primaryColor, // Set custom background color
@@ -122,7 +149,48 @@ fun StaffWaitlistScreen(
             ) {
                 Text(text = "History")
             }
+            Spacer(modifier = Modifier.size(10.dp))
+            if (width > 600 && isSelected == "current") {
+                DropDownMenu(currentList)
+                Spacer(modifier = Modifier.size(10.dp))
+                SearchBar(
+                    value = textInput,
+                    onValueChange = { textInput = it },
+                    modifier = Modifier
+                )
+
+            } else if (width > 600 && isSelected == "history") {
+                DropDownMenu(historyList)
+                Spacer(modifier = Modifier.size(10.dp))
+                SearchBar(
+                    value = textInput,
+                    onValueChange = { textInput = it },
+                    modifier = Modifier
+                )
+            }
         }
+        if (width <= 600 && isSelected == "current") {
+            Row {
+                DropDownMenu(currentList)
+                Spacer(modifier = Modifier.size(10.dp))
+                SearchBar(
+                    value = textInput,
+                    onValueChange = { textInput = it },
+                    modifier = Modifier
+                )
+            }
+        } else if (width <= 600 && isSelected == "history") {
+            Row {
+                DropDownMenu(historyList)
+                Spacer(modifier = Modifier.size(10.dp))
+                SearchBar(
+                    value = textInput,
+                    onValueChange = { textInput = it },
+                    modifier = Modifier
+                )
+            }
+        }
+        Spacer(modifier = Modifier.size(10.dp))
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()

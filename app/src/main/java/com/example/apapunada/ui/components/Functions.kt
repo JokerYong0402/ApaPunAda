@@ -139,20 +139,13 @@ fun PopupWindowDialog(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectField(
-    field: List<String>
+fun DropDownMenu(
+    itemList: List<String>
 ) {
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
     var selectedField by remember { mutableStateOf("Field") }
     var primaryColor = colorResource(id = R.color.primary)
-
-    val fieldList = listOf(
-        "Party",
-        "Star",
-        "Category",
-        "Comments"
-    )
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -204,7 +197,7 @@ fun SelectField(
             modifier = Modifier
                 .background(Color.White)
         ) {
-            fieldList.forEach { field ->
+            itemList.forEach { field ->
                 DropdownMenuItem(
                     text = { Text(text = field) },
                     onClick = {
