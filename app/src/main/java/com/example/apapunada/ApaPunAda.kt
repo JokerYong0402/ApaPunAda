@@ -112,6 +112,8 @@ fun ApaPunAdaApp(
             composable("rewards") {
                 RewardsScreen(
                     onBackButtonClicked = { navController.navigateUp() },
+                    onRedeem = {drawableId, voucherRM -> navController.navigate("VoucherRedeem/$drawableId/$voucherRM")},
+                    onDetails = {drawableId, voucherRM -> navController.navigate("VoucherDetails/$drawableId/$voucherRM")},
                     userPoint = 1
                 )
             }
