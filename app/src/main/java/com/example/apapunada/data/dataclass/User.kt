@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity
 data class User(
     @PrimaryKey(autoGenerate = true)
-    val userID: Int,
+    val userID: Int = 0,
     val username: String = "",
     val email: String = "",
     val password: String = "",
@@ -15,5 +15,5 @@ data class User(
     val dob: Long = 0,
     val image: Int = 0,
     val point: Int = 0,
-    val status: String = "Active" //enum
+    val status: String = ""
 )
