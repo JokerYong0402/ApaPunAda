@@ -2,6 +2,7 @@ package com.example.apapunada.ui.staff
 
 import android.widget.DatePicker
 import android.app.DatePickerDialog
+import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -282,27 +283,13 @@ fun DialogOfEditUser(
     var editedName by remember { mutableStateOf(user.username) }
     var editedPhone by remember { mutableStateOf(user.phoneNo) }
     var editedGender by remember { mutableStateOf(user.gender) }
-    val year: Int
-    val month: Int
-    val day: Int
-    val calendar = Calendar.getInstance()
-    year = calendar.get(Calendar.YEAR)
-    month = calendar.get(Calendar.MONTH)
-    day = calendar.get(Calendar.DAY_OF_MONTH)
-    calendar.time = Date()
-    val date = remember { mutableStateOf(user.dob) }
-    val context = LocalContext.current
-    val datePickerDialog = DatePickerDialog(
-        context,
-        {_: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-            date.value = "$dayOfMonth-${month+1}-$year"
-        }, year, month, day
-    )
 
     var expandedS by remember { mutableStateOf(false) }
     var expandedG by remember { mutableStateOf(false) }
     var selectedStatus by remember { mutableStateOf(user.status) }
     var selectedGender by remember { mutableStateOf(user.gender) }
+
+    val context = LocalContext.current
 
     val imageUri = rememberSaveable { mutableStateOf("") }
     val painter = rememberImagePainter(
@@ -429,19 +416,7 @@ fun DialogOfEditUser(
                             }
                         }
                     }
-                    ReadonlyTextField(
-                        value = date.value,
-                        onValueChange = { date.value = it },
-                        textStyle = TextStyle(fontSize = 15.sp),
-                        label = { Text("Date of Birth") },
-                        modifier = Modifier
-                            .size(width = 280.dp, height = 55.dp),
-                        onClick = { datePickerDialog.show() },
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            focusedBorderColor = colorResource(R.color.primary),
-                            unfocusedBorderColor = colorResource(R.color.primary)
-                        )
-                    )
+                    DatePickerDialog(context, user)
 
                     ExposedDropdownMenuBox(
                         expanded = expandedS,
@@ -498,6 +473,42 @@ fun DialogOfEditUser(
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DatePickerDialog(
+    context: Context,
+    user: User
+) {
+    val year: Int
+    val month: Int
+    val day: Int
+    val calendar = Calendar.getInstance()
+    year = calendar.get(Calendar.YEAR)
+    month = calendar.get(Calendar.MONTH)
+    day = calendar.get(Calendar.DAY_OF_MONTH)
+    calendar.time = Date()
+    val date = remember { mutableStateOf(user.dob) }
+    val datePickerDialog = DatePickerDialog(
+        context,
+        {_: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+            date.value = "$dayOfMonth-${month+1}-$year"
+        }, year, month, day
+    )
+    ReadonlyTextField(
+        value = date.value,
+        onValueChange = { date.value = it },
+        textStyle = TextStyle(fontSize = 15.sp),
+        label = { Text("Date of Birth") },
+        modifier = Modifier
+            .size(width = 280.dp, height = 55.dp),
+        onClick = { datePickerDialog.show() },
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            focusedBorderColor = colorResource(R.color.primary),
+            unfocusedBorderColor = colorResource(R.color.primary)
+        )
+    )
 }
 
 @Composable
