@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,20 +51,39 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
 import com.example.apapunada.data.OrderSample.Orders
 import com.example.apapunada.data.dataclass.Order
-import com.example.apapunada.data.dataclass.OrderStatus
+import com.example.apapunada.data.dataclass.User
 import com.example.apapunada.ui.components.formattedString
+import com.example.apapunada.viewmodel.OrderListState
+import com.example.apapunada.viewmodel.OrderUiState
+import com.example.apapunada.viewmodel.OrderViewModel
+import com.example.apapunada.viewmodel.UserUiState
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.forEach
+import kotlinx.coroutines.flow.toList
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun StaffOrderScreen(
-    orders: List<Order> = Orders
 ) {
+    val orderViewModel: OrderViewModel = viewModel()
+    val orderUiState = orderViewModel.orderUiState.collectAsState(initial = OrderUiState())
+    val orderListState = orderViewModel.orderListState.collectAsState(initial = OrderListState())
+
+    orderViewModel.loadAllOrder()
+//    val orderListState = orderViewModel.orderListState.value
+//    if (orderListState.value.orderList.isNotEmpty()) {
+        val orderList = orderListState.value.orderList.value
+//    }
+//    val orders = orderList
+
     var editButton by remember { mutableStateOf(false) }
     var detailButton by remember { mutableStateOf(false) }
-    var currentOrder by remember { mutableStateOf(orders[0]) }
+//    var currentOrder by remember { mutableStateOf(orders[0]) }
 
     val headerList = listOf(
         // (Header name, Column width)
@@ -132,8 +152,8 @@ fun StaffOrderScreen(
                 }
             }
 
-            items(orders.size) { i ->
-                val order = orders[i]
+            items(orderList) { i ->
+                val order = orders
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier

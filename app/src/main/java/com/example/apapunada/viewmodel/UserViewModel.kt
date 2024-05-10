@@ -1,5 +1,6 @@
 package com.example.apapunada.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.apapunada.data.dataclass.User
@@ -8,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
@@ -24,7 +26,7 @@ data class UserListState(
     val errorMessage: String = ""
 )
 
-enum class OrderStatus {
+enum class UserStatus {
     Active,
     Disabled,
     Deleted,
@@ -61,6 +63,78 @@ class UserViewModel(private val userRepository: UserRepository): ViewModel() {
         viewModelScope.launch {
             val user = userRepository.getUserStream(id)
             _userUiState.update { it.copy(user = user) }
+        }
+    }
+
+    fun saveUser(userUiState: UserUiState) {
+        viewModelScope.launch {
+            try {
+                val user = userUiState.user.first()
+
+                userRepository.insertUser(
+                    User(
+                        username = user.username,
+                        email = user.email,
+                        password = user.password,
+                        phoneNo = user.phoneNo,
+                        gender = user.gender,
+                        dob = user.dob,
+                        image = user.image,
+                        point = user.point,
+                        status = user.status
+                    )
+                )
+            } catch (e: Exception) {
+                Log.i("User", "saveUser: " + e.message.toString())
+            }
+        }
+    }
+
+    fun updateUser(userUiState: UserUiState) {
+        viewModelScope.launch {
+            try {
+                val user = userUiState.user.first()
+
+                userRepository.insertUser(
+                    User(
+                        username = user.username,
+                        email = user.email,
+                        password = user.password,
+                        phoneNo = user.phoneNo,
+                        gender = user.gender,
+                        dob = user.dob,
+                        image = user.image,
+                        point = user.point,
+                        status = user.status
+                    )
+                )
+            } catch (e: Exception) {
+                Log.i("User", "updateUser: " + e.message.toString())
+            }
+        }
+    }
+
+    fun deleteUser(userUiState: UserUiState) {
+        viewModelScope.launch {
+            try {
+                val user = userUiState.user.first()
+
+                userRepository.deleteUser(
+                    User(
+                        username = user.username,
+                        email = user.email,
+                        password = user.password,
+                        phoneNo = user.phoneNo,
+                        gender = user.gender,
+                        dob = user.dob,
+                        image = user.image,
+                        point = user.point,
+                        status = user.status
+                    )
+                )
+            } catch (e: Exception) {
+                Log.i("User", "deleteUser: " + e.message.toString())
+            }
         }
     }
 }

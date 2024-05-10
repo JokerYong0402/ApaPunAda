@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface OrderRepository {
 
-    fun getOrderByUserIdStream(id: Int): List<Flow<Order>>
+    fun getOrderByUserIdStream(id: Int): Flow<List<Order>>
 
     fun getOrderByOrderIdStream(id: Int): Flow<Order>
 

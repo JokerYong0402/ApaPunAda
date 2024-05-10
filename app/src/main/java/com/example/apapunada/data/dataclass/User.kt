@@ -13,7 +13,7 @@ data class User(
     val phoneNo: String = "",
     val gender: String = "",
     val dob: Long = 0,
-    val image: Int = 0,
+    val image: String = "",
     val point: Int = 0,
     val status: String = ""
 )
