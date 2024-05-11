@@ -15,11 +15,12 @@ import androidx.room.PrimaryKey
 )
 data class Voucher(
     @PrimaryKey(autoGenerate = true)
-    val voucherID: Int,
-    val userID: Int,
+    val voucherID: Int = 0,
+    val userID: Int = 0,
     val image: String = "",
     val description: String = "",
     val code: String = "",
     val value: Double = 0.0,
-    val status: String // enum
+    val expiryDateTime: Long = 0,
+    val status: String = ""// enum
 )

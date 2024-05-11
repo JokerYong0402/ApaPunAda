@@ -27,5 +27,5 @@ interface OrderDao {
     fun getOrderByOrderId(id: Int): Flow<Order>
 
     @Query("SELECT * FROM `order` WHERE userID = :id")
-    fun getOrderByUserId(id: Int): List<Flow<Order>>
+    fun getOrderByUserId(id: Int): Flow<List<Order>>
 }

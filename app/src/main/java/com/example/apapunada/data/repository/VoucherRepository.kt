@@ -7,6 +7,8 @@ interface VoucherRepository {
 
     fun getAllVouchersStream(): Flow<List<Voucher>>
 
+    fun getVouchersByUserId(id: Int): Flow<List<Voucher>>
+
     suspend fun deleteVoucher(voucher: Voucher)
 
     suspend fun updateVoucher(voucher: Voucher)

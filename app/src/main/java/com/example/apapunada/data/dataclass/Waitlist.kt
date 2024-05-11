@@ -15,8 +15,8 @@ import androidx.room.PrimaryKey
 )
 data class Waitlist(
     @PrimaryKey(autoGenerate = true)
-    val waitlistID: Int,
-    val userID: Int,
+    val waitlistID: Int = 0,
+    val userID: Int = 0,
     val size: Int = 1,
     val datetime: Long = System.currentTimeMillis(),
     val status: String = "" // enum

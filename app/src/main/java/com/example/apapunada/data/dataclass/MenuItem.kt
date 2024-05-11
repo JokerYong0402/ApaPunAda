@@ -6,12 +6,12 @@ import androidx.room.PrimaryKey
 @Entity
 data class MenuItem(
     @PrimaryKey(autoGenerate = true)
-    val menuItemID: Int,
+    val menuItemID: Int = 0,
     val itemName: String = "",
-    val cuisine: String, //enum
-    val price: Double,
-    val rating: Double,
-    val image: Int,
-    val description: String,
-    val status: String
+    val cuisine: String = "", //enum
+    val price: Double = 0.0,
+    val rating: Double = 0.0,
+    val image: String = "",
+    val description: String = "",
+    val status: String = "",
 )

@@ -21,4 +21,7 @@ interface WaitlistDao {
 
     @Query("SELECT * FROM `waitlist`")
     fun getAllWaitlists(): Flow<List<Waitlist>>
+
+    @Query("SELECT * FROM `waitlist` WHERE userID = :id")
+    fun getWaitlistByUserId(id: Int): Flow<List<Waitlist>>
 }

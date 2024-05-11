@@ -15,8 +15,8 @@ import androidx.room.PrimaryKey
 )
 data class NutritionFacts(
     @PrimaryKey(autoGenerate = true)
-    val nutritionFactsID: Int,
-    val foodDetailsID: Int,
+    val nutritionFactsID: Int = 0,
+    val foodDetailsID: Int = 0,
     val carbohydrates: Double = 0.0,
     val proteins: Double = 0.0,
     val fats: Double = 0.0,

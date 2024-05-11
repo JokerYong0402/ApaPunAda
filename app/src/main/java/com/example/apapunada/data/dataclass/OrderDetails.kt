@@ -25,9 +25,9 @@ import androidx.room.PrimaryKey
 )
 data class OrderDetails(
     @PrimaryKey(autoGenerate = true)
-    val orderDetailsID: Int,
-    val orderID: Int,
-    val menuItemID: Int,
+    val orderDetailsID: Int = 0,
+    val orderID: Int = 0,
+    val menuItemID: Int = 0,
     val quantity: Int = 0,
     val remark: String = "",
     val option: String = "",

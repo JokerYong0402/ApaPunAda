@@ -15,10 +15,10 @@ import androidx.room.PrimaryKey
 )
 data class Feedback(
     @PrimaryKey(autoGenerate = true)
-    val feedbackID: Int,
-    val userID: Int,
+    val feedbackID: Int = 0,
+    val userID: Int = 0,
     val star: Int = 5,
-    val category: String,
+    val category: String = "",
     val images: String = "",
     val comments: String = ""
 )

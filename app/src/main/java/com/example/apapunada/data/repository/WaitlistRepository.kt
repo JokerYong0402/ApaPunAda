@@ -7,6 +7,8 @@ interface WaitlistRepository {
 
     fun getAllWaitlistsStream(): Flow<List<Waitlist>>
 
+    fun getWaitlistByUserId(id: Int): Flow<List<Waitlist>>
+
     suspend fun deleteWaitlist(waitlist: Waitlist)
 
     suspend fun updateWaitlist(waitlist: Waitlist)

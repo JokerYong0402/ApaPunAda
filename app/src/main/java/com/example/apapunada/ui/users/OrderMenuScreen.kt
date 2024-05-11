@@ -40,7 +40,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
-import com.example.apapunada.data.FoodCuisinesSample.FoodCuisines
 import com.example.apapunada.data.MenuSample.Menus
 import com.example.apapunada.data.OrderSample.Orders
 import com.example.apapunada.data.dataclass.Cuisine

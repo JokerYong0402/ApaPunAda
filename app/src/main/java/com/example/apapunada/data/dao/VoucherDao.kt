@@ -21,4 +21,7 @@ interface VoucherDao {
 
     @Query("SELECT * FROM `voucher`")
     fun getAllVouchers(): Flow<List<Voucher>>
+
+    @Query("SELECT * FROM `voucher` WHERE userID = :id")
+    fun getVouchersByUserId(id: Int): Flow<List<Voucher>>
 }

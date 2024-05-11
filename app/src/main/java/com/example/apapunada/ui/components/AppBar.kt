@@ -253,7 +253,7 @@ fun MyBottomButton(content: String, order: Order? = null, price: Double? = null)
                 modifier = Modifier.fillMaxWidth()
             ) {
                 if (order != null) {
-                    Text(text = order.orderDetails.count().toString() + " items")
+//                    Text(text = order.orderDetails.count().toString() + " items") TODO
                 }
 
                 Text(
