@@ -18,6 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.KeyboardArrowLeft
@@ -59,6 +60,7 @@ import com.example.apapunada.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VoucherRedeem(
+    onBackButtonClicked: () -> Unit,
     image: Painter,
     voucherRM: String,
     userPoints: Int
@@ -97,10 +99,10 @@ fun VoucherRedeem(
                     navigationIcon = {
                         IconButton(
                             enabled = able,
-                            onClick = { /*TODO*/ }
+                            onClick = onBackButtonClicked
                         ) {
                             Icon(
-                                imageVector = Icons.Rounded.KeyboardArrowLeft,
+                                imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
                                 contentDescription = "Back",
                                 modifier = Modifier.fillMaxSize()
                             )
@@ -368,5 +370,5 @@ fun Redeem(
 @Preview(showBackground = true)
 @Composable
 fun VoucherRedeemPreview() {
-    VoucherRedeem(painterResource(R.drawable.voucher_rm1), "RM1", 123)
+    VoucherRedeem({},painterResource(R.drawable.voucher_rm1), "RM1", 123)
 }

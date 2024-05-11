@@ -8,12 +8,9 @@
     <string name="intro_sub_3">Join the waitlist while on the way</string>
     <string name="login">Login</string>
     <string name="sign_up">Sign Up</string>
-    <string name="profile">My Profile</string>
     <string name="logout">LOGOUT</string>
-    <string name="edit_profile">Edit Profile</string>
     <string name="save">Save</string>
     <string name="ok">OK</string>
-    <string name="delete_profile">Delete Account</string>
     <string name="submit">Submit</string>
     <string name="cancel">Cancel</string>
     <string name="confirm">Confirm</string>
@@ -24,7 +21,7 @@
     <string name="feedback_3">Let us know how can we serve you better.</string>
     <string name="feedback_4">Upload images. (%s/3)</string>
     <string name="feedback_5">Let us know how can we serve you better. (%s/100)</string>
-    <string name="feedback_6">Tell us how can we improve...</string>
+    <string name="feedback_6">Tell us how can we improve…</string>
     <string name="feedback_7">Thanks for your feedback!</string>
     <string name="feedback_8">We appreciate your feedback—it fuels our improvement process.</string>
     <string name="feedback_9">Are you sure you want to submit the feedback form?</string>
@@ -42,6 +39,8 @@
     <string name="waitlist_11">Oh no! Your reservation is expired!</string>
     <string name="waitlist_12">Your reservation had expired since you did not register in the counter within 5 minutes. Kindly register in the counter within 5 minutes for the next reservation. Thank you and sorry for any inconveniences caused.</string>
     <string name="waitlist_13">Your table is ready, Ali!</string>
+    <string name="feedback_success">Feedback Success</string>
+    <string name="home">Home</string>
     <!--    <string name="feedback_button_1">Packaging</string>-->
 <!--    <string name="feedback_button_2">Menu</string>-->
 <!--    <string name="feedback_button_3">Delivery</string>-->
@@ -55,4 +54,11 @@
 	<string name="waitlist_mgmt">Waitlist Management</string>
 	<string name="order_mgmt">Order Management</string>
 	<string name="feedback_mgmt">Feedback Management</string>
+    <string name="profile">My Profile</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="delete_profile">Delete Account</string>
+    <string name="introduction">Introduction</string>
+    <string name="order">Order</string>
+    <string name="rewards">Rewards</string>
+    <string name="more">more</string>
 </resources>

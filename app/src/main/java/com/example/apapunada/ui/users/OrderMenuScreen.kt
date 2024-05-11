@@ -125,9 +125,7 @@ fun OrderMenuScreen(
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                         modifier = Modifier.fillMaxSize()
                                     ) {
-                                        Column(
-
-                                        ) {
+                                        Column {
                                             Image(
                                                 painter = painterResource(menu.image),
                                                 contentDescription = menu.name,

@@ -1,4 +1,4 @@
-package com.example.apapunada.ui
+package com.example.apapunada.ui.users
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -52,7 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
 import com.example.apapunada.data.MenuSample
-import com.example.apapunada.data.dataclass.Menu
+import com.example.apapunada.model.Menu
 import com.example.apapunada.ui.components.MyTopTitleBar
 
 @Composable

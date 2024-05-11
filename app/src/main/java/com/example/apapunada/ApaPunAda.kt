@@ -1,5 +1,6 @@
 package com.example.apapunada
 
+//import com.example.apapunada.ui.staff.StaffWaitlistScreen
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
@@ -43,9 +44,11 @@ import com.example.apapunada.ui.IntroductionPager
 import com.example.apapunada.ui.LoginScreen
 import com.example.apapunada.ui.components.StaffAppBarPortrait
 import com.example.apapunada.ui.staff.StaffDashboardScreen
+import com.example.apapunada.ui.staff.StaffFeedbackScreen
+import com.example.apapunada.ui.staff.StaffMenuScreen
 import com.example.apapunada.ui.staff.StaffOrderScreen
-import com.example.apapunada.ui.users.FeedbackScreen
-import com.example.apapunada.ui.users.FeedbackSuccessScreen
+import com.example.apapunada.ui.staff.StaffUserScreen
+import com.example.apapunada.ui.staff.StaffWaitlistScreen
 import com.example.apapunada.ui.users.HomeScreen
 import com.example.apapunada.ui.users.MoreScreen
 import com.example.apapunada.ui.users.OrderOptionScreen
@@ -54,7 +57,14 @@ import com.example.apapunada.ui.users.WaitlistScreen
 import kotlinx.coroutines.launch
 
 enum class UserScreen(@StringRes val title: Int) {
-
+    Introduction(R.string.introduction),
+    Login(R.string.login),
+    SignUp(R.string.sign_up),
+    Home(R.string.home),
+    Waitlist(R.string.waitlist),
+    Order(R.string.order),
+    Rewards(R.string.rewards),
+    More(R.string.more),
 }
 
 enum class StaffScreen(@StringRes val title: Int, @DrawableRes val icon: Int) {
@@ -70,58 +80,55 @@ enum class StaffScreen(@StringRes val title: Int, @DrawableRes val icon: Int) {
 fun ApaPunAdaApp(
     navController: NavHostController = rememberNavController()
 ) {
-    NavHost(navController = navController, startDestination = "introduction") {
-        composable("introduction") {
+    NavHost(
+        navController = navController,
+        startDestination = "introduction"
+    ) {
+        composable(UserScreen.Introduction.name) {
             IntroductionPager(
-                onLoginButtonClicked = { navController.navigate("login") },
+                onLoginButtonClicked = { navController.navigate(UserScreen.Login.name) },
 //                onSignUpButtonClicked = navController.navigate("")
                 )
         }
 
-        composable("login") {
+        composable(UserScreen.Login.name) {
             LoginScreen(
                 onBackButtonClicked = { navController.navigateUp() },
-                onLoginButtonClicked = { navController.navigate("home")}
+                onLoginButtonClicked = { navController.navigate(UserScreen.Home.name)}
             )
         }
 
-        navigation(startDestination = "home", route = "userLoggedIn") {
-            composable("home") {
+        navigation(startDestination = UserScreen.Home.name, route = "userLoggedIn") {
+            composable(UserScreen.Home.name) {
                 HomeScreen(navController = navController)
             }
 
-            composable("waitlist") {
+            composable(UserScreen.Waitlist.name) {
                 WaitlistScreen(
                     onBackButtonClicked = { navController.navigateUp() }
                 )
             }
 
-            composable("feedback"){
-                FeedbackScreen(
-                    onSubmit = { navController.navigate("feedbacksuccess")}
-                )
-            }
+//            composable("feedback"){
+//                FeedbackNav(navController = navController)
+//            }
 
-            composable("feedbacksuccess") {
-                FeedbackSuccessScreen(
-                    onClick = { navController.navigate("home")}
-                )
-            }
-
-            composable("order") {
+            composable(UserScreen.Order.name) {
                 OrderOptionScreen(
                     onBackButtonClicked = { navController.navigateUp() }
                 )
             }
 
-            composable("rewards") {
+            composable(UserScreen.Rewards.name) {
                 RewardsScreen(
                     onBackButtonClicked = { navController.navigateUp() },
+                    onRedeem = {drawableId, voucherRM -> navController.navigate("VoucherRedeem/$drawableId/$voucherRM")},
+                    onDetails = {drawableId, voucherRM -> navController.navigate("VoucherDetails/$drawableId/$voucherRM")},
                     userPoint = 1
                 )
             }
 
-            composable("more") {
+            composable(UserScreen.More.name) {
                 MoreScreen(navController = navController)
             }
         }
@@ -222,19 +229,18 @@ fun StaffNavigation(
         }
 
         composable(route = StaffScreen.User.name){
-
+            currentScreen(StaffScreen.User)
+            StaffUserScreen()
         }
 
         composable(route = StaffScreen.Menu.name){
             currentScreen(StaffScreen.Menu)
-//            MenuScreen()
+            StaffMenuScreen()
         }
 
         composable(route = StaffScreen.Waitlist.name){
             currentScreen(StaffScreen.Waitlist)
-            WaitlistScreen(
-                onBackButtonClicked = { navController.navigateUp() }
-            )
+            StaffWaitlistScreen()
         }
 
         composable(route = StaffScreen.Ordering.name){
@@ -243,7 +249,7 @@ fun StaffNavigation(
         }
 
         composable(route = StaffScreen.Feedback.name){
-
+            StaffFeedbackScreen()
         }
     }
 }

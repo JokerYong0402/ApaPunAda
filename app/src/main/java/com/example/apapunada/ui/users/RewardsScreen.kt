@@ -15,9 +15,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.KeyboardArrowLeft
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -47,10 +47,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RewardsScreen(
     onBackButtonClicked: () -> Unit,
+    onRedeem: (Int, String) -> Unit,
+    onDetails: (Int, String) -> Unit,
     userPoint: Int
 ) {
     var isPopUpVisible by remember { mutableStateOf(false) }
@@ -83,7 +86,7 @@ fun RewardsScreen(
                         onClick = onBackButtonClicked
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.KeyboardArrowLeft,
+                            imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
                             contentDescription = "Back",
                             modifier = Modifier.fillMaxSize()
                         )
@@ -195,7 +198,7 @@ fun RewardsScreen(
                         modifier = Modifier
                             .padding(30.dp, 7.dp)
                             .width(400.dp)
-                            .clickable(enabled = able) { /*Another Page*/ }
+                            .clickable(enabled = able){onRedeem(R.drawable.voucher_rm1, "RM1")}
                     )
 
                     Image(
@@ -204,7 +207,7 @@ fun RewardsScreen(
                         modifier = Modifier
                             .padding(30.dp, 7.dp)
                             .width(400.dp)
-                            .clickable(enabled = able) { /*Another Page*/ }
+                            .clickable(enabled = able){onRedeem(R.drawable.voucher_rm3, "RM3")}
                     )
 
                     Image(
@@ -213,7 +216,7 @@ fun RewardsScreen(
                         modifier = Modifier
                             .padding(30.dp, 7.dp)
                             .width(400.dp)
-                            .clickable(enabled = able) { /*Another Page*/ }
+                            .clickable(enabled = able){onRedeem(R.drawable.voucher_rm10, "RM10")}
                     )
                 }
                 else
@@ -230,7 +233,7 @@ fun RewardsScreen(
                             modifier = Modifier
                                 .padding(30.dp, 10.dp)
                                 .width(400.dp)
-                                .clickable { /*Another Page*/ }
+                                .clickable { onDetails(R.drawable.voucher_rm10, "RM10") }
                         )
                     }
                 }
@@ -291,7 +294,7 @@ fun RewardPopUp(onDismiss: () -> Unit) {
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-                Column() {
+                Column {
                     Text(
                         modifier = Modifier.padding(20.dp, 10.dp),
                         text = "How do I earn APA Points?",
@@ -353,14 +356,8 @@ fun RewardPopUp(onDismiss: () -> Unit) {
     }
 }
 
-//Navigate to another screen
-@Composable
-fun VoucherRM1(onDismiss: () -> Unit) {
-    
-}
-
 @Preview(showBackground = true)
 @Composable
 fun RewardsScreenPreview() {
-    RewardsScreen({}, 234)
+    RewardsScreen({}, {drawableId: Int, voucherRM: String -> } , {drawableId: Int, voucherRM: String -> },234)
 }

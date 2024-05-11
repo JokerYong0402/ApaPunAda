@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -38,7 +39,7 @@ import com.example.apapunada.ui.components.MyTopTitleBar
 fun AboutUsScreen() {
     val text = buildAnnotatedString {
         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-            append("APAPUNADA")
+            append(stringResource(id = R.string.app_name))
         }
         append(" is a 3-star michelin restaurant. Our restaurant was founded in 2021. As the name of our restaurant, " +
                 "we are serving many styles of food such as Malaysian, Japanese, Korean, Western and also Thai cuisine." +

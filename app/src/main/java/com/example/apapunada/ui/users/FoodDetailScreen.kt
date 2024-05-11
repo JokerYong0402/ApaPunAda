@@ -147,7 +147,7 @@ fun FoodDetailScreen(
                                     horizontalArrangement = Arrangement.Center,
                                 ){
                                     /*Image(
-                                        painter = painterResource(R.drawable.moneyicon),
+                                        painter = painterResource(R.drawable.money_icon),
                                         contentDescription = "",
                                         alignment = Alignment.Center,
                                         contentScale = ContentScale.Crop,

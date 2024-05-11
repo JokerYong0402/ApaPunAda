@@ -55,10 +55,7 @@ fun StaffDashboardLandscape(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(
-                dimensionResource(R.dimen.padding_large),
-                dimensionResource(R.dimen.padding_medium)
-            )
+            .padding(horizontal = dimensionResource(R.dimen.padding_large))
     ) {
         Column(
             modifier = Modifier
@@ -68,11 +65,10 @@ fun StaffDashboardLandscape(
                 text = "Overview",
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(horizontal = 50.dp)
             )
         }
 
-        Spacer(modifier = Modifier.height(25.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
