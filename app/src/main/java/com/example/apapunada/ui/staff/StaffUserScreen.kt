@@ -1,9 +1,9 @@
 package com.example.apapunada.ui.staff
 
-import android.widget.DatePicker
 import android.app.DatePickerDialog
 import android.content.Context
 import android.net.Uri
+import android.widget.DatePicker
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -37,6 +37,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -64,16 +65,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.example.apapunada.R
 import com.example.apapunada.data.UserSample.Users
 import com.example.apapunada.model.User
 import java.util.Calendar
 import java.util.Date
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun UserManagement(
+fun StaffUserScreen(
     users: List<User> = Users
 ) {
     var search by remember { mutableStateOf("") }
@@ -113,13 +114,8 @@ fun UserManagement(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(dimensionResource(R.dimen.padding_large))
+            .padding(horizontal = dimensionResource(R.dimen.padding_large))
     ) {
-        Text(
-            text = "User Management",
-            fontWeight = FontWeight.Bold,
-            fontSize = 32.sp
-        )
         TextField(
             value = search,
             onValueChange = { search = it },
@@ -127,9 +123,9 @@ fun UserManagement(
                 .padding(bottom = 10.dp),
             singleLine = true,
             placeholder = { Text(text = "Search") },
-            colors = TextFieldDefaults.textFieldColors(
+            colors = TextFieldDefaults.colors(
+                focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent
             ),
             leadingIcon = {
                 IconButton(
@@ -292,11 +288,8 @@ fun DialogOfEditUser(
     val context = LocalContext.current
 
     val imageUri = rememberSaveable { mutableStateOf("") }
-    val painter = rememberImagePainter(
-        if (imageUri.value.isEmpty())
-            user.image
-        else
-            imageUri.value
+    val painter = rememberAsyncImagePainter(
+        imageUri.value.ifEmpty { user.image }
     )
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -336,11 +329,12 @@ fun DialogOfEditUser(
                         label = { Text("Username") },
                         modifier = Modifier.size(width = 280.dp, height = 55.dp),
                         singleLine = true,
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                        colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = colorResource(R.color.primary),
-                            unfocusedBorderColor = colorResource(R.color.primary)
+                            unfocusedBorderColor = colorResource(R.color.primary),
                         )
                     )
+                    val containerColor = Color(0xFFadadad)
                     OutlinedTextField(
                         value = user.email,
                         onValueChange = { },
@@ -348,12 +342,15 @@ fun DialogOfEditUser(
                         label = { Text("Email") },
                         modifier = Modifier.size(width = 280.dp, height = 55.dp),
                         readOnly = true,
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            containerColor = Color(0xFFadadad),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = containerColor,
+                            unfocusedContainerColor = containerColor,
+                            disabledContainerColor = containerColor,
                             focusedBorderColor = colorResource(R.color.primary),
-                            unfocusedBorderColor = colorResource(R.color.primary)
+                            unfocusedBorderColor = colorResource(R.color.primary),
                         )
                     )
+                    val containerColor1 = Color(0xFFadadad)
                     OutlinedTextField(
                         value = user.password,
                         onValueChange = { },
@@ -361,10 +358,12 @@ fun DialogOfEditUser(
                         label = { Text("Password") },
                         modifier = Modifier.size(width = 280.dp, height = 55.dp),
                         readOnly = true,
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            containerColor = Color(0xFFadadad),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = containerColor1,
+                            unfocusedContainerColor = containerColor1,
+                            disabledContainerColor = containerColor1,
                             focusedBorderColor = colorResource(R.color.primary),
-                            unfocusedBorderColor = colorResource(R.color.primary)
+                            unfocusedBorderColor = colorResource(R.color.primary),
                         )
                     )
                     OutlinedTextField(
@@ -374,9 +373,9 @@ fun DialogOfEditUser(
                         label = { Text("Phone Number") },
                         modifier = Modifier.size(width = 280.dp, height = 55.dp),
                         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                        colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = colorResource(R.color.primary),
-                            unfocusedBorderColor = colorResource(R.color.primary)
+                            unfocusedBorderColor = colorResource(R.color.primary),
                         )
                     )
                     ExposedDropdownMenuBox(
@@ -395,9 +394,9 @@ fun DialogOfEditUser(
                             modifier = Modifier
                                 .size(width = 280.dp, height = 55.dp)
                                 .menuAnchor(),
-                            colors = TextFieldDefaults.outlinedTextFieldColors(
+                            colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = colorResource(R.color.primary),
-                                unfocusedBorderColor = colorResource(R.color.primary)
+                                unfocusedBorderColor = colorResource(R.color.primary),
                             )
                         )
                         ExposedDropdownMenu(
@@ -434,9 +433,9 @@ fun DialogOfEditUser(
                             modifier = Modifier
                                 .size(width = 280.dp, height = 55.dp)
                                 .menuAnchor(),
-                            colors = TextFieldDefaults.outlinedTextFieldColors(
+                            colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = colorResource(R.color.primary),
-                                unfocusedBorderColor = colorResource(R.color.primary)
+                                unfocusedBorderColor = colorResource(R.color.primary),
                             )
                         )
                         ExposedDropdownMenu(
@@ -475,7 +474,6 @@ fun DialogOfEditUser(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePickerDialog(
     context: Context,
@@ -504,9 +502,9 @@ fun DatePickerDialog(
         modifier = Modifier
             .size(width = 280.dp, height = 55.dp),
         onClick = { datePickerDialog.show() },
-        colors = TextFieldDefaults.outlinedTextFieldColors(
+        colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = colorResource(R.color.primary),
-            unfocusedBorderColor = colorResource(R.color.primary)
+            unfocusedBorderColor = colorResource(R.color.primary),
         )
     )
 }
@@ -721,12 +719,12 @@ private fun getUser(
 
 @Preview(showBackground = true, device = Devices.TABLET)
 @Composable
-fun UserManagementPreview() {
-    UserManagement()
+fun StaffUserScreenPreview() {
+    StaffUserScreen()
 }
 
 @Preview(showBackground = true, device = Devices.PHONE)
 @Composable
-fun UserManagementPhonePreview() {
-    UserManagement()
+fun StaffUserScreenPhonePreview() {
+    StaffUserScreen()
 }

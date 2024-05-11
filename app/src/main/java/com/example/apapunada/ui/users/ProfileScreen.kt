@@ -18,7 +18,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Scaffold
@@ -38,9 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
-import com.example.apapunada.data.MenuSample
 import com.example.apapunada.data.UserSample
-import com.example.apapunada.model.Menu
 import com.example.apapunada.model.User
 import com.example.apapunada.ui.components.MyTopTitleBar
 
@@ -283,7 +280,7 @@ fun ProfileScreen(
                     }
                 }
 
-                Row(//Pssword
+                Row(//Password
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(80.dp)

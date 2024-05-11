@@ -8,7 +8,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.apapunada.R
-import com.example.apapunada.ui.IntroductionPager
 
 enum class FeedbackNav(@StringRes val title: Int){
     Feedback(R.string.feedback),
@@ -23,7 +22,7 @@ fun FeedbackNav(
     NavHost(navController = navController, startDestination = FeedbackNav.Feedback.name) {
         composable(FeedbackNav.Feedback.name){
             FeedbackScreen(
-                onSubmit = { navController.navigate("feedbacksuccess")}
+                onSubmit = { navController.navigate(FeedbackNav.FeedbackSuccess.name)}
             )
         }
 

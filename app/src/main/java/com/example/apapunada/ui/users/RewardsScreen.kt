@@ -15,9 +15,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.KeyboardArrowLeft
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -86,7 +86,7 @@ fun RewardsScreen(
                         onClick = onBackButtonClicked
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.KeyboardArrowLeft,
+                            imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
                             contentDescription = "Back",
                             modifier = Modifier.fillMaxSize()
                         )
@@ -294,7 +294,7 @@ fun RewardPopUp(onDismiss: () -> Unit) {
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-                Column() {
+                Column {
                     Text(
                         modifier = Modifier.padding(20.dp, 10.dp),
                         text = "How do I earn APA Points?",

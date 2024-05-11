@@ -50,8 +50,8 @@ fun OrderCustomizeScreen(
     orderId: Int,
     menuId: Int,
 ) {
-    val currentOrder = Orders.get(orderId)
-    val currentMenu = Menus.get(menuId)
+    val currentOrder = Orders[orderId]
+    val currentMenu = Menus[menuId]
     var price = remember { mutableStateOf(currentOrder.amount) }
 
     Scaffold(

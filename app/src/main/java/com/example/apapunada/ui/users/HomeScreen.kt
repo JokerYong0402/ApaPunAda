@@ -18,8 +18,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.rounded.KeyboardArrowRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -294,7 +294,7 @@ fun HomeScreen(
                                                 .align(Alignment.End)
                                         ) {
                                             Icon(
-                                                imageVector = Icons.Rounded.KeyboardArrowRight,
+                                                imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                                                 contentDescription = "Next Icon Button",
                                                 tint = Color.White
                                             )

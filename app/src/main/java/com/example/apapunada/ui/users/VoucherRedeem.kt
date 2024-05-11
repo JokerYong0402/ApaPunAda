@@ -18,6 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.KeyboardArrowLeft
@@ -101,7 +102,7 @@ fun VoucherRedeem(
                             onClick = onBackButtonClicked
                         ) {
                             Icon(
-                                imageVector = Icons.Rounded.KeyboardArrowLeft,
+                                imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
                                 contentDescription = "Back",
                                 modifier = Modifier.fillMaxSize()
                             )

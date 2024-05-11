@@ -2,7 +2,6 @@ package com.example.apapunada.ui.users
 
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -11,9 +10,9 @@ import com.example.apapunada.R
 import com.example.apapunada.data.UserSample.Users
 
 enum class ProfileNav(@StringRes val title: Int){
-    Profile(R.string.Profile),
-    EditProfile(R.string.EditProfile),
-    DeleteProfile(R.string.DeleteProfile),
+    Profile(R.string.profile),
+    EditProfile(R.string.edit_profile),
+    DeleteProfile(R.string.delete_profile),
     Login(R.string.login)
 }
 

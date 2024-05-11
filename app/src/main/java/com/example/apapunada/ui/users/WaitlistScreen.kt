@@ -24,7 +24,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -47,11 +46,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
-import com.example.apapunada.data.FoodCuisinesSample
-import com.example.apapunada.data.MenuSample
 import com.example.apapunada.data.WaitlistSample
-import com.example.apapunada.model.Cuisine
-import com.example.apapunada.model.Menu
 import com.example.apapunada.model.WaitList
 import com.example.apapunada.ui.components.MyTopTitleBar
 import com.example.apapunada.ui.components.PopupWindowDialog
@@ -644,8 +639,8 @@ fun WaitlistPager(initialPage: Int = 0) {
 
 @Composable
 fun WaitlistScreen(
-    waitList: List<WaitList> = WaitlistSample.Waitlists,
     modifier: Modifier = Modifier,
+    waitList: List<WaitList> = WaitlistSample.Waitlists,
     onBackButtonClicked: () -> Unit = {}
 ){
     var size by remember { mutableStateOf(1) }
@@ -669,7 +664,7 @@ fun WaitlistScreen(
         override fun onTick(millisUntilFinished: Long){
             numsInSecond = millisUntilFinished/1000
             numsInMinute = numsInSecond/60
-            numsInSecond = numsInSecond%60
+            numsInSecond %= 60
             setView = "$numsInMinute mins $numsInSecond secs"
             cuntNumStart = true
         }
@@ -858,7 +853,7 @@ fun WaitlistScreen(
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 10.dp, horizontal = 35.dp),
+                                .padding(top = 10.dp, start = 35.dp, end = 35.dp),
                             shape = RoundedCornerShape(8.dp),
                             elevation = CardDefaults.cardElevation(
                                 defaultElevation = 4.dp
@@ -869,7 +864,7 @@ fun WaitlistScreen(
                             )
                         ) {
                         Box(
-                            modifier = Modifier.padding(10.dp)
+                            modifier = Modifier.padding(horizontal = 10.dp)
                         ) {
                             Column {
                                 Card(
@@ -1012,7 +1007,7 @@ fun WaitlistScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "$setView", // Replace with your formatting function
+                                    text = setView, // Replace with your formatting function
                                     modifier = Modifier.fillMaxWidth(),
                                     textAlign = TextAlign.Start,
                                     fontSize = 85.sp,
@@ -1076,6 +1071,7 @@ fun WaitlistScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
                             .fillMaxWidth()
+                            .padding(bottom = 10.dp)
                     ) {
                         //showButton(modifier)
                         if (!checkJoin) {
@@ -1161,7 +1157,6 @@ fun WaitlistScreen(
     }
     }
 
-@OptIn(ExperimentalMaterial3Api::class)
 //@Composable
 //fun PopupWindowDialog(
 //    onDismissRequest: () -> Unit,

@@ -3,13 +3,10 @@ package com.example.apapunada.ui.staff
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -28,19 +25,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Create
 import androidx.compose.material.icons.rounded.Email
-import androidx.compose.material.icons.rounded.List
-import androidx.compose.material.icons.rounded.MoreVert
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,12 +39,10 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,7 +51,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -70,7 +58,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -81,33 +68,26 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.wear.compose.material.dialog.Dialog
-import androidx.wear.compose.material.placeholder
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.example.apapunada.R
 import com.example.apapunada.data.FoodCuisinesSample
-import com.example.apapunada.data.MenuSample
 import com.example.apapunada.data.MenuSample.Menus
-import com.example.apapunada.data.OrderSample
 import com.example.apapunada.model.Cuisine
 import com.example.apapunada.model.Menu
-import com.example.apapunada.model.Order
 import com.example.apapunada.ui.components.formattedString
-import com.example.apapunada.ui.users.EditProfileAlertDialog
-import com.example.apapunada.ui.users.EditTextFieldProfile
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun StaffMenuScreen(
     //menuType: String,
     dishCuisine: List<Cuisine> = FoodCuisinesSample.FoodCuisines,
-    menus: List<Menu> = MenuSample.Menus
+    menus: List<Menu> = Menus
 ) {
     val headerList = listOf(
         // (Header name, Column width)
         Pair("  No.", 90.dp),
         Pair("Picture", 180.dp),
-        Pair("Foodname", 250.dp),
+        Pair("Food Name", 250.dp),
         Pair("Cuisine",180.dp),
         Pair("Amount(RM)", 180.dp),
         Pair("Status", 160.dp),
@@ -157,13 +137,13 @@ fun StaffMenuScreen(
 
     var expandedSearchCuisine by remember { mutableStateOf(false) }
     var selectedSearchCuisine by remember { mutableStateOf("") }
-    val searchcuisine = listOf("Western","Japanese","Korean","Malaysian","Thai","Beverages")
-    var searchcuisinedropdown by remember { mutableStateOf("") }
+    val searchCuisine = listOf("Western","Japanese","Korean","Malaysian","Thai","Beverages")
+    var searchCuisineDropdown by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(dimensionResource(R.dimen.padding_large))
+            .padding(horizontal = dimensionResource(R.dimen.padding_large))
 
     ) {
         Row(
@@ -173,13 +153,6 @@ fun StaffMenuScreen(
         horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ){
-            Text(
-                text = "Menu Management",
-                fontWeight = FontWeight.Bold,
-                fontSize = 32.sp,
-                modifier = Modifier
-                    .padding(end = 80.dp)
-            )
 
             MenuSearchBar(
                 value = search,
@@ -193,8 +166,8 @@ fun StaffMenuScreen(
                 modifier = Modifier.padding(end = 10.dp)
             ) {
                 TextField(
-                    value = searchcuisinedropdown,
-                    onValueChange = { searchcuisinedropdown = it },
+                    value = searchCuisineDropdown,
+                    onValueChange = { searchCuisineDropdown = it },
                     label = {
                         Text(
                             text = "Dish Cuisine",
@@ -216,13 +189,13 @@ fun StaffMenuScreen(
                     expanded = expandedSearchCuisine,
                     onDismissRequest = { /*TODO*/ }
                 ) {
-                    searchcuisine.forEach { cuisine ->
+                    searchCuisine.forEach { cuisine ->
                         DropdownMenuItem(
                             text = { Text(text = cuisine ) },
                             onClick = {
                                 selectedSearchCuisine = cuisine
                                 expandedSearchCuisine = false
-                                searchcuisinedropdown = cuisine
+                                searchCuisineDropdown = cuisine
                             }
                         )
                     }
@@ -448,12 +421,12 @@ fun MenuSearchBar(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ){
-    var searchdish by remember { mutableStateOf("") }
+    var searchDish by remember { mutableStateOf("") }
 
     OutlinedTextField(
-        value = searchdish,
+        value = searchDish,
         singleLine = true,
-        onValueChange = { searchdish = it},
+        onValueChange = { searchDish = it},
         leadingIcon = {
             Image(
             painterResource(R.drawable.searchicon),
@@ -498,11 +471,7 @@ fun MenuSearchBar(
 @Composable
 fun UploadDishImage(){
     val imageUri = rememberSaveable { mutableStateOf("") }
-    val painter = rememberImagePainter(
-        if (imageUri.value.isEmpty())
-            R.drawable.dishimage
-        else
-            imageUri.value
+    val painter = rememberAsyncImagePainter(imageUri.value.ifEmpty { R.drawable.dishimage }
     )
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -563,25 +532,25 @@ fun AddDishDialog(
     onConfirmation: () -> Unit
 ) {
     val context = LocalContext.current
-    var newdishname by remember { mutableStateOf("") }
-    var newdishdescription by remember { mutableStateOf("") }
-    var newdishrating by remember { mutableStateOf("") }
-    var newdishingredient by remember { mutableStateOf("") }
-    var newdishcuisine by remember { mutableStateOf("") }
-    var newdishprice by remember { mutableStateOf("") }
-    var newdishstatus by remember { mutableStateOf("") }
-    var newdishservingsize by remember { mutableStateOf("") }
+    var newDishName by remember { mutableStateOf("") }
+    var newDishDescription by remember { mutableStateOf("") }
+    var newDishRating by remember { mutableStateOf("") }
+    var newDishIngredient by remember { mutableStateOf("") }
+    var newDishCuisine by remember { mutableStateOf("") }
+    var newDishPrice by remember { mutableStateOf("") }
+    var newDishStatus by remember { mutableStateOf("") }
+    var newDishServingSize by remember { mutableStateOf("") }
 
     var isUploadImage by remember { mutableStateOf(false) }
     val dialogTitle = "ADD NEW DISH"
 
     var expandedCuisine by remember { mutableStateOf(false) }
     var selectedCuisine by remember { mutableStateOf("") }
-    val menucuisine = listOf("Western","Japanese","Korean","Malaysian","Thai","Beverages")
+    val menuCuisine = listOf("Western","Japanese","Korean","Malaysian","Thai","Beverages")
 
     var expandedStatus by remember { mutableStateOf(false) }
     var selectedStatus by remember { mutableStateOf("") }
-    val menustatus = listOf("Available","Unavailable")
+    val menuStatus = listOf("Available","Unavailable")
 
 
     androidx.compose.ui.window.Dialog(onDismissRequest = { onDismissRequest() }) {
@@ -611,8 +580,8 @@ fun AddDishDialog(
                         .padding(top = 12.dp)
                 )
                 OutlinedTextField(//new dish name
-                    value = newdishname,
-                    onValueChange = { newdishname = it },
+                    value = newDishName,
+                    onValueChange = { newDishName = it },
                     singleLine = true,
                     textStyle = TextStyle(
                         fontSize = 18.sp,
@@ -626,8 +595,8 @@ fun AddDishDialog(
                         .padding(top = 10.dp)
                 )
                 OutlinedTextField(//new dish description
-                    value = newdishdescription,
-                    onValueChange = { newdishdescription = it },
+                    value = newDishDescription,
+                    onValueChange = { newDishDescription = it },
                     singleLine = false,
                     textStyle = TextStyle(
                         fontSize = 18.sp,
@@ -645,8 +614,8 @@ fun AddDishDialog(
                     onExpandedChange = { expandedCuisine = !expandedCuisine }
                 ) {
                     OutlinedTextField(
-                        value = newdishcuisine,
-                        onValueChange = { newdishcuisine = it },
+                        value = newDishCuisine,
+                        onValueChange = { newDishCuisine = it },
                         label = {
                             Text(
                             text = "Dish Cuisine",
@@ -668,21 +637,21 @@ fun AddDishDialog(
                         expanded = expandedCuisine,
                         onDismissRequest = { /*TODO*/ }
                     ) {
-                        menucuisine.forEach { cuisine ->
+                        menuCuisine.forEach { cuisine ->
                             DropdownMenuItem(
                                 text = { Text(text = cuisine ) },
                                 onClick = {
                                     selectedCuisine = cuisine
                                     expandedCuisine = false
-                                    newdishcuisine = cuisine
+                                    newDishCuisine = cuisine
                                 }
                             )
                         }
                     }
                 }
                 OutlinedTextField(//new dish rating
-                    value = newdishrating,
-                    onValueChange = { newdishrating = it },
+                    value = newDishRating,
+                    onValueChange = { newDishRating = it },
                     singleLine = true,
                     textStyle = TextStyle(
                         fontSize = 18.sp,
@@ -697,8 +666,8 @@ fun AddDishDialog(
                         .padding(vertical = 20.dp)
                 )
                 OutlinedTextField(//new dish price
-                    value = newdishprice,
-                    onValueChange = { newdishprice = it },
+                    value = newDishPrice,
+                    onValueChange = { newDishPrice = it },
                     singleLine = true,
                     textStyle = TextStyle(
                         fontSize = 18.sp,
@@ -717,8 +686,8 @@ fun AddDishDialog(
                     onExpandedChange = { expandedStatus = !expandedStatus }
                 ) {
                     OutlinedTextField(
-                        value = newdishstatus,
-                        onValueChange = { newdishstatus = it },
+                        value = newDishStatus,
+                        onValueChange = { newDishStatus = it },
                         label = {
                             Text(
                                 text = "Dish Availability",
@@ -740,21 +709,21 @@ fun AddDishDialog(
                         expanded = expandedStatus,
                         onDismissRequest = { /*TODO*/ }
                     ) {
-                        menustatus.forEach { status ->
+                        menuStatus.forEach { status ->
                             DropdownMenuItem(
                                 text = { Text(text = status ) },
                                 onClick = {
                                     selectedStatus = status
                                     expandedStatus = false
-                                    newdishstatus = status
+                                    newDishStatus = status
                                 }
                             )
                         }
                     }
                 }
                 OutlinedTextField(// new dish ingredient
-                    value = newdishingredient,
-                    onValueChange = { newdishingredient = it },
+                    value = newDishIngredient,
+                    onValueChange = { newDishIngredient = it },
                     singleLine = false,
                     textStyle = TextStyle(
                         fontSize = 18.sp,
@@ -768,8 +737,8 @@ fun AddDishDialog(
                         .padding(vertical = 20.dp)
                 )
                 OutlinedTextField(//new dish serving size
-                    value = newdishservingsize,
-                    onValueChange = { newdishservingsize = it },
+                    value = newDishServingSize,
+                    onValueChange = { newDishServingSize = it },
                     singleLine = true,
                     textStyle = TextStyle(
                         fontSize = 18.sp,
@@ -820,14 +789,14 @@ fun EditDishDialog(
     menu: Menu,
     ) {
     val context = LocalContext.current
-    var editdishname by remember { mutableStateOf(menu.name) }
-    var editdishdescription by remember { mutableStateOf(menu.description) }
-    var editdishrating by remember { mutableStateOf(menu.rating.toString()) }
-    var editdishingredient by remember { mutableStateOf(menu.ingredient) }
-    var editdishcuisine by remember { mutableStateOf(menu.cuisine.cuisineName) }
-    var editdishprice by remember { mutableStateOf(menu.price.toString()) }
-    var editdishstatus by remember { mutableStateOf(menu.status) }
-    var editdishservingsize by remember { mutableStateOf("") }
+    var editDishName by remember { mutableStateOf(menu.name) }
+    var editDishDescription by remember { mutableStateOf(menu.description) }
+    var editDishRating by remember { mutableStateOf(menu.rating.toString()) }
+    var editDishIngredient by remember { mutableStateOf(menu.ingredient) }
+    var editDishCuisine by remember { mutableStateOf(menu.cuisine.cuisineName) }
+    var editDishPrice by remember { mutableStateOf(menu.price.toString()) }
+    var editDishStatus by remember { mutableStateOf(menu.status) }
+    var editDishServingSize by remember { mutableStateOf("") }
 
     var isUploadImage by remember { mutableStateOf(false) }
 
@@ -835,11 +804,11 @@ fun EditDishDialog(
 
     var expandedEditCuisine by remember { mutableStateOf(false) }
     var selectedEditCuisine by remember { mutableStateOf("") }
-    val menucuisine = listOf("Western","Japanese","Korean","Malaysian","Thai","Beverages")
+    val menuCuisine = listOf("Western","Japanese","Korean","Malaysian","Thai","Beverages")
 
     var expandedEditStatus by remember { mutableStateOf(false) }
     var selectedEditStatus by remember { mutableStateOf("") }
-    val menustatus = listOf("Available","Unavailable")
+    val menuStatus = listOf("Available","Unavailable")
 
 
     androidx.compose.ui.window.Dialog(onDismissRequest = { onDismissRequest() }) {
@@ -871,8 +840,8 @@ fun EditDishDialog(
                 )
 
                 OutlinedTextField(//edit dish name
-                    value = editdishname,
-                    onValueChange = { editdishname = it },
+                    value = editDishName,
+                    onValueChange = { editDishName = it },
                     singleLine = true,
                     textStyle = TextStyle(
                         fontSize = 18.sp,
@@ -886,8 +855,8 @@ fun EditDishDialog(
                         .padding(top = 10.dp)
                 )
                 OutlinedTextField(//edit dish description
-                    value = editdishdescription,
-                    onValueChange = { editdishdescription = it },
+                    value = editDishDescription,
+                    onValueChange = { editDishDescription = it },
                     singleLine = false,
                     textStyle = TextStyle(
                         fontSize = 18.sp,
@@ -905,8 +874,8 @@ fun EditDishDialog(
                     onExpandedChange = { expandedEditCuisine = !expandedEditCuisine }
                 ) {
                     OutlinedTextField(
-                        value = editdishcuisine,
-                        onValueChange = { editdishcuisine = it },
+                        value = editDishCuisine,
+                        onValueChange = { editDishCuisine = it },
                         label = {
                             Text(
                                 text = "Dish Cuisine",
@@ -928,21 +897,21 @@ fun EditDishDialog(
                         expanded = expandedEditCuisine,
                         onDismissRequest = { /*TODO*/ }
                     ) {
-                        menucuisine.forEach { cuisine ->
+                        menuCuisine.forEach { cuisine ->
                             DropdownMenuItem(
                                 text = { Text(text = cuisine ) },
                                 onClick = {
                                     selectedEditCuisine = cuisine
                                     expandedEditCuisine = false
-                                    editdishcuisine = cuisine
+                                    editDishCuisine = cuisine
                                 }
                             )
                         }
                     }
                 }
                 OutlinedTextField(//edit dish rating
-                    value = editdishrating,
-                    onValueChange = { editdishrating = it },
+                    value = editDishRating,
+                    onValueChange = { editDishRating = it },
                     singleLine = true,
                     textStyle = TextStyle(
                         fontSize = 18.sp,
@@ -957,8 +926,8 @@ fun EditDishDialog(
                         .padding(vertical = 20.dp)
                 )
                 OutlinedTextField(//edit dish price
-                    value = editdishprice,
-                    onValueChange = { editdishprice = it },
+                    value = editDishPrice,
+                    onValueChange = { editDishPrice = it },
                     singleLine = true,
                     textStyle = TextStyle(
                         fontSize = 18.sp,
@@ -977,8 +946,8 @@ fun EditDishDialog(
                     onExpandedChange = { expandedEditStatus = !expandedEditStatus }
                 ) {
                     OutlinedTextField(
-                        value = editdishstatus,
-                        onValueChange = { editdishstatus = it },
+                        value = editDishStatus,
+                        onValueChange = { editDishStatus = it },
                         label = {
                             Text(
                                 text = "Dish Availability",
@@ -1000,21 +969,21 @@ fun EditDishDialog(
                         expanded = expandedEditStatus,
                         onDismissRequest = { /*TODO*/ }
                     ) {
-                        menustatus.forEach { status ->
+                        menuStatus.forEach { status ->
                             DropdownMenuItem(
                                 text = { Text(text = status ) },
                                 onClick = {
                                     selectedEditStatus = status
                                     expandedEditStatus = false
-                                    editdishstatus = status
+                                    editDishStatus = status
                                 }
                             )
                         }
                     }
                 }
                 OutlinedTextField(//edit dish ingredient
-                    value = editdishingredient,
-                    onValueChange = { editdishingredient = it },
+                    value = editDishIngredient,
+                    onValueChange = { editDishIngredient = it },
                     singleLine = false,
                     textStyle = TextStyle(
                         fontSize = 18.sp,
@@ -1028,8 +997,8 @@ fun EditDishDialog(
                         .padding(vertical = 20.dp)
                 )
                 OutlinedTextField(//edit dish serving size
-                    value = editdishservingsize,
-                    onValueChange = { editdishservingsize = it },
+                    value = editDishServingSize,
+                    onValueChange = { editDishServingSize = it },
                     singleLine = true,
                     textStyle = TextStyle(
                         fontSize = 18.sp,
@@ -1082,8 +1051,8 @@ fun ChangeDishStatusDialog(
     val context = LocalContext.current
     var expandedChangeStatus by remember { mutableStateOf(false) }
     var selectedChangeStatus by remember { mutableStateOf(menu.status) }
-    val Changestatuoptions = listOf("Available","Unavailable")
-    var changestatus by remember { mutableStateOf("") }
+    val changeStatusOptions = listOf("Available","Unavailable")
+    var changeStatus by remember { mutableStateOf("") }
 
     val dialogTitle = "Change Status of Dish"
     androidx.compose.ui.window.Dialog(onDismissRequest = { onDismissRequest() })
@@ -1135,13 +1104,13 @@ fun ChangeDishStatusDialog(
                         expanded = expandedChangeStatus,
                         onDismissRequest = { /*TODO*/ }
                     ) {
-                        Changestatuoptions.forEach { status ->
+                        changeStatusOptions.forEach { status ->
                             DropdownMenuItem(
                                 text = { Text(text = status ) },
                                 onClick = {
                                     selectedChangeStatus = status
                                     expandedChangeStatus = false
-                                    changestatus = status
+                                    changeStatus = status
                                 }
                             )
                         }
@@ -1191,7 +1160,7 @@ fun DishDetailDialog(
     val status = menu.status
     val ingredient = menu.ingredient
     val cuisine = menu.cuisine.cuisineName
-    val nutriton = menu.nutrition
+    val nutrition = menu.nutrition
 
     val userHeader = listOf(
         // (Header name, Column width)
@@ -1227,7 +1196,7 @@ fun DishDetailDialog(
                         .padding(vertical = 10.dp)
                 ) {
                     Text(
-                        text = "Detail of " + name,
+                        text = "Detail of $name",
                         fontSize = 25.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -1307,7 +1276,7 @@ fun DishDetailDialog(
                                 fontSize = 22.sp
                             )
                             Text(
-                                text = "RM" + price.toString(),
+                                text = "RM $price",
                                 fontSize = 20.sp
                             )
                         }
@@ -1383,7 +1352,7 @@ fun DishDetailDialog(
                             fontSize = 22.sp
                         )
                         Text(
-                            text = nutriton,
+                            text = nutrition,
                             fontSize = 20.sp
                         )
                     }

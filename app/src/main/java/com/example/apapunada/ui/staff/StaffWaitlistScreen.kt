@@ -3,7 +3,6 @@ package com.example.apapunada.ui.staff
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,8 +16,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,10 +28,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -48,7 +43,6 @@ import com.example.apapunada.data.WaitlistSample.Waitlists
 import com.example.apapunada.model.WaitList
 import com.example.apapunada.ui.components.DropDownMenu
 import com.example.apapunada.ui.components.SearchBar
-import com.example.apapunada.ui.components.formattedString
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -108,10 +102,12 @@ fun StaffWaitlistScreen(
         "Status"
     )
 
+    var count = 0
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(dimensionResource(R.dimen.padding_large))
+            .padding(horizontal = dimensionResource(R.dimen.padding_large))
     ) {
         Row (
             modifier = Modifier
@@ -129,7 +125,7 @@ fun StaffWaitlistScreen(
                     topStart = 16.dp,
                     bottomStart = 16.dp
                 ),
-                onClick = { isSelected = "current" }
+                onClick = { count = 0; isSelected = "current" }
             ) {
                 Text(text = "Current")
             }
@@ -145,7 +141,7 @@ fun StaffWaitlistScreen(
                     topEnd = 16.dp,
                     bottomEnd = 16.dp
                 ),
-                onClick = { isSelected = "history" }
+                onClick = { count = 0; isSelected = "history" }
             ) {
                 Text(text = "History")
             }
@@ -234,13 +230,14 @@ fun StaffWaitlistScreen(
 
             items(waitlists.size) { i ->
                 val waitlist = waitlists[i]
-                var status by remember { mutableStateOf("Queue") }
-                if (isSelected == "current") {
-                    status = "Queue"
-                } else {
-                    status = "Accepted"
-                }
+                val status =
+                    if (isSelected == "current") {
+                        "Queue"
+                    } else {
+                        "Accepted"
+                    }
                 if (waitlist.status == status) {
+                    count += 1
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
@@ -248,7 +245,7 @@ fun StaffWaitlistScreen(
                             .height(100.dp)
                     ) {
                         Text(
-                            text = waitlist.id.toString(),
+                            text = count.toString(),
                             fontSize = 22.sp,
                             modifier = Modifier
                                 .width(currentHeaderList[0].second)

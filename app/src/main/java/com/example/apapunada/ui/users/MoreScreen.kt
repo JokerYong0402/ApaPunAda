@@ -17,7 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -121,7 +121,7 @@ fun MoreScreen(
                                     Spacer(modifier = Modifier.height(5.dp))
 
                                     Text(
-                                        text = "Points ${point}",
+                                        text = "Points $point",
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Normal,
                                         overflow = TextOverflow.Ellipsis,
@@ -154,7 +154,7 @@ fun MoreScreen(
                                 )
 
                                 Icon(
-                                    imageVector = Icons.Rounded.KeyboardArrowRight,
+                                    imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                                     contentDescription = "Arrow",
                                     tint = primaryColor,
                                     modifier = Modifier
