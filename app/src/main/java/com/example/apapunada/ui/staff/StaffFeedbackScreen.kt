@@ -68,8 +68,8 @@ import com.example.apapunada.data.OrderStatusSample
 import com.example.apapunada.model.Feedback
 import com.example.apapunada.model.Order
 import com.example.apapunada.model.OrderStatus
+import com.example.apapunada.ui.components.DropDownMenu
 import com.example.apapunada.ui.components.SearchBar
-import com.example.apapunada.ui.components.SelectField
 import com.example.apapunada.ui.components.formattedString
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -105,7 +105,7 @@ fun StaffFeedbackScreen(
             .padding(dimensionResource(R.dimen.padding_large))
     ) {
         Row {
-            SelectField(field = fieldList)
+            DropDownMenu(itemList = fieldList)
             Spacer(modifier = Modifier.size(10.dp))
             SearchBar(
                 value = textInput,
