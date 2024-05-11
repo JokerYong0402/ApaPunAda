@@ -40,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,7 +48,10 @@ import com.example.apapunada.R
 import com.example.apapunada.ui.components.MyTopTitleBar
 
 @Composable
-fun DeleteProfileScreen() {
+fun DeleteProfileScreen(
+    onLogin: () -> Unit
+
+) {
     var textInputDelete by remember { mutableStateOf("") }
     var openAlertDialog by remember { mutableStateOf(false) }
     var dltable by remember { mutableStateOf(true) }
@@ -180,7 +184,8 @@ fun DeleteAcctComment(
     OutlinedTextField(/* TODO  text box error when typing not same place with placeholder*/
         value = value,
         onValueChange = onValueChange,
-
+        minLines = 1,
+        maxLines = 5,
         modifier = modifier
             .padding(dimensionResource(R.dimen.padding_medium))
             .background(color = Color.White)
@@ -262,5 +267,8 @@ fun DeleteProfileAlertDialog(
 @Preview(showBackground = true)
 @Composable
 fun DeleteProfileScreenPreview() {
-    DeleteProfileScreen()
+    DeleteProfileScreen(
+        onLogin = {}
+
+    )
 }

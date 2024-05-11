@@ -57,4 +57,7 @@
 	<string name="waitlist_mgmt">Waitlist Management</string>
 	<string name="order_mgmt">Order Management</string>
 	<string name="feedback_mgmt">Feedback Management</string>
+    <string name="Profile"></string>
+    <string name="EditProfile"></string>
+    <string name="DeleteProfile"></string>
 </resources>

@@ -1,5 +1,6 @@
 package com.example.apapunada.ui.users
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -27,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -36,11 +38,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
+import com.example.apapunada.data.MenuSample
+import com.example.apapunada.data.UserSample
+import com.example.apapunada.model.Menu
+import com.example.apapunada.model.User
 import com.example.apapunada.ui.components.MyTopTitleBar
 
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(
+    person: User = UserSample.Users[0],
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    onLogin: () -> Unit
+) {
     Scaffold(
         topBar = { MyTopTitleBar(title = stringResource(R.string.profile)) },
         //bottomBar = { MyBottomNavBar() }
@@ -80,20 +91,22 @@ fun ProfileScreen() {
                     )
                     Column(//second column
                         modifier = Modifier
+                            //.padding(top = 10.dp)
                             .width(210.dp)
                             .height(100.dp),
                         horizontalAlignment = Alignment.Start,
-                        verticalArrangement = Arrangement.SpaceEvenly
+                        //verticalArrangement = Arrangement.SpaceAround
                     ) {
                         Text(
-                            text = "Ryan Moey",
+                            text = person.username,
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp,
+                            modifier = Modifier.padding(top = 18.dp,bottom = 10.dp)
 
                             )
                         Text(
-                            text = "ryanmoeykx@gmail.com",
-                            fontSize = 15.sp
+                            text = "Point : " + person.point.toString(),
+                            fontSize = 18.sp
                         )
 
 
@@ -129,7 +142,6 @@ fun ProfileScreen() {
                         contentDescription = "Name Icon",
                         modifier = Modifier
                             .padding(dimensionResource(R.dimen.padding_medium))
-                            //.fillMaxSize()
                             .size(
                                 width = 40.dp,
                                 height = 40.dp
@@ -143,7 +155,7 @@ fun ProfileScreen() {
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Text(
-                            text = "Name",
+                            text = person.username,
                             fontSize = 16.sp,
 
                             )
@@ -184,7 +196,7 @@ fun ProfileScreen() {
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Text(
-                            text = "Gender",
+                            text = person.gender,
                             fontSize = 16.sp,
 
                             )
@@ -223,7 +235,7 @@ fun ProfileScreen() {
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Text(
-                            text = "Date of Birth",
+                            text = person.dob,
                             fontSize = 16.sp,
 
                             )
@@ -264,7 +276,7 @@ fun ProfileScreen() {
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Text(
-                            text = "Email Address",
+                            text = person.email,
                             fontSize = 16.sp,
 
                             )
@@ -303,7 +315,7 @@ fun ProfileScreen() {
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Text(
-                            text = "Password",
+                            text = person.password,
                             fontSize = 16.sp,
 
                             )
@@ -342,23 +354,28 @@ fun ProfileScreen() {
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Text(
-                            text = "Phone No",
+                            text = person.phoneNo,
                             fontSize = 16.sp,
 
                             )
                     }
                 }
 
+                val context = LocalContext.current
+
                 ElevatedButton(
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                        Toast.makeText(context, "Logout Successfully", Toast.LENGTH_SHORT).show()
+                    },
                     colors = ButtonDefaults.buttonColors(
                         colorResource(R.color.primary)
                     ),
                     shape = RoundedCornerShape(10.dp),
                     modifier = Modifier
                         .width(300.dp)
-                        .height(50.dp)
+                        .height(60.dp)
                         .align(Alignment.CenterHorizontally)
+                        .padding(top = 10.dp)
                 ) {
                     Text(
                         text = stringResource(R.string.logout),
@@ -411,6 +428,8 @@ fun ProfileScreen() {
 @Composable
 fun ProfileScreenPreview() {
     ProfileScreen(
-
+        onEdit = {},
+        onDelete = {},
+        onLogin = {}
     )
 }
