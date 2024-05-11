@@ -10,11 +10,11 @@ object MenuSample {
             1,
             "Beef Burger",
             FoodCuisines[0],
-            10.00,
+            12.40,
             4.9,
             R.drawable.feedback1,
             "Burger with beef meat",
-            "Active",
+            "Available",
             "100g ground beef\n1 sesame bun,split toasted & buttered\n1 sliced tomatoes\n1 lettuce leaf\n1 sliced cheddar cheese\n1 teaspoon ketchup",
             ""
         ),
@@ -26,7 +26,7 @@ object MenuSample {
             4.9,
             R.drawable.ordermethod2,
             "Grilled Beef Tenderlion",
-            "Active",
+            "Available",
             "",
             ""
         ),
@@ -38,7 +38,7 @@ object MenuSample {
             4.9,
             R.drawable.ordermethod3,
             "Burger with beef meat",
-            "Active",
+            "Available",
             "",
             ""
         ),
@@ -50,7 +50,7 @@ object MenuSample {
             4.9,
             R.drawable.profile_image,
             "Burger with beef meat",
-            "Active",
+            "Available",
             "",
             ""
         ),
@@ -62,7 +62,7 @@ object MenuSample {
             4.9,
             R.drawable.intro2,
             "Burger with beef meat",
-            "Active",
+            "Available",
             "",
             ""
         ),
@@ -74,7 +74,7 @@ object MenuSample {
             4.9,
             R.drawable.more,
             "Burger with beef meat",
-            "Active",
+            "Available",
             "",
             ""
         )
