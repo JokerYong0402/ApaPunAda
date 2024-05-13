@@ -1,11 +1,13 @@
 package com.example.apapunada.ui.users
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +26,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,23 +46,56 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
-import com.example.apapunada.data.MenuSample.Menus
-import com.example.apapunada.data.dataclass.Menu
+import com.example.apapunada.data.dataclass.MenuItem
+import com.example.apapunada.ui.AppViewModelProvider
+import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.MyTopTitleBar
+import com.example.apapunada.viewmodel.MenuItemState
+import com.example.apapunada.viewmodel.MenuItemViewModel
+import com.example.apapunada.viewmodel.MenuListState
 
 @Composable
 fun FoodListScreen(
     menuType: String,
-    menus: List<Menu> = Menus
+    viewModel: MenuItemViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    var menuItemState = viewModel.menuItemState.collectAsState(initial = MenuItemState())
+    val menuListState = viewModel.menuListState.collectAsState(initial = MenuListState())
+    var menus: List<MenuItem> = listOf()
+
+    viewModel.loadAllMenuItem()
+
+    if (menuListState.value.isLoading) {
+        Box( modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Gray.copy(alpha = 0.5f))
+            .clickable { /* no action */ }
+            .zIndex(2f)
+            ,
+            contentAlignment = Alignment.Center
+        ) {
+            IndeterminateCircularIndicator()
+        }
+    } else {
+        if (menuListState.value.errorMessage.isNotEmpty()) {
+            Text(text = "Error loading menus: ${menuListState.value.errorMessage}")
+            Log.i("Menu", "StaffMenuScreen: ${menuListState.value.errorMessage}")
+        } else {
+            menus = menuListState.value.menuItemList
+        }
+    }
+
+
     var textInput by remember { mutableStateOf("") }
 
-    var filteredFood: List<Menu> = listOf()
+    var filteredFood: List<MenuItem> = listOf()
 
     if (menuType != "Recommended" && menuType != "Popular") {
         menus.forEach { menu ->
-            if (menu.cuisine.cuisineName == menuType) {
+            if (menu.cuisine == menuType) {
                 filteredFood = filteredFood + menu
             }
         }
@@ -166,7 +202,7 @@ fun FoodListScreen(
                                                 .fillMaxSize()
                                         ) {
                                             Image(
-                                                painter = painterResource(filteredFood[i].image),
+                                                painter = painterResource(R.drawable.cabonarapastapic),
                                                 contentDescription = filteredFood[i].description,
                                                 contentScale = ContentScale.Crop,
                                                 modifier = Modifier
@@ -176,7 +212,7 @@ fun FoodListScreen(
                                                     .clip(RoundedCornerShape(20.dp, 20.dp))
                                             )
                                             Text(
-                                                text = filteredFood[i].name,
+                                                text = filteredFood[i].itemName,
                                                 fontSize = 17.sp,
                                                 textAlign = TextAlign.Start
                                             )
@@ -231,7 +267,7 @@ fun FoodListScreen(
                                                 .fillMaxSize()
                                         ) {
                                             Image(
-                                                painter = painterResource(filteredFood[i + 1].image),
+                                                painter = painterResource(R.drawable.beefburgerpic),
                                                 contentDescription = "Beef Burger",
                                                 contentScale = ContentScale.Crop,
                                                 modifier = Modifier
@@ -241,7 +277,7 @@ fun FoodListScreen(
                                                     .clip(RoundedCornerShape(20.dp, 20.dp))
                                             )
                                             Text(
-                                                text = filteredFood[i + 1].name,
+                                                text = filteredFood[i + 1].itemName,
                                                 fontSize = 17.sp,
                                                 textAlign = TextAlign.Start
                                             )
@@ -326,5 +362,5 @@ fun FoodListSearchBar(
 @Preview(showBackground = true)
 @Composable
 fun FoodListScreenPreview() {
-    FoodListScreen("Popular")
+    FoodListScreen("Thai")
 }
