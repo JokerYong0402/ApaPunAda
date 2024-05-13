@@ -8,6 +8,7 @@ import android.widget.DatePicker
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,7 +31,10 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -75,7 +79,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileScreen(
     viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -85,27 +89,31 @@ fun EditProfileScreen(
 
     var user = userState.value.user
 
-    Log.i("Profile", "EditProfileScreen: " + user)
-    var editedname by remember { mutableStateOf(user.username) }
-    Log.i("Profile", "EditProfileScreen: " + editedname)
-    Log.i("Profile", "EditProfileScreen: " + user.username)
-
-    var editedgender by remember { mutableStateOf(user.gender) }
-    //var editeddob by remember { mutableStateOf(user.dob) }
-    var editedemail by remember { mutableStateOf(user.email) }
-    var editedpassword by remember { mutableStateOf(user.password) }
-    var editedphonenum by remember { mutableStateOf(user.phoneNo) }
+    //Log.i("Profile", "EditProfileScreen: " + user)
+    var editedname by remember { mutableStateOf("") }
+    var editedgender by remember { mutableStateOf("") }
+    var editeddob by remember { mutableStateOf("") }
+    var editedemail by remember { mutableStateOf("") }
+    var editedpassword by remember { mutableStateOf("") }
+    var editedphonenum by remember { mutableStateOf("") }
 
     var openAlertDialog by remember { mutableStateOf(false) }
-    var openDatePickerDialog by remember { mutableStateOf(false) }
-
-    var isValidEmail by remember { mutableStateOf(true) }
-    var isValidDOB by remember { mutableStateOf(true) }
-
-    val maxCharOfName = 20
     val maxCharPhoneNum = 12
 
     val context = LocalContext.current
+
+    var expandedChangeGender by remember { mutableStateOf(false) }
+    val options = listOf("Male","Female")
+    var changeGender by remember { mutableStateOf("") }
+
+    if (user != null){
+        editedname = user.username
+        editedgender = user.gender
+        editeddob = user.dob.toString()
+        editedemail = user.email
+        editedpassword = user.password
+        editedphonenum = user.phoneNo
+    }
 
 
     if (openAlertDialog) {
@@ -191,13 +199,45 @@ fun EditProfileScreen(
                         horizontalAlignment = Alignment.Start,
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        EditTextFieldProfile(
-                            value = editedgender,
-                            textlabel = "Gender",
-                            onValueChange = { editedgender = it },
+
+                        ExposedDropdownMenuBox(
+                            expanded = expandedChangeGender,
+                            onExpandedChange = { expandedChangeGender = !expandedChangeGender },
                             modifier = Modifier
-                            //    .fillMaxWidth()
-                        )
+                        ) {
+                            OutlinedTextField(
+                                readOnly = true,
+                                value = editedgender,
+                                onValueChange = { editedgender = it },
+                                label = { Text(text = "Gender") },
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedChangeGender)
+                                },
+                                colors = OutlinedTextFieldDefaults.colors(),
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth()
+                            )
+                            ExposedDropdownMenu(expanded = expandedChangeGender, onDismissRequest = { expandedChangeGender = false }) {
+                                options.forEach { option: String ->
+                                    DropdownMenuItem(
+                                        text = { Text(text = option) },
+                                        onClick = {
+                                            expandedChangeGender = false
+                                            editedgender = option
+                                            changeGender = option
+                                        }
+                                    )
+                                }
+                            }
+                        }
+//                        EditTextFieldProfile(
+//                            value = editedgender,
+//                            textlabel = "Gender",
+//                            onValueChange = { editedgender = it },
+//                            modifier = Modifier
+//                            //    .fillMaxWidth()
+//                        )
                     }
                 }
 
@@ -345,7 +385,17 @@ fun EditProfileScreen(
                 }
 
                 Button(
-                    onClick = { openAlertDialog = true },
+                    onClick = {
+                        openAlertDialog = true
+                        User(
+                            username = editedname,
+                            gender = editedgender,
+                            dob = getStringToDate(editeddob) ,
+                            email = editedemail,
+                            password = editedpassword,
+                            phoneNo = editedphonenum,
+                        )
+                              },
                     colors = ButtonDefaults.buttonColors(
                         colorResource(R.color.primary)
                     ),
@@ -418,7 +468,7 @@ fun ChangeProfilePic() {
 
 
 }
-
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun EditTextFieldProfile(
     value: String,
@@ -432,7 +482,7 @@ fun EditTextFieldProfile(
         onValueChange = onValueChange,
         modifier = modifier
             //.size(100.dp)
-            .background(color = Color.Transparent)
+            //.background(color = Color.Transparent)
             .height(120.dp)
             .width(300.dp),
         label = {
@@ -514,14 +564,16 @@ fun DobDatePicker(
     day = calender.get(Calendar.DAY_OF_MONTH)
     calender.time = Date()
 
-
     var editeddob = remember { mutableStateOf(user.dob) }
-    val datePickerDialog = DatePickerDialog(
-        context,
-        { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-            editeddob.value = getStringToDate("$dayOfMonth/$month/$year")
-        }, year, month, day
-    )
+    val datePickerDialog = remember {
+        DatePickerDialog(
+            context,
+            { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+                editeddob.value = getStringToDate("$dayOfMonth/$month/$year")
+            }, year, month, day
+        )
+    }
+
 
     Column(//EDIT DOB
         modifier = Modifier
@@ -543,6 +595,7 @@ fun DobDatePicker(
         )
     }
 }
+
 
 fun getStringToDate(date: String): Long {
     val l = LocalDate.parse(date, DateTimeFormatter.ofPattern("dd-MM-yyyy"))

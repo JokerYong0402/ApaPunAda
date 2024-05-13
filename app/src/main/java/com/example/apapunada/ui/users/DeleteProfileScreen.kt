@@ -184,7 +184,7 @@ fun DeleteAcctComment(
         modifier = modifier
             .padding(dimensionResource(R.dimen.padding_medium))
             .background(color = Color.White)
-            .height(150.dp)
+            .height(160.dp)
             .fillMaxWidth()
             .clip(
                 shape = RoundedCornerShape(
@@ -204,7 +204,7 @@ fun DeleteAcctComment(
                 fontSize = 14.sp,
                 color = colorResource(id = R.color.black),
                 modifier = modifier
-                .padding(bottom = 70.dp)
+                .padding(bottom = 60.dp)
             )
         },
 
