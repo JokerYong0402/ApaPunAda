@@ -1,19 +1,23 @@
 package com.example.apapunada.viewmodel
 
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.apapunada.data.dataclass.User
 import com.example.apapunada.data.repository.UserRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 
 data class UserState(
     val user: User = User(),
-    val isValid: Boolean = false
+    val isValid: Boolean = false,
+    val errorMessage: String = ""
 )
 
 data class UserListState(
@@ -21,6 +25,12 @@ data class UserListState(
     val userList: List<User> = listOf(),
     val errorMessage: String = ""
 )
+
+enum class Gender(name: String) {
+    Male("Male"),
+    Female("Female"),
+    Not("Prefer not to say"),
+}
 
 enum class UserStatus(name: String) {
     Active("Active"),
@@ -30,64 +40,79 @@ enum class UserStatus(name: String) {
 
 class UserViewModel(private val userRepository: UserRepository): ViewModel() {
 
-    var userState by mutableStateOf(UserState())
-        private set
+    private val _userState = MutableStateFlow(UserState())
+    val userState: StateFlow<UserState> = _userState.asStateFlow()
 
-    var userListState by mutableStateOf(UserListState())
-        private set
+    private val _userListState = MutableStateFlow(UserListState())
+    val userListState: StateFlow<UserListState> = _userListState.asStateFlow()
 
     fun loadAllUsers() {
-        userRepository.getAllUsersStream()
-            .map { UserListState(isLoading = false, userList = it) }
-            .onStart { emit(UserListState(isLoading = true)) }
-            .catch {
-                emit(UserListState(errorMessage = it.message.toString()))
-                Log.i("User", "loadAllUsers: " + it.message.toString())
-            }
+        viewModelScope.launch(Dispatchers.IO) {
+            userRepository.getAllUsersStream()
+                .map { UserListState(isLoading = false, userList = it) }
+                .onStart { emit(UserListState(isLoading = true))}
+                .catch {
+                    emit(UserListState(errorMessage = it.message.toString()))
+                    Log.i("User", "loadAllUsers: " + it.message.toString())
+                }
+                .collect { _userListState.value = it }
+        }
     }
 
     fun loadUserByUserId(id: Int) {
-        userRepository.getUserStream(id)
-            .map { UserState(user = it) }
-            .catch { Log.i("User", "loadUserByUserId: " + it.message.toString()) }
+        viewModelScope.launch(Dispatchers.IO) {
+            userRepository.getUserStream(id)
+                .map { UserState(user = it, isValid = validateInput()) }
+                .catch {
+                    emit(UserState(errorMessage = it.message.toString()))
+                    Log.i("User", "loadUserByUserId: " + it.message.toString())
+                }
+                .collect { _userState.value = it }
+        }
     }
 
-    private fun validateInput(uiState: User = userState.user): Boolean {
-        return with(uiState) {
+    private fun validateInput(): Boolean {
+        return with(_userState.value.user) {
             username.isNotBlank() && password.isNotBlank()
         }
     }
 
-    fun updateUiState(user: User) {
-        userState = UserState(user = user, isValid = validateInput(user))
+    fun updateUserState(user: User) {
+        _userState.value = _userState.value.copy(user = user, isValid = validateInput())
     }
 
-    suspend fun saveUser() {
-        if (validateInput()) {
-            try {
-                userRepository.insertUser(userState.user)
-            } catch (e: Exception) {
-                Log.i("User", "saveUser: " + e.message.toString())
+    fun saveUser() {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (validateInput()) {
+                try {
+                    userRepository.insertUser(_userState.value.user)
+                } catch (e: Exception) {
+                    Log.i("User", "saveUser: " + e.message.toString())
+                }
             }
         }
     }
 
-    suspend fun updateUser() {
-        if (validateInput()) {
-            try {
-                userRepository.updateUser(userState.user)
-            } catch (e: Exception) {
-                Log.i("User", "updateUser: " + e.message.toString())
+    fun updateUser() {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (validateInput()) {
+                try {
+                    userRepository.updateUser(_userState.value.user)
+                } catch (e: Exception) {
+                    Log.i("User", "updateUser: " + e.message.toString())
+                }
             }
         }
     }
 
-    suspend fun deleteUser() {
-        if (validateInput()) {
-            try {
-                userRepository.deleteUser(userState.user)
-            } catch (e: Exception) {
-                Log.i("User", "deleteUser: " + e.message.toString())
+    private fun deleteUser() {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (validateInput()) {
+                try {
+                    userRepository.deleteUser(_userState.value.user)
+                } catch (e: Exception) {
+                    Log.i("User", "deleteUser: " + e.message.toString())
+                }
             }
         }
     }
@@ -120,7 +145,9 @@ class UserViewModel(private val userRepository: UserRepository): ViewModel() {
 //                val users = userRepository.getAllUsersStream()
 //                _userListState.update { it.copy(isLoading = false, userList = users) }
 //            } catch (e: Exception) {
-//                _userListState.update { it.copy(isLoading = false, errorMessage = e.message.toString()) }
+//                _userListState.update {
+//                it.copy(isLoading = false, errorMessage = e.message.toString())
+//                }
 //            }
 //        }
 //    }

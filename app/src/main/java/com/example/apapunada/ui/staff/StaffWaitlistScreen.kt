@@ -1,9 +1,12 @@
 package com.example.apapunada.ui.staff
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +25,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,17 +42,47 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
-import com.example.apapunada.data.WaitlistSample.Waitlists
-import com.example.apapunada.model.WaitList
+import com.example.apapunada.data.dataclass.Waitlist
+import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.DropDownMenu
+import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.SearchBar
+import com.example.apapunada.ui.components.formattedDate
+import com.example.apapunada.viewmodel.WaitlistListState
+import com.example.apapunada.viewmodel.WaitlistState
+import com.example.apapunada.viewmodel.WaitlistViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun StaffWaitlistScreen(
-    waitlists: List<WaitList> = Waitlists
+    viewModel: WaitlistViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+
+    var waitlistState = viewModel.waitlistState.collectAsState(initial = WaitlistState())
+    val waitlistListState = viewModel.waitlistListState.collectAsState(initial = WaitlistListState())
+    var waitlists: List<Waitlist> = listOf()
+
+    viewModel.loadAllWaitlists()
+
+    if (waitlistListState.value.isLoading) {
+        Box( modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Gray.copy(alpha = 0.5f))
+            .clickable { /* no action */ }
+        ) {
+            IndeterminateCircularIndicator()
+        }
+    } else {
+        if (waitlistListState.value.errorMessage.isNotEmpty()) {
+            Text(text = "Error loading users: ${waitlistListState.value.errorMessage}")
+            Log.i("User", "StaffUserScreen: ${waitlistListState.value.errorMessage}")
+        } else {
+            waitlists = waitlistListState.value.waitlistList
+        }
+    }
+
     val config  = LocalConfiguration.current
     val width by remember(config) {
         mutableStateOf(config.screenWidthDp)
@@ -253,7 +287,7 @@ fun StaffWaitlistScreen(
                         )
 
                         Text(
-                            text = waitlist.username,
+                            text = waitlist.userID.toString(), //TODO
                             fontSize = 22.sp,
                             modifier = Modifier
                                 .width(currentHeaderList[1].second)
@@ -267,14 +301,14 @@ fun StaffWaitlistScreen(
                         )
 
                         Text(
-                            text = waitlist.dateTime,
+                            text = formattedDate(waitlist.datetime, "date"),
                             fontSize = 22.sp,
                             modifier = Modifier
                                 .width(currentHeaderList[3].second)
                         )
 
                         Text(
-                            text = waitlist.waitTime.toString() + " mins",
+                            text = formattedDate(waitlist.datetime, "time") + " mins",
                             fontSize = 22.sp,
                             modifier = Modifier
                                 .width(currentHeaderList[4].second)

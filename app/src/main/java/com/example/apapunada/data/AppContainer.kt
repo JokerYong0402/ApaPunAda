@@ -35,38 +35,38 @@ interface AppContainer {
 class AppDataContainer(private val context: Context): AppContainer {
 
     override val feedbackRepository: FeedbackRepository by lazy {
-        FeedbackOfflineRepository(ApaPunAdaDatabase.getDatabase(context).FeedbackDao())
+        FeedbackOfflineRepository(ApaPunAdaDatabase.getDatabase(context).feedbackDao())
     }
 
     override val foodDetailsRepository: FoodDetailsRepository by lazy {
-        FoodDetailsOfflineRepository(ApaPunAdaDatabase.getDatabase(context).FoodDetailsDao())
+        FoodDetailsOfflineRepository(ApaPunAdaDatabase.getDatabase(context).foodDetailsDao())
     }
 
     override val menuItemRepository: MenuItemRepository by lazy {
-        MenuItemOfflineRepository(ApaPunAdaDatabase.getDatabase(context).MenuItemDao())
+        MenuItemOfflineRepository(ApaPunAdaDatabase.getDatabase(context).menuItemDao())
     }
 
     override val nutritionFactsRepository: NutritionFactsRepository by lazy {
-        NutritionFactsOfflineRepository(ApaPunAdaDatabase.getDatabase(context).NutritionFactsDao())
+        NutritionFactsOfflineRepository(ApaPunAdaDatabase.getDatabase(context).nutritionFactsDao())
     }
 
     override val orderRepository: OrderRepository by lazy {
-        OrderOfflineRepository(ApaPunAdaDatabase.getDatabase(context).OrderDao())
+        OrderOfflineRepository(ApaPunAdaDatabase.getDatabase(context).orderDao())
     }
 
     override val orderDetailsRepository: OrderDetailsRepository by lazy {
-        OrderDetailsOfflineRepository(ApaPunAdaDatabase.getDatabase(context).OrderDetailsDao())
+        OrderDetailsOfflineRepository(ApaPunAdaDatabase.getDatabase(context).orderDetailsDao())
     }
 
     override val userRepository: UserRepository by lazy {
-        UserOfflineRepository(ApaPunAdaDatabase.getDatabase(context).UserDao())
+        UserOfflineRepository(ApaPunAdaDatabase.getDatabase(context).userDao())
     }
 
     override val voucherRepository: VoucherRepository by lazy {
-        VoucherOfflineRepository(ApaPunAdaDatabase.getDatabase(context).VoucherDao())
+        VoucherOfflineRepository(ApaPunAdaDatabase.getDatabase(context).voucherDao())
     }
 
     override val waitlistRepository: WaitlistRepository by lazy {
-        WaitlistOfflineRepository(ApaPunAdaDatabase.getDatabase(context).WailistDao())
+        WaitlistOfflineRepository(ApaPunAdaDatabase.getDatabase(context).waitlistDao())
     }
 }

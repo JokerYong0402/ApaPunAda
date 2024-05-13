@@ -47,12 +47,12 @@ fun formattedString(value: Double): String {
     return String.format("%.2f", value)
 }
 
-fun formattedDate(millis: Long, option: String?): String {
+fun formattedDate(millis: Long, option: String = ""): String {
     val date = Date(millis)
 
     val formatter = when (option) {
         "date" -> {
-            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
         }
         "time" -> {
             SimpleDateFormat("HH:mm:ss", Locale.getDefault())
@@ -65,6 +65,11 @@ fun formattedDate(millis: Long, option: String?): String {
     return formatter.format(date)
 }
 
+inline fun <reified T : Enum<*>> getEnumList(
+    enumClass: Class<T> = T::class.java
+): List<String> {
+    return enumClass.enumConstants!!.map { it.name }
+}
 
 @Composable
 fun SetPortraitOrientationOnly() {

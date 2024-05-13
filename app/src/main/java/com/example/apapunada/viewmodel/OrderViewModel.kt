@@ -1,21 +1,25 @@
 package com.example.apapunada.viewmodel
 
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.apapunada.data.dataclass.Order
 import com.example.apapunada.data.dataclass.OrderDetails
 import com.example.apapunada.data.repository.OrderDetailsRepository
 import com.example.apapunada.data.repository.OrderRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 
 data class OrderState(
     val order: Order = Order(),
-    val isValid: Boolean = false
+    val isValid: Boolean = false,
+    val errorMessage: String = ""
 )
 
 data class OrderListState(
@@ -27,8 +31,8 @@ data class OrderListState(
 data class OrderDetailsListState(
     val isLoading: Boolean = false,
     val orderDetails: List<OrderDetails> = listOf(OrderDetails()),
-    val errorMessage: String = "",
-    val isValid: Boolean = false
+    val isValid: Boolean = false,
+    val errorMessage: String = ""
 )
 
 enum class OrderMethod(method: String) {
@@ -44,9 +48,10 @@ enum class PaymentStatus(name: String) {
 }
 
 enum class OrderStatus(name: String) {
-    Active("Active"),
-    Disabled("Disabled"),
-    Deleted("Deleted"),
+    Preparing("Preparing"),
+    Ready("Ready"),
+    Completed("Completed"),
+    Cancelled("Cancelled"),
 }
 
 class OrderViewModel(
@@ -54,78 +59,96 @@ class OrderViewModel(
     private val orderDetailsRepository: OrderDetailsRepository
 ): ViewModel() {
 
-    var orderState by mutableStateOf(OrderState())
-        private set
+    private val _orderState = MutableStateFlow(OrderState())
+    val orderState: StateFlow<OrderState> = _orderState.asStateFlow()
 
-    var orderListState by mutableStateOf(OrderListState())
-        private set
+    private val _orderListState = MutableStateFlow(OrderListState())
+    val orderListState: StateFlow<OrderListState> = _orderListState.asStateFlow()
 
-    var orderDetailsListState by mutableStateOf(OrderDetailsListState())
-        private set
+    private val _orderDetailsListState = MutableStateFlow(OrderDetailsListState())
+    val orderDetailsListState: StateFlow<OrderDetailsListState> = _orderDetailsListState.asStateFlow()
 
     fun loadAllOrders() {
-        orderRepository.getAllOrdersStream()
-            .map { OrderListState(isLoading = false, orderList = it) }
-            .onStart { emit(OrderListState(isLoading = true)) }
-            .catch {
-                emit(OrderListState(errorMessage = it.message.toString()))
-                Log.i("Order", "loadAllOrders: " + it.message.toString())
-            }
+        viewModelScope.launch(Dispatchers.IO) {
+            orderRepository.getAllOrdersStream()
+                .map { OrderListState(isLoading = false, orderList = it) }
+                .onStart { emit(OrderListState(isLoading = true)) }
+                .catch {
+                    emit(OrderListState(errorMessage = it.message.toString()))
+                    Log.i("Order", "loadAllOrders: " + it.message.toString())
+                }
+                .collect { _orderListState.value = it }
+        }
     }
 
     fun loadOrderByOrderId(id: Int) {
-        orderRepository.getOrderByOrderIdStream(id)
-            .map { OrderState(order = it) }
-            .catch { Log.i("Order", "loadOrderByOrderId: " + it.message.toString()) }
+        viewModelScope.launch(Dispatchers.IO) {
+            orderRepository.getOrderByOrderIdStream(id)
+                .map { OrderState(order = it) }
+                .catch {
+                    emit(OrderState(errorMessage = it.message.toString()))
+                    Log.i("Order", "loadOrderByOrderId: " + it.message.toString())
+                }
+                .collect { _orderState.value = it }
+        }
     }
 
     fun loadOrderByUserId(id: Int) {
-        orderRepository.getOrderByUserIdStream(id)
-            .map { OrderListState(isLoading = false, orderList = it) }
-            .onStart { emit(OrderListState(isLoading = true)) }
-            .catch {
-                emit(OrderListState(errorMessage = it.message.toString()))
-                Log.i("Order", "loadOrderByUserId: " + it.message.toString())
-            }
+        viewModelScope.launch(Dispatchers.IO) {
+            orderRepository.getOrderByUserIdStream(id)
+                .map { OrderListState(isLoading = false, orderList = it) }
+                .onStart { emit(OrderListState(isLoading = true)) }
+                .catch {
+                    emit(OrderListState(errorMessage = it.message.toString()))
+                    Log.i("Order", "loadOrderByUserId: " + it.message.toString())
+                }
+                .collect { _orderListState.value = it }
+        }
     }
 
     fun loadOrderDetailsByOrderId(id: Int) {
-        orderDetailsRepository.getOrderDetailsByOrderIdStream(id)
-            .map { OrderDetailsListState(isLoading = false, orderDetails = it) }
-            .onStart { emit(OrderDetailsListState(isLoading = true)) }
-            .catch {
-                emit(OrderDetailsListState(errorMessage = it.message.toString()))
-                Log.i(
-                    "OrderDetails", "loadOrderDetailsByOrderId: " + it.message.toString()
-                )
-            }
+        viewModelScope.launch(Dispatchers.IO) {
+            orderDetailsRepository.getOrderDetailsByOrderIdStream(id)
+                .map { OrderDetailsListState(isLoading = false, orderDetails = it) }
+                .onStart { emit(OrderDetailsListState(isLoading = true)) }
+                .catch {
+                    emit(OrderDetailsListState(errorMessage = it.message.toString()))
+                    Log.i(
+                        "OrderDetails", "loadOrderDetailsByOrderId: "
+                                + it.message.toString()
+                    )
+                }
+                .collect { _orderDetailsListState.value = it }
+        }
     }
 
     fun loadOrderDetailsByMenuItemId(id: Int) {
-        orderDetailsRepository.getOrderDetailsByMenuItemIdStream(id)
-            .map { OrderDetailsListState(isLoading = false, orderDetails = it) }
-            .onStart { emit(OrderDetailsListState(isLoading = true)) }
-            .catch {
-                emit(OrderDetailsListState(errorMessage = it.message.toString()))
-                Log.i(
-                    "OrderDetails", "loadOrderDetailsByOrderId: " + it.message.toString()
-                )
-            }
+        viewModelScope.launch(Dispatchers.IO) {
+            orderDetailsRepository.getOrderDetailsByMenuItemIdStream(id)
+                .map { OrderDetailsListState(isLoading = false, orderDetails = it) }
+                .onStart { emit(OrderDetailsListState(isLoading = true)) }
+                .catch {
+                    emit(OrderDetailsListState(errorMessage = it.message.toString()))
+                    Log.i(
+                        "OrderDetails", "loadOrderDetailsByOrderId: " + it.message.toString()
+                    )
+                }
+                .collect { _orderDetailsListState.value = it }
+        }
     }
 
-    private fun validateOrderInput(uiState: Order = orderState.order): Boolean {
-        return with(uiState) {
+    private fun validateOrderInput(): Boolean {
+        return with(_orderState.value.order) {
             method.isNotBlank() && paymentStatus.isNotBlank() && orderStatus.isNotBlank() // TODO
         }
     }
 
-    private fun validateDetailsInput(
-        uiState: List<OrderDetails> = orderDetailsListState.orderDetails
-    ): Boolean {
-        var validation = true
-        for (detail in uiState) {
-            with(detail) {
-                validation = total.isNaN()
+    private fun validateDetailsInput(): Boolean {
+        var validation: Boolean = true
+
+        for (detail in _orderDetailsListState.value.orderDetails) {
+            validation = with(detail) {
+                total.isNaN()
             }
 
             if (!validation) {
@@ -137,77 +160,83 @@ class OrderViewModel(
     }
 
     fun updateOrderState(order: Order) {
-        orderState = OrderState(order = order, isValid = validateOrderInput(order))
+        _orderState.value = OrderState(order = order, isValid = validateOrderInput())
     }
 
-    fun updateOrderDetailsListState(orderDetails: List<OrderDetails>) {
-        orderDetailsListState = OrderDetailsListState(
-            orderDetails = orderDetails, isValid = validateDetailsInput(orderDetails)
-        )
-    }
-
-    suspend fun saveOrder() {
-        if (validateOrderInput()) {
-            try {
-                orderRepository.insertOrder(orderState.order)
-            } catch (e: Exception) {
-                Log.i("Order", "saveOrder: " + e.message.toString())
-            }
-        }
-    }
-
-    suspend fun updateOrder() {
-        if (validateOrderInput()) {
-            try {
-                orderRepository.updateOrder(orderState.order)
-            } catch (e: Exception) {
-                Log.i("Order", "updateOrder: " + e.message.toString())
-            }
-        }
-    }
-
-    suspend fun deleteOrder() {
-        if (validateOrderInput()) {
-            try {
-                orderRepository.deleteOrder(orderState.order)
-            } catch (e: Exception) {
-                Log.i("Order", "deleteOrder: " + e.message.toString())
-            }
-        }
-    }
-
-    suspend fun saveDetail() {
-        if (validateDetailsInput()) {
-            try {
-                for (detail in orderDetailsListState.orderDetails) {
-                    orderDetailsRepository.insertOrderDetails(detail)
+    fun saveOrder() {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (validateOrderInput()) {
+                try {
+                    orderRepository.insertOrder(orderState.value.order)
+                } catch (e: Exception) {
+                    Log.i("Order", "saveOrder: " + e.message.toString())
                 }
-            } catch (e: Exception) {
-                Log.i("OrderDetail", "saveOrderDetail: " + e.message.toString())
             }
         }
     }
 
-    suspend fun updateDetail() {
-        if (validateDetailsInput()) {
-            try {
-                for (detail in orderDetailsListState.orderDetails) {
-                    orderDetailsRepository.updateOrderDetails(detail)
+    fun updateOrder() {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (validateOrderInput()) {
+                try {
+                    orderRepository.updateOrder(orderState.value.order)
+                } catch (e: Exception) {
+                    Log.i("Order", "updateOrder: " + e.message.toString())
                 }
-            } catch (e: Exception) {
-                Log.i("OrderDetail", "updateOrderDetail: " + e.message.toString())
             }
         }
     }
 
-    suspend fun deleteDetail() {
-        if (validateDetailsInput()) {
-            try {
-                for (detail in orderDetailsListState.orderDetails) {
-                    orderDetailsRepository.deleteOrderDetails(detail)
+    private suspend fun deleteOrder() {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (validateOrderInput()) {
+                try {
+                    orderRepository.deleteOrder(orderState.value.order)
+                } catch (e: Exception) {
+                    Log.i("Order", "deleteOrder: " + e.message.toString())
                 }
-            } catch (e: Exception) {
-                Log.i("OrderDetail", "deleteOrderDetail: " + e.message.toString())
+            }
+        }
+    }
+
+    fun saveDetails() {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (validateDetailsInput()) {
+                try {
+                    for (detail in orderDetailsListState.value.orderDetails) {
+                        orderDetailsRepository.insertOrderDetails(detail)
+                    }
+                } catch (e: Exception) {
+                    Log.i("OrderDetail", "saveOrderDetail: " + e.message.toString())
+                }
+            }
+        }
+    }
+
+    fun updateDetails() {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (validateDetailsInput()) {
+                try {
+                    for (detail in orderDetailsListState.value.orderDetails) {
+                        orderDetailsRepository.updateOrderDetails(detail)
+                    }
+                } catch (e: Exception) {
+                    Log.i("OrderDetail", "updateOrderDetail: " + e.message.toString())
+                }
+            }
+        }
+    }
+
+    private suspend fun deleteDetails() {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (validateDetailsInput()) {
+                try {
+                    for (detail in orderDetailsListState.value.orderDetails) {
+                        orderDetailsRepository.deleteOrderDetails(detail)
+                    }
+                } catch (e: Exception) {
+                    Log.i("OrderDetail", "deleteOrderDetail: " + e.message.toString())
+                }
             }
         }
     }

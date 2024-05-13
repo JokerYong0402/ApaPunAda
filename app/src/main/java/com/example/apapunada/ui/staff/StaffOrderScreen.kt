@@ -1,12 +1,16 @@
 package com.example.apapunada.ui.staff
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -36,41 +40,71 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices.PHONE
 import androidx.compose.ui.tooling.preview.Devices.TABLET
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
 import com.example.apapunada.data.dataclass.Order
+import com.example.apapunada.data.dataclass.OrderDetails
+import com.example.apapunada.ui.AppViewModelProvider
+import com.example.apapunada.ui.components.IndeterminateCircularIndicator
+import com.example.apapunada.ui.components.formattedDate
 import com.example.apapunada.ui.components.formattedString
+import com.example.apapunada.ui.components.getEnumList
+import com.example.apapunada.viewmodel.OrderDetailsListState
 import com.example.apapunada.viewmodel.OrderListState
+import com.example.apapunada.viewmodel.OrderState
 import com.example.apapunada.viewmodel.OrderStatus
-import com.example.apapunada.viewmodel.OrderUiState
 import com.example.apapunada.viewmodel.OrderViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun StaffOrderScreen(
-    orderViewModel: OrderViewModel = viewModel()
+    viewModel: OrderViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    val orderUiState = orderViewModel.orderUiState.collectAsState(initial = OrderUiState())
-    val orderListState = orderViewModel.orderListState.collectAsState(initial = OrderListState())
 
-    orderViewModel.getAllOrders()
+    var orderState = viewModel.orderState.collectAsState(initial = OrderState())
+    val orderListState = viewModel.orderListState.collectAsState(initial = OrderListState())
+    val orderDetailsListState = viewModel.orderDetailsListState
+        .collectAsState(initial = OrderDetailsListState())
 
-    val orders = orderListState.value.orderList
+    var orders: List<Order> = listOf()
+
+    viewModel.loadAllOrders()
+
+    if (orderListState.value.isLoading) {
+        Box( modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Gray.copy(alpha = 0.5f))
+            .clickable { /* no action */ }
+        ) {
+            IndeterminateCircularIndicator()
+        }
+    } else {
+        if (orderListState.value.errorMessage.isNotEmpty()) {
+            Text(text = "Error loading users: ${orderListState.value.errorMessage}")
+            Log.i("User", "StaffUserScreen: ${orderListState.value.errorMessage}")
+        } else {
+            orders = orderListState.value.orderList
+        }
+    }
 
     var editButton by remember { mutableStateOf(false) }
     var detailButton by remember { mutableStateOf(false) }
-    var currentOrder by remember { mutableStateOf(Order()) }
+    var currentOrder by remember { mutableStateOf(Order()) } // TODO
+    var currentDetails by remember { mutableStateOf(listOf(OrderDetails())) }
 
     val headerList = listOf(
         // (Header name, Column width)
@@ -96,11 +130,15 @@ fun StaffOrderScreen(
     }
 
     if (detailButton) {
-//        DialogOfOrderDetail(
-//            onDismissRequest = { detailButton = false },
-//            order = currentOrder,
-//            labelList = headerList
-//        )
+        viewModel.loadOrderDetailsByOrderId(currentOrder.orderID)
+        currentDetails = orderDetailsListState.value.orderDetails
+
+        DialogOfOrderDetail(
+            onDismissRequest = { detailButton = false },
+            order = currentOrder,
+            details = currentDetails,
+            labelList = headerList
+        )
     }
 
 
@@ -139,8 +177,8 @@ fun StaffOrderScreen(
                 }
             }
 
-            items(orderListState.value.orderList.size) { i ->
-                val order = orders[i]
+            items(orders.size) { i ->
+                val o = orders[i]
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
@@ -148,7 +186,7 @@ fun StaffOrderScreen(
                         .height(100.dp)
                 ) {
                     Text(
-                        text = order.orderID.toString(),
+                        text = o.orderID.toString(),
                         fontSize = 22.sp,
                         modifier = Modifier
                             .width(headerList[0].second)
@@ -156,7 +194,7 @@ fun StaffOrderScreen(
                     )
 
                     Text(
-                        text = order.orderID.toString(),
+                        text = o.orderID.toString(),
                         fontSize = 22.sp,
                         modifier = Modifier
                             .width(headerList[1].second)
@@ -165,7 +203,7 @@ fun StaffOrderScreen(
                     Row {
 //                        Icon(painter = painterResource(R.id))
                         Text(
-                            text = order.userID.toString(),
+                            text = o.userID.toString(),
                             fontSize = 22.sp,
                             modifier = Modifier
                                 .width(headerList[2].second)
@@ -173,28 +211,28 @@ fun StaffOrderScreen(
                     }
 
                     Text(
-                        text = "RM " + formattedString(order.amount),
+                        text = "RM " + formattedString(o.amount),
                         fontSize = 22.sp,
                         modifier = Modifier
                             .width(headerList[3].second)
                     )
 
                     Text(
-                        text = order.dateTime.toString(),
+                        text = formattedDate(o.dateTime, "date"),
                         fontSize = 22.sp,
                         modifier = Modifier
                             .width(headerList[4].second)
                     )
 
                     Text(
-                        text = System.currentTimeMillis().toString(),
+                        text = formattedDate(o.dateTime, "time"),
                         fontSize = 22.sp,
                         modifier = Modifier
                             .width(headerList[5].second)
                     )
 
                     Text(
-                        text = order.orderStatus,
+                        text = o.orderStatus,
                         fontSize = 22.sp,
                         modifier = Modifier
                             .width(headerList[6].second)
@@ -206,7 +244,7 @@ fun StaffOrderScreen(
                     ) {
                         IconButton(
                             onClick = {
-                                currentOrder = getOrder(i, orders)
+                                currentOrder = o
                                 editButton = true
                             }
                         ) {
@@ -220,7 +258,7 @@ fun StaffOrderScreen(
 
                         IconButton(
                             onClick = {
-                                currentOrder = getOrder(i, orders)
+                                currentOrder = o
                                 detailButton = true
                             }
                         ) {
@@ -237,13 +275,6 @@ fun StaffOrderScreen(
     }
 }
 
-private fun getOrder(
-    index: Int,
-    orders: List<Order>
-): Order {
-    return orders[index]
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DialogOfEditOrder(
@@ -255,11 +286,7 @@ fun DialogOfEditOrder(
     var expanded by remember { mutableStateOf(false) }
     var selectedStatus by remember { mutableStateOf(order.orderStatus) }
 
-    val orderStatusList = listOf<String>(
-        OrderStatus.Active.name,
-        OrderStatus.Disabled.name,
-        OrderStatus.Deleted.name
-    )
+    val orderStatusList = getEnumList(OrderStatus::class.java)
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
@@ -325,237 +352,237 @@ fun DialogOfEditOrder(
     }
 }
 
-//@OptIn(ExperimentalFoundationApi::class)
-//@Composable
-//fun DialogOfOrderDetail(
-//    onDismissRequest: () -> Unit = {},
-//    order: Order,
-//    labelList: List<Pair<String, Dp>>
-//) {
-//    val details = order.orderDetails
-//
-//    val orderHeader = listOf(
-//        // (Header name, Column width)
-//        Pair("No.", 50.dp),
-//        Pair("Food Name", 165.dp),
-//        Pair("Qty", 60.dp),
-//        Pair("Price", 100.dp),
-//        Pair("Remark", 200.dp),
-//    )
-//
-//    Dialog(onDismissRequest = { onDismissRequest() }) {
-//        Card(
-//            colors = CardDefaults.cardColors(Color.White),
-//            elevation = CardDefaults.cardElevation(15.dp),
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .height(600.dp)
-//                .padding(horizontal = dimensionResource(R.dimen.padding_medium))
-//        ) {
-//            Column(
-//                modifier = Modifier
-//                    .verticalScroll(rememberScrollState())
-//                    .padding(dimensionResource(R.dimen.padding_medium))
-//            ) {
-//                Column(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .height(520.dp)
-//                ) {
-//                    Row(
-//                        horizontalArrangement = Arrangement.spacedBy(50.dp),
-//                        modifier = Modifier.fillMaxWidth()
-//                    ) {
-//                        Column(
-//                            verticalArrangement = Arrangement.spacedBy(15.dp),
-//                            modifier = Modifier.width(150.dp)
-//                        ) {
-//                            Column {
-//                                Text(
-//                                    text = labelList[1].first,
-//                                    fontWeight = FontWeight.Medium,
-//                                    fontSize = 22.sp
-//                                )
-//                                Text(
-//                                    text = order.orderId,
-//                                    fontSize = 20.sp
-//                                )
-//                            }
-//
-//                            Column {
-//                                Text(
-//                                    text = labelList[2].first,
-//                                    fontWeight = FontWeight.Medium,
-//                                    fontSize = 22.sp
-//                                )
-//                                Text(
-//                                    text = order.user.username,
-//                                    fontSize = 20.sp
-//                                )
-//                            }
-//
-//                            Column {
-//                                Text(
-//                                    text = labelList[3].first,
-//                                    fontWeight = FontWeight.Medium,
-//                                    fontSize = 22.sp
-//                                )
-//                                Text(
-//                                    text = "RM " + formattedString(order.amount),
-//                                    fontSize = 20.sp
-//                                )
-//                            }
-//                        }
-//
-//                        Column(
-//                            verticalArrangement = Arrangement.spacedBy(15.dp),
-//                            modifier = Modifier.width(150.dp)
-//                        ) {
-//                            Column {
-//                                Text(
-//                                    text = labelList[4].first,
-//                                    fontWeight = FontWeight.Medium,
-//                                    fontSize = 22.sp
-//                                )
-//                                Text(
-//                                    text = order.date,
-//                                    fontSize = 20.sp
-//                                )
-//                            }
-//
-//                            Column {
-//                                Text(
-//                                    text = labelList[5].first,
-//                                    fontWeight = FontWeight.Medium,
-//                                    fontSize = 22.sp
-//                                )
-//                                Text(
-//                                    text = order.time,
-//                                    fontSize = 20.sp
-//                                )
-//                            }
-//
-//                            Column {
-//                                Text(
-//                                    text = labelList[6].first,
-//                                    fontWeight = FontWeight.Medium,
-//                                    fontSize = 22.sp
-//                                )
-//                                Text(
-//                                    text = order.status.status,
-//                                    fontSize = 20.sp
-//                                )
-//                            }
-//                        }
-//                    }
-//
-//                    Column(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(top = 10.dp)
-//                    ) {
-//                        Text(
-//                            text = "Food Details",
-//                            fontWeight = FontWeight.Medium,
-//                            fontSize = 22.sp
-//                        )
-//                    }
-//
-//                    Column(
-//                        modifier = Modifier.fillMaxHeight()
-//                    ) {
-//
-//                        LazyColumn(
-//                            modifier = Modifier
-//                                .horizontalScroll(rememberScrollState())
-//                        ) {
-//                            // header row
-//                            stickyHeader {
-//                                Row(
-//                                    verticalAlignment = Alignment.CenterVertically,
-//                                    modifier = Modifier
-//                                        .fillMaxWidth()
-//                                        .height(50.dp)
-//                                        .background(
-//                                            colorResource(R.color.primary_200),
-//                                            RoundedCornerShape(10.dp)
-//                                        )
-//                                ) {
-//                                    orderHeader.forEach { header ->
-//                                        Text(
-//                                            text = header.first,
-//                                            fontSize = 20.sp,
-//                                            fontWeight = FontWeight.Bold,
-//                                            modifier = Modifier
-//                                                .width(header.second)
-//                                        )
-//                                    }
-//                                }
-//                            }
-//
-//                            items(details.size) { i ->
-//                                Row(
-//                                    verticalAlignment = Alignment.CenterVertically,
-//                                    modifier = Modifier
-//                                        .fillMaxWidth()
-//                                        .height(60.dp)
-//                                ) {
-//                                    Text(
-//                                        text = (i + 1).toString(),
-//                                        fontSize = 18.sp,
-//                                        modifier = Modifier
-//                                            .width(orderHeader[0].second)
-//                                    )
-//
-//                                    Text(
-//                                        text = details[i].menuId.name,
-//                                        fontSize = 18.sp,
-//                                        modifier = Modifier
-//                                            .width(orderHeader[1].second)
-//                                    )
-//
-//                                    Text(
-//                                        text = details[i].qty.toString(),
-//                                        fontSize = 18.sp,
-//                                        modifier = Modifier
-//                                            .width(orderHeader[2].second)
-//                                    )
-//
-//                                    Text(
-//                                        text = "RM" + formattedString(details[i].total),
-//                                        fontSize = 18.sp,
-//                                        textAlign = TextAlign.Start,
-//                                        modifier = Modifier
-//                                            .width(orderHeader[3].second)
-//                                    )
-//
-//                                    Text(
-//                                        text = details[i].remark,
-//                                        fontSize = 18.sp,
-//                                        textAlign = TextAlign.Start,
-//                                        modifier = Modifier
-//                                            .width(orderHeader[4].second)
-//                                    )
-//                                }
-//                            }
-//                        }
-//                    }
-//
-//                }
-//
-//                // Buttons
-//                Row(
-//                    horizontalArrangement = Arrangement.End,
-//                    modifier = Modifier.fillMaxWidth()
-//                ) {
-//                    TextButton(onClick = { onDismissRequest() }) {
-//                        Text(text = "Dismiss")
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun DialogOfOrderDetail(
+    onDismissRequest: () -> Unit = {},
+    order: Order,
+    details: List<OrderDetails>,
+    labelList: List<Pair<String, Dp>>
+) {
+
+    val orderHeader = listOf(
+        // (Header name, Column width)
+        Pair("No.", 50.dp),
+        Pair("Food Name", 165.dp),
+        Pair("Qty", 60.dp),
+        Pair("Price", 100.dp),
+        Pair("Remark", 200.dp),
+    )
+
+    Dialog(onDismissRequest = { onDismissRequest() }) {
+        Card(
+            colors = CardDefaults.cardColors(Color.White),
+            elevation = CardDefaults.cardElevation(15.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(600.dp)
+                .padding(horizontal = dimensionResource(R.dimen.padding_medium))
+        ) {
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(dimensionResource(R.dimen.padding_medium))
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(520.dp)
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(50.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(15.dp),
+                            modifier = Modifier.width(150.dp)
+                        ) {
+                            Column {
+                                Text(
+                                    text = labelList[1].first,
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 22.sp
+                                )
+                                Text(
+                                    text = order.orderID.toString(),
+                                    fontSize = 20.sp
+                                )
+                            }
+
+                            Column {
+                                Text(
+                                    text = labelList[2].first,
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 22.sp
+                                )
+                                Text(
+                                    text = order.userID.toString(), // user
+                                    fontSize = 20.sp
+                                )
+                            }
+
+                            Column {
+                                Text(
+                                    text = labelList[3].first,
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 22.sp
+                                )
+                                Text(
+                                    text = "RM " + formattedString(order.amount),
+                                    fontSize = 20.sp
+                                )
+                            }
+                        }
+
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(15.dp),
+                            modifier = Modifier.width(150.dp)
+                        ) {
+                            Column {
+                                Text(
+                                    text = labelList[4].first,
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 22.sp
+                                )
+                                Text(
+                                    text = formattedDate(order.dateTime, "date"),
+                                    fontSize = 20.sp
+                                )
+                            }
+
+                            Column {
+                                Text(
+                                    text = labelList[5].first,
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 22.sp
+                                )
+                                Text(
+                                    text = formattedDate(order.dateTime, "time"),
+                                    fontSize = 20.sp
+                                )
+                            }
+
+                            Column {
+                                Text(
+                                    text = labelList[6].first,
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 22.sp
+                                )
+                                Text(
+                                    text = order.orderStatus,
+                                    fontSize = 20.sp
+                                )
+                            }
+                        }
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp)
+                    ) {
+                        Text(
+                            text = "Food Details",
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 22.sp
+                        )
+                    }
+
+                    Column(
+                        modifier = Modifier.fillMaxHeight()
+                    ) {
+
+                        LazyColumn(
+                            modifier = Modifier
+                                .horizontalScroll(rememberScrollState())
+                        ) {
+                            // header row
+                            stickyHeader {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(50.dp)
+                                        .background(
+                                            colorResource(R.color.primary_200),
+                                            RoundedCornerShape(10.dp)
+                                        )
+                                ) {
+                                    orderHeader.forEach { header ->
+                                        Text(
+                                            text = header.first,
+                                            fontSize = 20.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier
+                                                .width(header.second)
+                                        )
+                                    }
+                                }
+                            }
+
+                            items(details.size) { i ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(60.dp)
+                                ) {
+                                    Text(
+                                        text = (i + 1).toString(),
+                                        fontSize = 18.sp,
+                                        modifier = Modifier
+                                            .width(orderHeader[0].second)
+                                    )
+
+                                    Text(
+                                        text = details[i].menuItemID.toString(), // TODO
+                                        fontSize = 18.sp,
+                                        modifier = Modifier
+                                            .width(orderHeader[1].second)
+                                    )
+
+                                    Text(
+                                        text = details[i].quantity.toString(),
+                                        fontSize = 18.sp,
+                                        modifier = Modifier
+                                            .width(orderHeader[2].second)
+                                    )
+
+                                    Text(
+                                        text = "RM" + formattedString(details[i].total),
+                                        fontSize = 18.sp,
+                                        textAlign = TextAlign.Start,
+                                        modifier = Modifier
+                                            .width(orderHeader[3].second)
+                                    )
+
+                                    Text(
+                                        text = details[i].remark,
+                                        fontSize = 18.sp,
+                                        textAlign = TextAlign.Start,
+                                        modifier = Modifier
+                                            .width(orderHeader[4].second)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+                // Buttons
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = { onDismissRequest() }) {
+                        Text(text = "Dismiss")
+                    }
+                }
+            }
+        }
+    }
+}
 
 @Preview(showBackground = true, device = TABLET)
 @Composable

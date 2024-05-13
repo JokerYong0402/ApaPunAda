@@ -8,8 +8,8 @@ class VoucherOfflineRepository(private val voucherDao: VoucherDao): VoucherRepos
 
     override fun getAllVouchersStream(): Flow<List<Voucher>> = voucherDao.getAllVouchers()
 
-    override fun getVouchersByUserId(id: Int): Flow<List<Voucher>> =
-        voucherDao.getVouchersByUserId(id)
+    override fun getVoucherByCodeStream(code: String): Flow<Voucher> =
+        voucherDao.getVoucherByCode(code)
 
     override suspend fun deleteVoucher(voucher: Voucher) = voucherDao.deleteVoucher(voucher)
 

@@ -35,19 +35,19 @@ import com.example.apapunada.data.dataclass.Waitlist
         Voucher::class,
         Waitlist::class
    ],
-    version = 1
+    version = 2
 )
 abstract class ApaPunAdaDatabase: RoomDatabase() {
 
-    abstract fun FeedbackDao(): FeedbackDao
-    abstract fun FoodDetailsDao(): FoodDetailsDao
-    abstract fun MenuItemDao(): MenuItemDao
-    abstract fun NutritionFactsDao(): NutritionFactsDao
-    abstract fun OrderDao(): OrderDao
-    abstract fun OrderDetailsDao(): OrderDetailsDao
-    abstract fun UserDao(): UserDao
-    abstract fun VoucherDao(): VoucherDao
-    abstract fun WailistDao(): WaitlistDao
+    abstract fun feedbackDao(): FeedbackDao
+    abstract fun foodDetailsDao(): FoodDetailsDao
+    abstract fun menuItemDao(): MenuItemDao
+    abstract fun nutritionFactsDao(): NutritionFactsDao
+    abstract fun orderDao(): OrderDao
+    abstract fun orderDetailsDao(): OrderDetailsDao
+    abstract fun userDao(): UserDao
+    abstract fun voucherDao(): VoucherDao
+    abstract fun waitlistDao(): WaitlistDao
     companion object {
         @Volatile
         private var Instance: ApaPunAdaDatabase? = null

@@ -14,6 +14,7 @@ data class User(
     val gender: String = "",
     val dob: Long = 0,
     val image: String = "",
+    val role: String = "",
     val point: Int = 0,
     val status: String = ""
 )

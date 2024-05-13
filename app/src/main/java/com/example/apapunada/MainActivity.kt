@@ -10,8 +10,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ApaPunAdaTheme {
-//                StaffUI()
-                ApaPunAdaApp()
+                StaffUI()
+//                ApaPunAdaApp()
 
             }
         }

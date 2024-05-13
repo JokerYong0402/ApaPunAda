@@ -3,6 +3,7 @@ package com.example.apapunada.ui.staff
 import android.app.DatePickerDialog
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import android.widget.DatePicker
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,6 +29,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -44,6 +46,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,22 +68,59 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.apapunada.R
-import com.example.apapunada.data.UserSample.Users
-import com.example.apapunada.model.User
+import com.example.apapunada.data.dataclass.User
+import com.example.apapunada.ui.AppViewModelProvider
+import com.example.apapunada.ui.components.IndeterminateCircularIndicator
+import com.example.apapunada.ui.components.formattedDate
+import com.example.apapunada.ui.components.getEnumList
+import com.example.apapunada.viewmodel.Gender
+import com.example.apapunada.viewmodel.UserListState
+import com.example.apapunada.viewmodel.UserState
+import com.example.apapunada.viewmodel.UserStatus
+import com.example.apapunada.viewmodel.UserViewModel
 import java.util.Calendar
 import java.util.Date
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun StaffUserScreen(
-    users: List<User> = Users
+    viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    var userState = viewModel.userState.collectAsState(initial = UserState())
+    val userListState = viewModel.userListState.collectAsState(initial = UserListState())
+    var users: List<User> = listOf()
+
+    viewModel.loadAllUsers()
+
+    if (userListState.value.isLoading) {
+        Box(
+            modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Gray.copy(alpha = 0.5f))
+            .clickable { /* no action */ }
+            .zIndex(2f)
+            ,
+            contentAlignment = Alignment.Center
+        ) {
+            IndeterminateCircularIndicator()
+        }
+    } else {
+        if (userListState.value.errorMessage.isNotEmpty()) {
+            Text(text = "Error loading users: ${userListState.value.errorMessage}")
+            Log.i("User", "StaffUserScreen: ${userListState.value.errorMessage}")
+        } else {
+            users = userListState.value.userList
+        }
+    }
+
     var search by remember { mutableStateOf("") }
     var editButton by remember { mutableStateOf(false) }
     var detailButton by remember { mutableStateOf(false) }
-    var currentUser by remember { mutableStateOf(users[0]) }
+    var currentUser by remember { mutableStateOf(User()) }
 
     val headerList = listOf(
         // (Header name, Column width)
@@ -97,8 +137,9 @@ fun StaffUserScreen(
         DialogOfEditUser(
             onDismissRequest = { editButton = false },
             onConfirmation = {
+                viewModel.updateUserState(it)
+                viewModel.updateUser()
                 editButton = false
-                // TODO save data
             },
             user = currentUser
         )
@@ -107,7 +148,7 @@ fun StaffUserScreen(
     if (detailButton) {
         DialogOfUserDetail(
             onDismissRequest = { detailButton = false },
-            user = currentUser
+            user = currentUser //TODO
         )
     }
 
@@ -129,7 +170,7 @@ fun StaffUserScreen(
             ),
             leadingIcon = {
                 IconButton(
-                    onClick = { }
+                    onClick = {  }
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Search,
@@ -139,6 +180,25 @@ fun StaffUserScreen(
             },
             shape = RoundedCornerShape(16.dp)
         )
+        Button(onClick = {
+//            TODO Dialog for add user
+//            val user = User(
+//                username = "Anson",
+//                email = "anson@gmail.com",
+//                password = "imanson",
+//                phoneNo = "015-59875412",
+//                gender = "Male",
+//                dob = 1072915200000,
+//                role = "User", // TODO
+//                point = 0,
+//                status = "Active",
+//            )
+//
+//            viewModel.updateUserState(user)
+//            viewModel.saveUser()
+        }) {
+            Text(text = "Adduser")
+        }
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -177,7 +237,7 @@ fun StaffUserScreen(
                         .height(100.dp)
                 ) {
                     Text(
-                        text = user.id.toString(),
+                        text = user.userID.toString(), //TODO
                         fontSize = 22.sp,
                         modifier = Modifier
                             .width(headerList[0].second)
@@ -188,7 +248,7 @@ fun StaffUserScreen(
                     ) {
 
                         Image(
-                            painter = painterResource(user.image),
+                            painter = painterResource(R.drawable.ic_android_black_24dp), // TODO
                             contentDescription = "userImage",
                             modifier = Modifier
                                 .padding(horizontal = 15.dp)
@@ -236,7 +296,7 @@ fun StaffUserScreen(
                     ) {
                         IconButton(
                             onClick = {
-                                currentUser = getUser(i)
+                                currentUser = user
                                 editButton = true
                             }
                         ) {
@@ -249,7 +309,7 @@ fun StaffUserScreen(
                         }
                         IconButton(
                             onClick = {
-                                currentUser = getUser(i)
+                                currentUser = user
                                 detailButton = true
                             }
                         ) {
@@ -270,20 +330,22 @@ fun StaffUserScreen(
 @Composable
 fun DialogOfEditUser(
     onDismissRequest: () -> Unit = {},
-    onConfirmation: () -> Unit,
-    user: User,
+    onConfirmation: (User) -> Unit,
+    user: User
 ) {
-    val userGender = listOf("Male", "Female")
-    val userStatus = listOf("Active", "Disabled")
-    var editedStatus by remember { mutableStateOf(user.status) }
-    var editedName by remember { mutableStateOf(user.username) }
-    var editedPhone by remember { mutableStateOf(user.phoneNo) }
-    var editedGender by remember { mutableStateOf(user.gender) }
+    var username by remember { mutableStateOf(user.username) }
+    var email by remember { mutableStateOf(user.email) }
+    var password by remember { mutableStateOf(user.password) }
+    var phoneNo by remember { mutableStateOf(user.phoneNo) }
+    var gender by remember { mutableStateOf(user.gender) }
+    var dob by remember { mutableStateOf(user.dob) }
+    var point by remember { mutableStateOf(user.point) }
+    var status by remember { mutableStateOf(user.status) }
 
+    val userGender = getEnumList(Gender::class.java)
+    val userStatus = getEnumList(UserStatus::class.java)
     var expandedS by remember { mutableStateOf(false) }
     var expandedG by remember { mutableStateOf(false) }
-    var selectedStatus by remember { mutableStateOf(user.status) }
-    var selectedGender by remember { mutableStateOf(user.gender) }
 
     val context = LocalContext.current
 
@@ -323,8 +385,8 @@ fun DialogOfEditUser(
                             .clickable { launcher.launch("image/*") }
                     )
                     OutlinedTextField(
-                        value = editedName,
-                        onValueChange = { editedName = it },
+                        value = username,
+                        onValueChange = { username = it },
                         textStyle = TextStyle(fontSize = 15.sp),
                         label = { Text("Username") },
                         modifier = Modifier.size(width = 280.dp, height = 55.dp),
@@ -334,7 +396,6 @@ fun DialogOfEditUser(
                             unfocusedBorderColor = colorResource(R.color.primary),
                         )
                     )
-                    val containerColor = Color(0xFFadadad)
                     OutlinedTextField(
                         value = user.email,
                         onValueChange = { },
@@ -343,14 +404,10 @@ fun DialogOfEditUser(
                         modifier = Modifier.size(width = 280.dp, height = 55.dp),
                         readOnly = true,
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = containerColor,
-                            unfocusedContainerColor = containerColor,
-                            disabledContainerColor = containerColor,
                             focusedBorderColor = colorResource(R.color.primary),
                             unfocusedBorderColor = colorResource(R.color.primary),
                         )
                     )
-                    val containerColor1 = Color(0xFFadadad)
                     OutlinedTextField(
                         value = user.password,
                         onValueChange = { },
@@ -359,16 +416,13 @@ fun DialogOfEditUser(
                         modifier = Modifier.size(width = 280.dp, height = 55.dp),
                         readOnly = true,
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = containerColor1,
-                            unfocusedContainerColor = containerColor1,
-                            disabledContainerColor = containerColor1,
                             focusedBorderColor = colorResource(R.color.primary),
                             unfocusedBorderColor = colorResource(R.color.primary),
                         )
                     )
                     OutlinedTextField(
-                        value = editedPhone,
-                        onValueChange = { editedPhone = it },
+                        value = phoneNo,
+                        onValueChange = { phoneNo = it },
                         textStyle = TextStyle(fontSize = 15.sp),
                         label = { Text("Phone Number") },
                         modifier = Modifier.size(width = 280.dp, height = 55.dp),
@@ -383,8 +437,8 @@ fun DialogOfEditUser(
                         onExpandedChange = { expandedG = !expandedG }
                     ) {
                         OutlinedTextField(
-                            value = editedGender,
-                            onValueChange = { editedGender = it },
+                            value = gender,
+                            onValueChange = { gender = it },
                             textStyle = TextStyle(fontSize = 15.sp),
                             label = { Text("Gender") },
                             readOnly = true,
@@ -403,13 +457,12 @@ fun DialogOfEditUser(
                             expanded = expandedG,
                             onDismissRequest = { /*TODO*/ }
                         ) {
-                            userGender.forEach { gender ->
+                            userGender.forEach {
                                 DropdownMenuItem(
-                                    text = { Text(text = gender) },
+                                    text = { Text(text = it) },
                                     onClick = {
-                                        selectedGender = gender
+                                        gender = it
                                         expandedG = false
-                                        editedGender = gender
                                     }
                                 )
                             }
@@ -422,8 +475,8 @@ fun DialogOfEditUser(
                         onExpandedChange = { expandedS = !expandedS }
                     ) {
                         OutlinedTextField(
-                            value = editedStatus,
-                            onValueChange = { editedStatus = it },
+                            value = status,
+                            onValueChange = { status = it },
                             textStyle = TextStyle(fontSize = 15.sp),
                             label = { Text("Status") },
                             readOnly = true,
@@ -440,15 +493,14 @@ fun DialogOfEditUser(
                         )
                         ExposedDropdownMenu(
                             expanded = expandedS,
-                            onDismissRequest = { /*TODO*/ }
+                            onDismissRequest = {  }
                         ) {
-                            userStatus.forEach { status ->
+                            userStatus.forEach {
                                 DropdownMenuItem(
-                                    text = { Text(text = status) },
+                                    text = { Text(text = it) },
                                     onClick = {
-                                        selectedStatus = status
+                                        status = it
                                         expandedS = false
-                                        editedStatus = status
                                     }
                                 )
                             }
@@ -465,7 +517,22 @@ fun DialogOfEditUser(
                         Text(text = "Dismiss")
                     }
 
-                    TextButton(onClick = { onConfirmation() }) {
+                    TextButton(onClick = {
+                        onConfirmation(
+                            User(
+                                userID = user.userID,
+                                username = username,
+                                email = email,
+                                password = password,
+                                phoneNo = phoneNo,
+                                gender = gender,
+                                dob = dob,
+                                role = "User", // TODO
+                                point = point,
+                                status = status,
+                            )
+                        )
+                    }) {
                         Text(text = "Confirm")
                     }
                 }
@@ -487,11 +554,11 @@ fun DatePickerDialog(
     month = calendar.get(Calendar.MONTH)
     day = calendar.get(Calendar.DAY_OF_MONTH)
     calendar.time = Date()
-    val date = remember { mutableStateOf(user.dob) }
+    val date = remember { mutableStateOf(formattedDate(user.dob, "date")) }
     val datePickerDialog = DatePickerDialog(
         context,
         {_: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-            date.value = "$dayOfMonth-${month+1}-$year"
+            date.value = "$dayOfMonth-${month+1}-$year" // TODO
         }, year, month, day
     )
     ReadonlyTextField(
@@ -578,7 +645,7 @@ fun DialogOfUserDetail(
                     .padding(dimensionResource(R.dimen.padding_medium))
             ) {
                 Image(
-                    painter = painterResource(user.image),
+                    painter = painterResource(R.drawable.ordermethod3), // TODO
                     contentDescription = "User Image",
                     modifier = Modifier
                         .size(70.dp)
@@ -665,7 +732,7 @@ fun DialogOfUserDetail(
                                 fontSize = 22.sp
                             )
                             Text(
-                                text = dob,
+                                text = formattedDate(dob, "date"),
                                 fontSize = 20.sp
                             )
                         }
@@ -710,12 +777,30 @@ fun DialogOfUserDetail(
     }
 }
 
-private fun getUser(
-    index: Int,
-    users: List<User> = Users
-): User {
-    return users[index]
-}
+//@Composable
+//private fun reloadUserList(viewModel: UserViewModel): UserListState {
+//    viewModel.loadAllUsers()
+//    return viewModel.userListState
+//}
+//
+//@Composable
+//private fun getUserByUserId(viewModel: UserViewModel, id: Int): User {
+//    var userState: UserState = UserState()
+//    var isLoading by remember { mutableStateOf(true) }
+//    LaunchedEffect(Unit) {
+//        viewModel.loadUserByUserId(id)
+//        delay(5000)
+//        userState = viewModel.userState
+//        Log.i("User", "getUserByUserId: $userState")
+//        isLoading = false
+//    }
+//
+//    if(isLoading) {
+//        IndeterminateCircularIndicator()
+//    }
+//
+//    return userState.user
+//}
 
 @Preview(showBackground = true, device = Devices.TABLET)
 @Composable

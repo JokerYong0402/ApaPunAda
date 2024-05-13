@@ -5,7 +5,6 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 @Entity(
-    primaryKeys = ["orderID", "menuItemID"],
     foreignKeys = [
         ForeignKey(
             entity = Order::class,
