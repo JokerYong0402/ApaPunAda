@@ -44,7 +44,7 @@ import com.example.apapunada.ui.components.MyTopTitleBar
 
 @Composable
 fun DeleteProfileScreen(
-    onLogin: () -> Unit
+
 
 ) {
     var textInputDelete by remember { mutableStateOf("") }
@@ -263,7 +263,6 @@ fun DeleteProfileAlertDialog(
 @Composable
 fun DeleteProfileScreenPreview() {
     DeleteProfileScreen(
-        onLogin = {}
 
     )
 }
