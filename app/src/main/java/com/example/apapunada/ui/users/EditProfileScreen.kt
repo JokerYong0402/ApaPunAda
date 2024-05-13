@@ -3,6 +3,7 @@ package com.example.apapunada.ui.users
 import android.app.DatePickerDialog
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -80,20 +81,20 @@ fun EditProfileScreen(
     viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     var userState = viewModel.userState.collectAsState(initial = UserState())
-    //val userListState = viewModel.userListState.collectAsState(initial = UserListState())
-    var users: List<User> = listOf()
     viewModel.loadUserByUserId(3)
 
     var user = userState.value.user
 
+    Log.i("Profile", "EditProfileScreen: " + user)
     var editedname by remember { mutableStateOf(user.username) }
+    Log.i("Profile", "EditProfileScreen: " + editedname)
+    Log.i("Profile", "EditProfileScreen: " + user.username)
+
     var editedgender by remember { mutableStateOf(user.gender) }
-    var editeddob by remember { mutableStateOf(user.dob) }
+    //var editeddob by remember { mutableStateOf(user.dob) }
     var editedemail by remember { mutableStateOf(user.email) }
     var editedpassword by remember { mutableStateOf(user.password) }
     var editedphonenum by remember { mutableStateOf(user.phoneNo) }
-
-    var currentuser by remember { mutableStateOf(users[0]) }
 
     var openAlertDialog by remember { mutableStateOf(false) }
     var openDatePickerDialog by remember { mutableStateOf(false) }
@@ -103,8 +104,6 @@ fun EditProfileScreen(
 
     val maxCharOfName = 20
     val maxCharPhoneNum = 12
-    val genderMale = "Male"
-    val genderFemale = "Female"
 
     val context = LocalContext.current
 
@@ -138,11 +137,6 @@ fun EditProfileScreen(
                         .fillMaxWidth()
                         .height(90.dp)
                         .padding(horizontal = 35.dp, vertical = 15.dp),
-                        /*.border(
-                            2.dp,
-                            colorResource(R.color.primary),
-                            shape = RoundedCornerShape(50.dp)
-                        ),*/
 
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -167,7 +161,7 @@ fun EditProfileScreen(
                         EditTextFieldProfile(
                             value = editedname,
                             textlabel = "Name",
-                            onValueChange = { if(it.length <= maxCharOfName) editedname = it },
+                            onValueChange = { editedname = it },
                             modifier = Modifier
                         )
                     }
@@ -521,7 +515,7 @@ fun DobDatePicker(
     calender.time = Date()
 
 
-    val editeddob = remember { mutableStateOf(user.dob) }
+    var editeddob = remember { mutableStateOf(user.dob) }
     val datePickerDialog = DatePickerDialog(
         context,
         { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
