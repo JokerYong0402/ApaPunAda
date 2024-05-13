@@ -38,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,22 +57,35 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberImagePainter
 import com.example.apapunada.R
-import com.example.apapunada.data.UserSample.Users
-import com.example.apapunada.model.User
+import com.example.apapunada.data.dataclass.User
+import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.MyTopTitleBar
+import com.example.apapunada.ui.components.formattedDate
+import com.example.apapunada.viewmodel.UserListState
+import com.example.apapunada.viewmodel.UserState
+import com.example.apapunada.viewmodel.UserViewModel
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileScreen(
-    user: User,
-    users: List<User> = Users,
-    onProfile: () -> Unit
-
+    viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    var userState = viewModel.userState.collectAsState(initial = UserState())
+    //val userListState = viewModel.userListState.collectAsState(initial = UserListState())
+    var users: List<User> = listOf()
+    viewModel.loadUserByUserId(3)
+
+    var user = userState.value.user
+
     var editedname by remember { mutableStateOf(user.username) }
     var editedgender by remember { mutableStateOf(user.gender) }
     var editeddob by remember { mutableStateOf(user.dob) }
@@ -220,40 +234,6 @@ fun EditProfileScreen(
                         DobDatePicker(context, user)
                     }
                 }
-
-//                Row(//EDIT DATE OF BIRTH
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .height(80.dp)
-//                        .padding(horizontal = 35.dp, vertical = 15.dp),
-//                    verticalAlignment = Alignment.CenterVertically
-//                ) {
-//                    Image(
-//                        painter = painterResource(R.drawable.dobicon),
-//                        contentDescription = "Gender Icon",
-//                        modifier = Modifier
-//                            .padding(dimensionResource(R.dimen.padding_medium))
-//                            //.fillMaxSize()
-//                            .size(
-//                                width = 40.dp,
-//                                height = 40.dp
-//                            )
-//                    )
-//                    Column(//second column
-//                        modifier = Modifier
-//                            .width(300.dp)
-//                            .height(100.dp),
-//                        horizontalAlignment = Alignment.Start,
-//                        verticalArrangement = Arrangement.SpaceEvenly
-//                    ) {
-//                        EditTextFieldProfile(
-//                            value = editeddob,
-//                            onValueChange = { editeddob = it },
-//                            modifier = Modifier
-//                            //    .fillMaxWidth()
-//                        )
-//                    }
-//                }
 
                 Row(//EDIT EMAIL ADDRESS
                     modifier = Modifier
@@ -460,24 +440,10 @@ fun EditTextFieldProfile(
             //.size(100.dp)
             .background(color = Color.Transparent)
             .height(120.dp)
-            .width(300.dp)
-//            .border(
-//                BorderStroke(width = 2.dp, colorResource(id = R.color.primary)),
-//                shape = RoundedCornerShape(
-//                    size = 20.dp,
-//                )
-//            )
-        ,
+            .width(300.dp),
         label = {
             Text(text = textlabel)
                 },
-//        placeholder = {
-//            Text(
-//            text = "",
-//            fontSize = 14.sp,
-//            color = colorResource(id = R.color.black),
-//            modifier = modifier
-//        ) },
         )
 }
 
@@ -559,7 +525,7 @@ fun DobDatePicker(
     val datePickerDialog = DatePickerDialog(
         context,
         { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-            editeddob.value = "$dayOfMonth/$month/$year"
+            editeddob.value = getStringToDate("$dayOfMonth/$month/$year")
         }, year, month, day
     )
 
@@ -570,8 +536,8 @@ fun DobDatePicker(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ReadonlyTextField(
-            value = editeddob.value,
-            onValueChange = { editeddob.value = it },
+            value = formattedDate(editeddob.value, "date"),
+            onValueChange = { editeddob.value = getStringToDate(it) },
             label = { Text("Date of Birth") },
             modifier = Modifier
                 .size(width = 280.dp, height = 55.dp),
@@ -584,30 +550,18 @@ fun DobDatePicker(
     }
 }
 
-
-private fun getUser(
-    index: Int,
-    users: List<User> = Users
-): User {
-    return users[index]
+fun getStringToDate(date: String): Long {
+    val l = LocalDate.parse(date, DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+    val unix = l.atStartOfDay(ZoneId.systemDefault()).toInstant().epochSecond
+    return unix
 }
-
 fun isValidEmail(email: String): Boolean {
     val emailRegex = Regex("^\\S+@\\S+\\.\\S+\$")
     return emailRegex.matches(email)
 }
 
-//fun isValidDOB(dob: String): Boolean {
-//    // Basic date format validation (YYYY-MM-DD)
-//    val dobRegex = Regex("^\\d{4}-\\d{2}-\\d{2}\$")
-//    return dobRegex.matches(dob)
-//}
-
-
 @Preview(showBackground = true)
 @Composable
 fun EditProfileScreenPreview() {
-    var user = Users.first()
-    EditProfileScreen(user = user,    onProfile = {})
-
+    EditProfileScreen()
 }
