@@ -72,6 +72,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.apapunada.R
@@ -103,6 +104,9 @@ fun StaffMenuScreen(
             .fillMaxSize()
             .background(Color.Gray.copy(alpha = 0.5f))
             .clickable { /* no action */ }
+            .zIndex(2f)
+            ,
+            contentAlignment = Alignment.Center
         ) {
             IndeterminateCircularIndicator()
         }

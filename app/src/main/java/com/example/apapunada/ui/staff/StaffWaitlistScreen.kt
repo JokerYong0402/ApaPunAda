@@ -42,6 +42,7 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
 import com.example.apapunada.data.dataclass.Waitlist
@@ -71,6 +72,9 @@ fun StaffWaitlistScreen(
             .fillMaxSize()
             .background(Color.Gray.copy(alpha = 0.5f))
             .clickable { /* no action */ }
+            .zIndex(2f)
+            ,
+            contentAlignment = Alignment.Center
         ) {
             IndeterminateCircularIndicator()
         }
