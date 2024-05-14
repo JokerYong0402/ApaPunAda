@@ -50,7 +50,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -69,11 +68,9 @@ import com.example.apapunada.ui.components.MyTopTitleBar
 import com.example.apapunada.ui.components.formattedDate
 import com.example.apapunada.viewmodel.UserState
 import com.example.apapunada.viewmodel.UserViewModel
-import java.time.LocalDate
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
+import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
+import java.util.TimeZone
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -87,6 +84,7 @@ fun EditProfileScreen(
     var user = userState.value.user
 
     //Log.i("Profile", "EditProfileScreen: " + user)
+    val imageUrl = rememberSaveable{mutableStateOf("")}
     var editedname by remember { mutableStateOf("") }
     var editedgender by remember { mutableStateOf("") }
     var editeddob by remember { mutableStateOf("") }
@@ -263,7 +261,8 @@ fun EditProfileScreen(
                         horizontalAlignment = Alignment.Start,
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        DobDatePicker(context, user)
+                        DatePickerDialog(context, userState.value.user)
+                        //DobDatePicker(context, user)
                     }
                 }
 
@@ -385,14 +384,15 @@ fun EditProfileScreen(
                 Button(
                     onClick = {
                         openAlertDialog = true
-//                        User(
-//                            username = editedname,
-//                            gender = editedgender,
-//                            dob = getStringToDate(editeddob) ,
-//                            email = editedemail,
-//                            password = editedpassword,
-//                            phoneNo = editedphonenum,
-//                        )
+                        User(
+                            image = imageUrl.value,
+                            username = editedname,
+                            gender = editedgender,
+                            dob = convertDateToLong(editeddob) ,
+                            email = editedemail,
+                            password = editedpassword,
+                            phoneNo = editedphonenum,
+                        )
                               },
                     colors = ButtonDefaults.buttonColors(
                         colorResource(R.color.primary)
@@ -435,14 +435,14 @@ fun ChangeProfilePic() {
     }
     Column(
         modifier = Modifier
-            .padding(8.dp)
+            //.padding(8.dp)
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Card(
             shape = CircleShape,
             modifier = Modifier
-                .padding(8.dp)
+                //.padding(8.dp)
                 .size(100.dp)
 
         ){
@@ -463,9 +463,9 @@ fun ChangeProfilePic() {
                 .clickable { launcher.launch("image/*") }
         )
     }
-
-
 }
+
+
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun EditTextFieldProfile(
@@ -548,60 +548,97 @@ fun ReadonlyTextField(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun DobDatePicker(
+//    context: Context,
+//    user: User
+//) {
+//    val year: Int
+//    val month: Int
+//    val day: Int
+//
+//    val calender = Calendar.getInstance()
+//    year = calender.get(Calendar.YEAR)
+//    month = calender.get(Calendar.MONTH)
+//    day = calender.get(Calendar.DAY_OF_MONTH)
+//    calender.time = Date()
+//
+//    var editeddob = remember { mutableStateOf(user.dob) }
+//    val datePickerDialog = remember {
+//        DatePickerDialog(
+//            context,
+//            { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+//                editeddob.value = getStringToDate("$dayOfMonth/$month/$year")
+//            }, year, month, day
+//        )
+//    }
+//
+//
+//    Column(//EDIT DOB
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .height(80.dp),
+//        horizontalAlignment = Alignment.CenterHorizontally
+//    ) {
+//        ReadonlyTextField(
+//            value = formattedDate(editeddob.value, "date"),
+//            onValueChange = { editeddob.value = getStringToDate(it) },
+//            label = { Text("Date of Birth") },
+//            modifier = Modifier
+//                .size(width = 280.dp, height = 55.dp),
+//            onClick = { datePickerDialog.show() },
+//            colors = OutlinedTextFieldDefaults.colors(
+//                focusedBorderColor = Color.Gray,
+//                unfocusedBorderColor = Color.Gray,
+//            )
+//        )
+//    }
+//}
+
+
 @Composable
-fun DobDatePicker(
+fun DatePickerDialog(
     context: Context,
     user: User
-) {
-    val year: Int
-    val month: Int
-    val day: Int
-
-    val calender = Calendar.getInstance()
-    year = calender.get(Calendar.YEAR)
-    month = calender.get(Calendar.MONTH)
-    day = calender.get(Calendar.DAY_OF_MONTH)
-    calender.time = Date()
-
-    var editeddob = remember { mutableStateOf(user.dob) }
-    val datePickerDialog = remember {
-        DatePickerDialog(
-            context,
-            { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-                editeddob.value = getStringToDate("$dayOfMonth/$month/$year")
-            }, year, month, day
+): Long {
+    val calendar = Calendar.getInstance()
+    val year = calendar.get(Calendar.YEAR)
+    val month = calendar.get(Calendar.MONTH)
+    val day = calendar.get(Calendar.DAY_OF_MONTH)
+    var date by remember { mutableStateOf(user.dob) }
+    val datePickerDialog = DatePickerDialog(
+        context,
+        { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+            val newDate = "$dayOfMonth-${month+1}-$year"
+            date = convertDateToLong(newDate)
+        }, year, month, day
+    )
+    ReadonlyTextField(
+        value = formattedDate(date, "date"),
+        onValueChange = { date = convertDateToLong(it) },
+        //textStyle = androidx.compose.ui.text.TextStyle(fontSize = 15.sp),
+        label = { Text("Date of Birth") },
+        modifier = Modifier.size(width = 280.dp, height = 60.dp),
+        onClick = { datePickerDialog.show() },
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = colorResource(R.color.primary),
+            unfocusedBorderColor = colorResource(R.color.primary),
         )
-    }
-
-
-    Column(//EDIT DOB
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(80.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        ReadonlyTextField(
-            value = formattedDate(editeddob.value, "date"),
-            onValueChange = { editeddob.value = getStringToDate(it) },
-            label = { Text("Date of Birth") },
-            modifier = Modifier
-                .size(width = 280.dp, height = 55.dp),
-            onClick = { datePickerDialog.show() },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Gray,
-                unfocusedBorderColor = Color.Gray,
-            )
-        )
-    }
+    )
+    return date
 }
-
-
-fun getStringToDate(date: String): Long {
-    val l = LocalDate.parse(date, DateTimeFormatter.ofPattern("dd-MM-yyyy"))
-    val unix = l.atStartOfDay(ZoneId.systemDefault()).toInstant().epochSecond
-    return unix
+fun convertDateToLong(dateString: String): Long {
+    val format = SimpleDateFormat("dd-MM-yyyy") // Specify the date format
+    format.timeZone = TimeZone.getTimeZone("UTC")
+    val date = format.parse(dateString)
+    return date.time
 }
+//fun getStringToDate(date: String): Long {
+//    val l = LocalDate.parse(date, DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+//    val unix = l.atStartOfDay(ZoneId.systemDefault()).toInstant().epochSecond
+//    return unix
+//}
 fun isValidEmail(email: String): Boolean {
     val emailRegex = Regex("^\\S+@\\S+\\.\\S+\$")
     return emailRegex.matches(email)
