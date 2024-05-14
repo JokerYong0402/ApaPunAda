@@ -25,6 +25,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,16 +45,60 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
-import com.example.apapunada.data.MenuSample.Menus
-import com.example.apapunada.data.dataclass.Menu
+import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.MyTopTitleBar
 import com.example.apapunada.ui.components.formattedString
+import com.example.apapunada.viewmodel.FoodDetailsState
+import com.example.apapunada.viewmodel.MenuItemState
+import com.example.apapunada.viewmodel.MenuItemViewModel
+import com.example.apapunada.viewmodel.NutritionFactsState
 
 @Composable
 fun FoodDetailScreen(
-    food: Menu = Menus[0]
+    viewModel: MenuItemViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    var menuItemState = viewModel.menuItemState.collectAsState(initial = MenuItemState())
+    viewModel.loadMenuItemByMenuItemId(2)
+    var menu = menuItemState.value.menuItem
+
+    //serving size
+    var FoodDetailState = viewModel.foodDetailsState.collectAsState(initial = FoodDetailsState())
+    viewModel.loadFoodDetailsByMenuItemId(2)
+    var foodDetails = FoodDetailState.value.foodDetails
+
+    //nutrition facts
+    var NutritionFactsState = viewModel.nutritionFactsState.collectAsState(initial = NutritionFactsState())
+    viewModel.loadNutritionFactsByFoodDetailsId(1)
+    var nutritionFacts = NutritionFactsState.value.nutritionFacts
+
+    var servingsizeC by remember { mutableStateOf(foodDetails.servingSize) }
+    var carbohydratesC by remember { mutableStateOf(nutritionFacts.carbohydrates) }
+    var proteinC by remember { mutableStateOf(nutritionFacts.carbohydrates) }
+    var fatC by remember { mutableStateOf(nutritionFacts.carbohydrates) }
+    var saltC by remember { mutableStateOf(nutritionFacts.carbohydrates) }
+    var sugarC by remember { mutableStateOf(nutritionFacts.carbohydrates) }
+
+    var carbohydratespercentageC by remember { mutableStateOf("") }
+    var proteinpercentageC by remember { mutableStateOf("") }
+    var fatpercentageC by remember { mutableStateOf("") }
+    var saltpercentageC by remember { mutableStateOf("") }
+    var sugarpercentageC by remember { mutableStateOf("") }
+
+    if (foodDetails != null){
+        servingsizeC = foodDetails.servingSize
+    }
+
+    if (nutritionFacts != null){
+        carbohydratesC = nutritionFacts.carbohydrates
+        proteinC = nutritionFacts.proteins
+        fatC = nutritionFacts.fats
+        saltC = nutritionFacts.salt
+        sugarC = nutritionFacts.sugar
+    }
+
+
     Scaffold(
         topBar = { MyTopTitleBar(title = stringResource(R.string.menu)) },
         //bottomBar = { MyBottomNavBar() }
@@ -68,7 +117,7 @@ fun FoodDetailScreen(
                         .fillMaxSize()
                 ) {
                     Image(
-                        painter = painterResource(food.image),
+                        painter = painterResource(R.drawable.apa_points),
                         contentDescription = "",
                         //contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -108,7 +157,7 @@ fun FoodDetailScreen(
                                 horizontalArrangement = Arrangement.Center,
                             ){
                                 Text(
-                                    text = food.name,
+                                    text = menu.itemName,
                                     fontSize = 28.sp,
                                     textAlign = TextAlign.Center,
                                     fontWeight = FontWeight.Bold
@@ -156,7 +205,7 @@ fun FoodDetailScreen(
                                             .width(25.dp)
                                     )*/
                                     Text(//price
-                                        text = "RM" + formattedString(food.price),
+                                        text = "RM" + formattedString(menu.price),
                                         fontSize = 25.sp,
                                         textAlign = TextAlign.Center,
                                         fontWeight = FontWeight.Bold
@@ -208,7 +257,7 @@ fun FoodDetailScreen(
                                 horizontalArrangement = Arrangement.Start,
                             ){
                                 Text(
-                                    text = food.description,
+                                    text = menu.description,
                                     fontSize = 18.sp,
                                 )
                             }
@@ -244,8 +293,8 @@ fun FoodDetailScreen(
                                 horizontalArrangement = Arrangement.Start,
                             ){
                                 Text(
-                                    text = food.ingredient,
-                                    fontSize = 17.sp,
+                                    text = foodDetails.ingredient,
+                                    fontSize = 18.sp,
                                     lineHeight = 30.sp
                                 )
                             }
@@ -293,8 +342,21 @@ fun FoodDetailScreen(
                                     horizontalAlignment = Alignment.End,
                                     verticalArrangement = Arrangement.Center
                                 ) {
+                                    if (servingsizeC > 0) {
+                                        val percentageDoublecarbohydrates = (carbohydratesC / servingsizeC) * 100
+                                        val decimalPart = percentageDoublecarbohydrates % 1.0 // Get the decimal part using modulo
+                                        if (decimalPart == 0.0) {
+                                            carbohydratespercentageC = percentageDoublecarbohydrates.toInt().toString()
+                                        } else {
+                                            carbohydratespercentageC = String.format("%.0f", percentageDoublecarbohydrates) // Round up to nearest integer and format as string
+                                        }
+                                    } else {
+                                        // Handle the case where serving size is unavailable (e.g., show "—" or informative message)
+                                        carbohydratespercentageC = "-"
+                                    }
                                     Text(
-                                        text = "47%",
+                                        text = carbohydratespercentageC + "%",
+
                                         fontSize = 16.sp
                                     )
                                 }
@@ -317,7 +379,7 @@ fun FoodDetailScreen(
                                     verticalArrangement = Arrangement.Center
                                 ) {
                                     Text(
-                                        text = "Carbohydrates\n80g",
+                                        text = "Carbohydrates\n" + nutritionFacts.carbohydrates + "g",
                                         fontSize = 17.sp
                                     )
                                 }
@@ -333,7 +395,7 @@ fun FoodDetailScreen(
                                     modifier = Modifier.width(150.dp)
                                 ) {
                                     NutritionBar(
-                                        progress = 0.5f,
+                                        progress = 0.2f,
                                         progressColor = R.color.primary,
                                         modifier = Modifier
                                             .height(15.dp)
@@ -346,8 +408,20 @@ fun FoodDetailScreen(
                                     horizontalAlignment = Alignment.End,
                                     verticalArrangement = Arrangement.Center
                                 ) {
+                                    if (servingsizeC > 0) {
+                                        val percentageDouble = (proteinC / servingsizeC) * 100
+                                        val decimalPart = percentageDouble % 1.0 // Get the decimal part using modulo
+                                        if (decimalPart == 0.0) {
+                                            proteinpercentageC = percentageDouble.toInt().toString()
+                                        } else {
+                                            proteinpercentageC = String.format("%.0f", percentageDouble) // Round up to nearest integer and format as string
+                                        }
+                                    } else {
+                                        // Handle the case where serving size is unavailable (e.g., show "—" or informative message)
+                                        proteinpercentageC = "-"
+                                    }
                                     Text(
-                                        text = "23%",
+                                        text = proteinpercentageC + "%",
                                         fontSize = 16.sp
                                     )
                                 }
@@ -370,7 +444,7 @@ fun FoodDetailScreen(
                                     verticalArrangement = Arrangement.Center
                                 ) {
                                     Text(
-                                        text = "Protein\n43g",
+                                        text = "Protein\n" + nutritionFacts.proteins + "g",
                                         fontSize = 18.sp
                                     )
                                 }
@@ -386,7 +460,7 @@ fun FoodDetailScreen(
                                     modifier = Modifier.width(150.dp)
                                 ) {
                                     NutritionBar(
-                                        progress = 0.5f,
+                                        progress = 0.2f,
                                         progressColor = R.color.primary,
                                         modifier = Modifier
                                             .height(15.dp)
@@ -399,8 +473,20 @@ fun FoodDetailScreen(
                                     horizontalAlignment = Alignment.End,
                                     verticalArrangement = Arrangement.Center
                                 ) {
+                                    if (servingsizeC > 0) {
+                                        val percentageDouble = (fatC / servingsizeC) * 100
+                                        val decimalPart = percentageDouble % 1.0 // Get the decimal part using modulo
+                                        if (decimalPart == 0.0) {
+                                            fatpercentageC = percentageDouble.toInt().toString()
+                                        } else {
+                                            fatpercentageC = String.format("%.0f", percentageDouble) // Round up to nearest integer and format as string
+                                        }
+                                    } else {
+                                        // Handle the case where serving size is unavailable (e.g., show "—" or informative message)
+                                        fatpercentageC = "-"
+                                    }
                                     Text(
-                                        text = "12%",
+                                        text = fatpercentageC + "%",
                                         fontSize = 16.sp
                                     )
                                 }
@@ -423,7 +509,7 @@ fun FoodDetailScreen(
                                     verticalArrangement = Arrangement.Center
                                 ) {
                                     Text(
-                                        text = "Fats\n20g",
+                                        text = "Fats\n" + nutritionFacts.fats + "g",
                                         fontSize = 18.sp
                                     )
                                 }
@@ -439,7 +525,7 @@ fun FoodDetailScreen(
                                     modifier = Modifier.width(150.dp)
                                 ) {
                                     NutritionBar(
-                                        progress = 0.05f,
+                                        progress = 0.02f,
                                         progressColor = R.color.primary,
                                         modifier = Modifier
                                             .height(15.dp)
@@ -452,8 +538,20 @@ fun FoodDetailScreen(
                                     horizontalAlignment = Alignment.End,
                                     verticalArrangement = Arrangement.Center
                                 ) {
+                                    if (servingsizeC > 0) {
+                                        val percentageDouble = (saltC / servingsizeC) * 100
+                                        val decimalPart = percentageDouble % 1.0 // Get the decimal part using modulo
+                                        if (decimalPart == 0.0) {
+                                            saltpercentageC = percentageDouble.toInt().toString()
+                                        } else {
+                                            saltpercentageC = String.format("%.0f", percentageDouble) // Round up to nearest integer and format as string
+                                        }
+                                    } else {
+                                        // Handle the case where serving size is unavailable (e.g., show "—" or informative message)
+                                        saltpercentageC = "-"
+                                    }
                                     Text(
-                                        text = "3%",
+                                        text = saltpercentageC + "%",
                                         fontSize = 16.sp
                                     )
                                 }
@@ -476,7 +574,7 @@ fun FoodDetailScreen(
                                     verticalArrangement = Arrangement.Center
                                 ) {
                                     Text(
-                                        text = "Salt\n4g",
+                                        text = "Salt\n" + nutritionFacts.salt + "g",
                                         fontSize = 18.sp
                                     )
                                 }
@@ -492,7 +590,7 @@ fun FoodDetailScreen(
                                     modifier = Modifier.width(150.dp)
                                 ) {
                                     NutritionBar(
-                                        progress = 0.5f,
+                                        progress = 0.1f,
                                         progressColor = R.color.primary,
                                         modifier = Modifier
                                             .height(15.dp)
@@ -505,8 +603,20 @@ fun FoodDetailScreen(
                                     horizontalAlignment = Alignment.End,
                                     verticalArrangement = Arrangement.Center
                                 ) {
+                                    if (servingsizeC > 0) {
+                                        val percentageDouble = (sugarC / servingsizeC) * 100
+                                        val decimalPart = percentageDouble % 1.0 // Get the decimal part using modulo
+                                        if (decimalPart == 0.0) {
+                                            sugarpercentageC = percentageDouble.toInt().toString()
+                                        } else {
+                                            sugarpercentageC = String.format("%.0f", percentageDouble) // Round up to nearest integer and format as string
+                                        }
+                                    } else {
+                                        // Handle the case where serving size is unavailable (e.g., show "—" or informative message)
+                                        sugarpercentageC = "-"
+                                    }
                                     Text(
-                                        text = "23%",
+                                        text = sugarpercentageC + "%",
                                         fontSize = 16.sp
                                     )
                                 }
@@ -529,7 +639,7 @@ fun FoodDetailScreen(
                                     verticalArrangement = Arrangement.Center
                                 ) {
                                     Text(
-                                        text = "Sugar\n7g",
+                                        text = "Sugar\n" + nutritionFacts.sugar + "g",
                                         fontSize = 18.sp
                                     )
                                 }
@@ -542,7 +652,7 @@ fun FoodDetailScreen(
                                 horizontalArrangement = Arrangement.Start,
                             ) {
                                 Text(
-                                    text = "* Serving Size : 150g",
+                                    text = "* Serving Size : " + foodDetails.servingSize.toInt() + "g",
                                     fontSize = 17.sp
 
                                 )
