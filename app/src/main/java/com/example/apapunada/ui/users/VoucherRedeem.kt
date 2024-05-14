@@ -184,17 +184,12 @@ fun VoucherRedeem(
                                 )
                                 Text(
                                     modifier = Modifier.padding(25.dp, 10.dp),
-                                    text = "4. This Voucher is valid for delivery only.",
-                                    fontSize = 15.sp
-                                )
-                                Text(
-                                    modifier = Modifier.padding(25.dp, 10.dp),
-                                    text = "5. This Voucher is not exchangeable or replaceable for cash.",
+                                    text = "4. This Voucher is not exchangeable or replaceable for cash.",
                                     fontSize = 15.sp
                                 )
                                 Text(
                                     modifier = Modifier.padding(25.dp, 10.dp, 25.dp, 100.dp),
-                                    text = "6. APAPUNADA shall be entitled to withhold any benefits under the services rendered, with or without notice to the users, if the user is found to have breached APAPUNADA Users Terms and Conditions.",
+                                    text = "5. APAPUNADA shall be entitled to withhold any benefits under the services rendered, with or without notice to the users, if the user is found to have breached APAPUNADA Users Terms and Conditions.",
                                     fontSize = 15.sp
                                 )
                             }

@@ -26,13 +26,13 @@ data class UserListState(
     val errorMessage: String = ""
 )
 
-enum class Gender(name: String) {
+enum class Gender(val fullName: String) {
     Male("Male"),
     Female("Female"),
     Not("Prefer not to say"),
 }
 
-enum class UserStatus(name: String) {
+enum class UserStatus(val fullName: String) {
     Active("Active"),
     Disabled("Disabled"),
     Deleted("Deleted"),
@@ -72,12 +72,29 @@ class UserViewModel(private val userRepository: UserRepository): ViewModel() {
     }
 
     private fun validateInput(): Boolean {
+        if (!validateSameUser()) {
+            return false
+        }
         return with(_userState.value.user) {
             username.isNotBlank() && password.isNotBlank()
         }
     }
 
+    private fun validateSameUser(): Boolean {
+        val userList = _userListState.value.userList
+        val currentUser = _userState.value.user
+        for(user in userList) {
+            if (currentUser.username == user.username){
+                return false
+            }
+        }
+        return true
+    }
+
     fun updateUserState(user: User) {
+        if (!validateInput()) {
+            _userState.value = _userState.value.copy(errorMessage = "Invalid Username!")
+        }
         _userState.value = _userState.value.copy(user = user, isValid = validateInput())
     }
 

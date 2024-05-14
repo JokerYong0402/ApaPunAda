@@ -5,6 +5,7 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -96,6 +97,7 @@ fun StaffUserScreen(
     viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     var userState = viewModel.userState.collectAsState(initial = UserState())
+    Log.i("User State", "StaffUserScreen: "+userState.value.errorMessage)
     val userListState = viewModel.userListState.collectAsState(initial = UserListState())
     var users: List<User> = listOf()
 
@@ -122,6 +124,7 @@ fun StaffUserScreen(
         }
     }
 
+    val context = LocalContext.current
     var search by remember { mutableStateOf("") }
     var addButton by remember { mutableStateOf(false) }
     var editButton by remember { mutableStateOf(false) }
@@ -146,6 +149,9 @@ fun StaffUserScreen(
                 viewModel.updateUserState(it)
                 viewModel.saveUser()
                 addButton = false
+                if (userState.value.errorMessage != "") {
+                    Toast.makeText(context, userState.value.errorMessage, Toast.LENGTH_SHORT).show()
+                }
             },
             user = User()
         )
@@ -158,6 +164,9 @@ fun StaffUserScreen(
                 viewModel.updateUserState(it)
                 viewModel.updateUser()
                 editButton = false
+                if (userState.value.errorMessage != "") {
+                    Toast.makeText(context, userState.value.errorMessage, Toast.LENGTH_SHORT).show()
+                }
             },
             user = currentUser
         )
@@ -462,9 +471,9 @@ fun DialogOfAddUser(
                         ) {
                             userGender.forEach {
                                 DropdownMenuItem(
-                                    text = { Text(text = it.name) },
+                                    text = { Text(text = it.fullName) },
                                     onClick = {
-                                        gender = it.name
+                                        gender = it.fullName
                                         expandedG = false
                                     }
                                 )
@@ -646,9 +655,9 @@ fun DialogOfEditUser(
                         ) {
                             userGender.forEach {
                                 DropdownMenuItem(
-                                    text = { Text(text = it.name) },
+                                    text = { Text(text = it.fullName) },
                                     onClick = {
-                                        gender = it.name
+                                        gender = it.fullName
                                         expandedG = false
                                     }
                                 )
@@ -697,9 +706,9 @@ fun DialogOfEditUser(
                         ) {
                             userStatus.forEach {
                                 DropdownMenuItem(
-                                    text = { Text(text = it.name) },
+                                    text = { Text(text = it.fullName) },
                                     onClick = {
-                                        status = it.name
+                                        status = it.fullName
                                         expandedS = false
                                     }
                                 )
