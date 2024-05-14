@@ -19,7 +19,7 @@ fun RewardsScreenNavigation(
             RewardsScreen(onBackButtonClicked = { navController.navigateUp() },
                 onRedeem = { drawableId, voucherRM -> navController.navigate("VoucherRedeem/$drawableId/$voucherRM") },
                 onDetails = { drawableId, voucherRM -> navController.navigate("VoucherDetails/$drawableId/$voucherRM") },
-                userPoint = 234)
+                userId = 6)
         }
 
         composable(
@@ -34,9 +34,10 @@ fun RewardsScreenNavigation(
             val voucherRM: String = backStackEntry.arguments?.getString("voucherRM") ?: ""
             VoucherRedeem(
                 onBackButtonClicked = {navController.navigateUp()},
+                onDetails = { drawableId, voucherRM -> navController.navigate("VoucherDetails/$drawableId/$voucherRM") },
                 painterResource(drawableId),
                 voucherRM = voucherRM,
-                userPoints = 234)
+                userId = 6)
         }
 
         composable(

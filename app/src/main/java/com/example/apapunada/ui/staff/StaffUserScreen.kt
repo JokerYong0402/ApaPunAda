@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -56,6 +57,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
@@ -76,14 +78,17 @@ import com.example.apapunada.data.dataclass.User
 import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.formattedDate
-import com.example.apapunada.ui.components.getEnumList
 import com.example.apapunada.viewmodel.Gender
 import com.example.apapunada.viewmodel.UserListState
 import com.example.apapunada.viewmodel.UserState
 import com.example.apapunada.viewmodel.UserStatus
 import com.example.apapunada.viewmodel.UserViewModel
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
-import java.util.Date
+import java.util.TimeZone
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -99,10 +104,10 @@ fun StaffUserScreen(
     if (userListState.value.isLoading) {
         Box(
             modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Gray.copy(alpha = 0.5f))
-            .clickable { /* no action */ }
-            .zIndex(2f)
+                .fillMaxSize()
+                .background(Color.Gray.copy(alpha = 0.5f))
+                .clickable { /* no action */ }
+                .zIndex(2f)
             ,
             contentAlignment = Alignment.Center
         ) {
@@ -118,6 +123,7 @@ fun StaffUserScreen(
     }
 
     var search by remember { mutableStateOf("") }
+    var addButton by remember { mutableStateOf(false) }
     var editButton by remember { mutableStateOf(false) }
     var detailButton by remember { mutableStateOf(false) }
     var currentUser by remember { mutableStateOf(User()) }
@@ -132,6 +138,18 @@ fun StaffUserScreen(
         Pair("Status", 150.dp),
         Pair("Action", 150.dp)
     )
+
+    if (addButton) {
+        DialogOfAddUser(
+            onDismissRequest = { addButton = false },
+            onConfirmation = {
+                viewModel.updateUserState(it)
+                viewModel.saveUser()
+                addButton = false
+            },
+            user = User()
+        )
+    }
 
     if (editButton) {
         DialogOfEditUser(
@@ -181,23 +199,9 @@ fun StaffUserScreen(
             shape = RoundedCornerShape(16.dp)
         )
         Button(onClick = {
-//            TODO Dialog for add user
-//            val user = User(
-//                username = "Anson",
-//                email = "anson@gmail.com",
-//                password = "imanson",
-//                phoneNo = "015-59875412",
-//                gender = "Male",
-//                dob = 1072915200000,
-//                role = "User", // TODO
-//                point = 0,
-//                status = "Active",
-//            )
-//
-//            viewModel.updateUserState(user)
-//            viewModel.saveUser()
+            addButton = true
         }) {
-            Text(text = "Adduser")
+            Text(text = "Add User")
         }
         LazyColumn(
             modifier = Modifier
@@ -328,7 +332,7 @@ fun StaffUserScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DialogOfEditUser(
+fun DialogOfAddUser(
     onDismissRequest: () -> Unit = {},
     onConfirmation: (User) -> Unit,
     user: User
@@ -339,16 +343,9 @@ fun DialogOfEditUser(
     var phoneNo by remember { mutableStateOf(user.phoneNo) }
     var gender by remember { mutableStateOf(user.gender) }
     var dob by remember { mutableStateOf(user.dob) }
-    var point by remember { mutableStateOf(user.point) }
-    var status by remember { mutableStateOf(user.status) }
-
-    val userGender = getEnumList(Gender::class.java)
-    val userStatus = getEnumList(UserStatus::class.java)
-    var expandedS by remember { mutableStateOf(false) }
-    var expandedG by remember { mutableStateOf(false) }
-
     val context = LocalContext.current
-
+    val userGender: List<Gender> = enumValues<Gender>().toList()
+    var expandedG by remember { mutableStateOf(false) }
     val imageUri = rememberSaveable { mutableStateOf("") }
     val painter = rememberAsyncImagePainter(
         imageUri.value.ifEmpty { user.image }
@@ -358,7 +355,6 @@ fun DialogOfEditUser(
     ) {uri: Uri? ->
         uri?.let { imageUri.value = it.toString() }
     }
-
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
@@ -376,20 +372,26 @@ fun DialogOfEditUser(
                 Column(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 ) {
-                    Image(
-                        painter = painter,
-                        contentDescription = "User Profile Pic",
-                        Modifier
+                    Card(
+                        shape = CircleShape,
+                        modifier = Modifier
                             .align(Alignment.CenterHorizontally)
                             .size(70.dp)
-                            .clickable { launcher.launch("image/*") }
-                    )
+                    ){
+                        Image(
+                            painter = painter,
+                            contentDescription = "",
+                            modifier = Modifier
+                                .clickable { launcher.launch("image/*") },
+                            contentScale = ContentScale.Crop
+                        )
+                    }
                     OutlinedTextField(
                         value = username,
                         onValueChange = { username = it },
                         textStyle = TextStyle(fontSize = 15.sp),
                         label = { Text("Username") },
-                        modifier = Modifier.size(width = 280.dp, height = 55.dp),
+                        modifier = Modifier.size(width = 280.dp, height = 60.dp),
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = colorResource(R.color.primary),
@@ -397,24 +399,24 @@ fun DialogOfEditUser(
                         )
                     )
                     OutlinedTextField(
-                        value = user.email,
-                        onValueChange = { },
+                        value = email,
+                        onValueChange = { email = it },
                         textStyle = TextStyle(fontSize = 15.sp),
                         label = { Text("Email") },
-                        modifier = Modifier.size(width = 280.dp, height = 55.dp),
-                        readOnly = true,
+                        modifier = Modifier.size(width = 280.dp, height = 60.dp),
+                        singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = colorResource(R.color.primary),
                             unfocusedBorderColor = colorResource(R.color.primary),
                         )
                     )
                     OutlinedTextField(
-                        value = user.password,
-                        onValueChange = { },
+                        value = password,
+                        onValueChange = { password = it },
                         textStyle = TextStyle(fontSize = 15.sp),
                         label = { Text("Password") },
-                        modifier = Modifier.size(width = 280.dp, height = 55.dp),
-                        readOnly = true,
+                        modifier = Modifier.size(width = 280.dp, height = 60.dp),
+                        singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = colorResource(R.color.primary),
                             unfocusedBorderColor = colorResource(R.color.primary),
@@ -425,8 +427,9 @@ fun DialogOfEditUser(
                         onValueChange = { phoneNo = it },
                         textStyle = TextStyle(fontSize = 15.sp),
                         label = { Text("Phone Number") },
-                        modifier = Modifier.size(width = 280.dp, height = 55.dp),
+                        modifier = Modifier.size(width = 280.dp, height = 60.dp),
                         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                        singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = colorResource(R.color.primary),
                             unfocusedBorderColor = colorResource(R.color.primary),
@@ -446,7 +449,7 @@ fun DialogOfEditUser(
                                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedG)
                             },
                             modifier = Modifier
-                                .size(width = 280.dp, height = 55.dp)
+                                .size(width = 280.dp, height = 60.dp)
                                 .menuAnchor(),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = colorResource(R.color.primary),
@@ -459,16 +462,213 @@ fun DialogOfEditUser(
                         ) {
                             userGender.forEach {
                                 DropdownMenuItem(
-                                    text = { Text(text = it) },
+                                    text = { Text(text = it.name) },
                                     onClick = {
-                                        gender = it
+                                        gender = it.name
                                         expandedG = false
                                     }
                                 )
                             }
                         }
                     }
-                    DatePickerDialog(context, user)
+                    dob = DatePickerDialog(context, user)
+                }
+
+                // Buttons
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = { onDismissRequest() }) {
+                        Text(text = "Dismiss")
+                    }
+                    TextButton(onClick = {
+                        onConfirmation(
+                            User(
+                                image = imageUri.value,
+                                userID = user.userID,
+                                username = username,
+                                email = email,
+                                password = password,
+                                phoneNo = phoneNo,
+                                gender = gender,
+                                dob = dob,
+                                role = "User",
+                                point = 0,
+                                status = "Active",
+                            )
+                        )
+                    }) {
+                        Text(text = "Confirm")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DialogOfEditUser(
+    onDismissRequest: () -> Unit = {},
+    onConfirmation: (User) -> Unit,
+    user: User
+) {
+    var username by remember { mutableStateOf(user.username) }
+    var email by remember { mutableStateOf(user.email) }
+    var password by remember { mutableStateOf(user.password) }
+    var phoneNo by remember { mutableStateOf(user.phoneNo) }
+    var gender by remember { mutableStateOf(user.gender) }
+    var dob by remember { mutableStateOf(user.dob) }
+    var point by remember { mutableStateOf(user.point) }
+    var status by remember { mutableStateOf(user.status) }
+
+    val userGender: List<Gender> = enumValues<Gender>().toList()
+    val userStatus: List<UserStatus> = enumValues<UserStatus>().toList()
+    var expandedS by remember { mutableStateOf(false) }
+    var expandedG by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+
+    val imageUri = rememberSaveable { mutableStateOf("") }
+    val painter = rememberAsyncImagePainter(
+        imageUri.value.ifEmpty { user.image }
+    )
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) {uri: Uri? ->
+        uri?.let { imageUri.value = it.toString() }
+    }
+
+    Dialog(onDismissRequest = { onDismissRequest() }) {
+        Card(
+            elevation = CardDefaults.cardElevation(15.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dimensionResource(R.dimen.padding_medium))
+        ) {
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(dimensionResource(R.dimen.padding_medium))
+            ) {
+
+                Column(
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Card(
+                        shape = CircleShape,
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .size(70.dp)
+                    ){
+                        Image(
+                            painter = painter,
+                            contentDescription = "",
+                            modifier = Modifier
+                                .clickable { launcher.launch("image/*") },
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                    OutlinedTextField(
+                        value = username,
+                        onValueChange = { username = it },
+                        textStyle = TextStyle(fontSize = 15.sp),
+                        label = { Text("Username") },
+                        modifier = Modifier.size(width = 280.dp, height = 60.dp),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = colorResource(R.color.primary),
+                            unfocusedBorderColor = colorResource(R.color.primary),
+                        )
+                    )
+                    OutlinedTextField(
+                        value = user.email,
+                        onValueChange = { },
+                        textStyle = TextStyle(fontSize = 15.sp),
+                        label = { Text("Email") },
+                        modifier = Modifier.size(width = 280.dp, height = 60.dp),
+                        readOnly = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = colorResource(R.color.primary),
+                            unfocusedBorderColor = colorResource(R.color.primary),
+                        )
+                    )
+                    OutlinedTextField(
+                        value = user.password,
+                        onValueChange = { },
+                        textStyle = TextStyle(fontSize = 15.sp),
+                        label = { Text("Password") },
+                        modifier = Modifier.size(width = 280.dp, height = 60.dp),
+                        readOnly = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = colorResource(R.color.primary),
+                            unfocusedBorderColor = colorResource(R.color.primary),
+                        )
+                    )
+                    OutlinedTextField(
+                        value = phoneNo,
+                        onValueChange = { phoneNo = it },
+                        textStyle = TextStyle(fontSize = 15.sp),
+                        label = { Text("Phone Number") },
+                        modifier = Modifier.size(width = 280.dp, height = 60.dp),
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = colorResource(R.color.primary),
+                            unfocusedBorderColor = colorResource(R.color.primary),
+                        )
+                    )
+                    ExposedDropdownMenuBox(
+                        expanded = expandedG,
+                        onExpandedChange = { expandedG = !expandedG }
+                    ) {
+                        OutlinedTextField(
+                            value = gender,
+                            onValueChange = { gender = it },
+                            textStyle = TextStyle(fontSize = 15.sp),
+                            label = { Text("Gender") },
+                            readOnly = true,
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedG)
+                            },
+                            modifier = Modifier
+                                .size(width = 280.dp, height = 60.dp)
+                                .menuAnchor(),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = colorResource(R.color.primary),
+                                unfocusedBorderColor = colorResource(R.color.primary),
+                            )
+                        )
+                        ExposedDropdownMenu(
+                            expanded = expandedG,
+                            onDismissRequest = { /*TODO*/ }
+                        ) {
+                            userGender.forEach {
+                                DropdownMenuItem(
+                                    text = { Text(text = it.name) },
+                                    onClick = {
+                                        gender = it.name
+                                        expandedG = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    dob = DatePickerDialog(context, user)
+                    OutlinedTextField(
+                        value = point.toString(),
+                        onValueChange = { point = it.toInt() },
+                        textStyle = TextStyle(fontSize = 15.sp),
+                        label = { Text("Point") },
+                        readOnly = true,
+                        modifier = Modifier.size(width = 280.dp, height = 60.dp),
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = colorResource(R.color.primary),
+                            unfocusedBorderColor = colorResource(R.color.primary),
+                        )
+                    )
 
                     ExposedDropdownMenuBox(
                         expanded = expandedS,
@@ -484,7 +684,7 @@ fun DialogOfEditUser(
                                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedS)
                             },
                             modifier = Modifier
-                                .size(width = 280.dp, height = 55.dp)
+                                .size(width = 280.dp, height = 60.dp)
                                 .menuAnchor(),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = colorResource(R.color.primary),
@@ -497,9 +697,9 @@ fun DialogOfEditUser(
                         ) {
                             userStatus.forEach {
                                 DropdownMenuItem(
-                                    text = { Text(text = it) },
+                                    text = { Text(text = it.name) },
                                     onClick = {
-                                        status = it
+                                        status = it.name
                                         expandedS = false
                                     }
                                 )
@@ -520,6 +720,7 @@ fun DialogOfEditUser(
                     TextButton(onClick = {
                         onConfirmation(
                             User(
+                                image = imageUri.value,
                                 userID = user.userID,
                                 username = username,
                                 email = email,
@@ -541,39 +742,49 @@ fun DialogOfEditUser(
     }
 }
 
+fun getStringToDate(date: String): Long {
+    val l = LocalDate.parse(date, DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+    val unix = l.atStartOfDay(ZoneId.systemDefault()).toInstant().epochSecond
+    Log.i("Change to Date", "getStringToDate: "+unix)
+    return unix
+}
+fun convertDateToLong(dateString: String): Long {
+    val format = SimpleDateFormat("dd-MM-yyyy") // Specify the date format
+    format.timeZone = TimeZone.getTimeZone("UTC")
+    val date = format.parse(dateString)
+    return date.time
+}
+
 @Composable
 fun DatePickerDialog(
     context: Context,
     user: User
-) {
-    val year: Int
-    val month: Int
-    val day: Int
+): Long {
     val calendar = Calendar.getInstance()
-    year = calendar.get(Calendar.YEAR)
-    month = calendar.get(Calendar.MONTH)
-    day = calendar.get(Calendar.DAY_OF_MONTH)
-    calendar.time = Date()
-    val date = remember { mutableStateOf(formattedDate(user.dob, "date")) }
+    val year = calendar.get(Calendar.YEAR)
+    val month = calendar.get(Calendar.MONTH)
+    val day = calendar.get(Calendar.DAY_OF_MONTH)
+    var date by remember { mutableStateOf(user.dob) }
     val datePickerDialog = DatePickerDialog(
         context,
-        {_: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-            date.value = "$dayOfMonth-${month+1}-$year" // TODO
+        { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+            val newDate = "$dayOfMonth-${month+1}-$year"
+            date = convertDateToLong(newDate)
         }, year, month, day
     )
     ReadonlyTextField(
-        value = date.value,
-        onValueChange = { date.value = it },
+        value = formattedDate(date, "date"),
+        onValueChange = { date = convertDateToLong(it) },
         textStyle = TextStyle(fontSize = 15.sp),
         label = { Text("Date of Birth") },
-        modifier = Modifier
-            .size(width = 280.dp, height = 55.dp),
+        modifier = Modifier.size(width = 280.dp, height = 60.dp),
         onClick = { datePickerDialog.show() },
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = colorResource(R.color.primary),
             unfocusedBorderColor = colorResource(R.color.primary),
         )
     )
+    return date
 }
 
 @Composable
@@ -630,6 +841,11 @@ fun DialogOfUserDetail(
         Pair("Status", 100.dp)
     )
 
+    val imageUri = rememberSaveable { mutableStateOf(user.image) }
+    val painter = rememberAsyncImagePainter(
+        imageUri.value.ifEmpty { user.image }
+    )
+
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
             colors = CardDefaults.cardColors(Color.White),
@@ -644,12 +860,20 @@ fun DialogOfUserDetail(
                     .verticalScroll(rememberScrollState())
                     .padding(dimensionResource(R.dimen.padding_medium))
             ) {
-                Image(
-                    painter = painterResource(R.drawable.ordermethod3), // TODO
-                    contentDescription = "User Image",
+                Card(
+                    shape = CircleShape,
                     modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
                         .size(70.dp)
-                )
+
+                ){
+                    Image(
+                        painter = painter,
+                        contentDescription = "",
+                        modifier = Modifier,
+                        contentScale = ContentScale.Crop
+                    )
+                }
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(30.dp),
                     modifier = Modifier

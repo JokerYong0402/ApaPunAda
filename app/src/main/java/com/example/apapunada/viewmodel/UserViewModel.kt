@@ -34,7 +34,7 @@ enum class Gender(name: String) {
 
 enum class UserStatus(name: String) {
     Active("Active"),
-    Disabled("Disable"),
+    Disabled("Disabled"),
     Deleted("Deleted"),
 }
 

@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,7 +47,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
+import com.example.apapunada.ui.AppViewModelProvider
+import com.example.apapunada.viewmodel.UserState
+import com.example.apapunada.viewmodel.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,14 +59,18 @@ fun RewardsScreen(
     onBackButtonClicked: () -> Unit,
     onRedeem: (Int, String) -> Unit,
     onDetails: (Int, String) -> Unit,
-    userPoint: Int
+    viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    userId: Int
 ) {
     var isPopUpVisible by remember { mutableStateOf(false) }
     var able by remember { mutableStateOf(true) }
+    val userState = viewModel.userState.collectAsState(initial = UserState())
+    viewModel.loadUserByUserId(userId)
+    val user = userState.value.user
     Box(modifier = Modifier.fillMaxSize()) {
         val scrollBehaviour = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
         var tabIndex by remember { mutableStateOf(0) }
-        val tabs = listOf("Redeem Rewards", "My Rewards")
+        val tabs = listOf("Redeem Rewards", "Available Rewards")
         val primaryColor = colorResource(R.color.primary)
         Scaffold(
             topBar = { CenterAlignedTopAppBar(
@@ -154,18 +163,10 @@ fun RewardsScreen(
                                 modifier = Modifier.padding(30.dp, 10.dp, 0.dp, 0.dp)
                             ) {
                                 Text(
-                                    text = "$userPoint pts",
+                                    text = "${user.point} pts",
                                     color = Color.Black,
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight.Bold
-                                )
-                            }
-                            Row(
-                                modifier = Modifier.padding(30.dp, 10.dp, 0.dp, 0.dp)
-                            ) {
-                                Text(
-                                    text = "History",
-                                    color = Color.Gray
                                 )
                             }
                         }
@@ -219,22 +220,72 @@ fun RewardsScreen(
                             .clickable(enabled = able){onRedeem(R.drawable.voucher_rm10, "RM10")}
                     )
                 }
-                else
-                {
-                    /* TODO */
-                    // If the user got the voucher then present the voucher
-                    // For example
-                    Row(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.voucher_rm10_redeemed),
-                            contentDescription = "Voucher RM10 Redeemed",
-                            modifier = Modifier
-                                .padding(30.dp, 10.dp)
-                                .width(400.dp)
-                                .clickable { onDetails(R.drawable.voucher_rm10, "RM10") }
-                        )
+                else {
+                    if (user.point in 100..299) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.voucher_rm1_redeemed),
+                                contentDescription = "Voucher RM1 Available",
+                                modifier = Modifier
+                                    .padding(30.dp, 10.dp)
+                                    .width(400.dp)
+                                    .clickable { onDetails(R.drawable.voucher_rm1, "RM1") }
+                            )
+                        }
+                    }
+                    else if (user.point in 300..999) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.voucher_rm1_redeemed),
+                                contentDescription = "Voucher RM1 Available",
+                                modifier = Modifier
+                                    .padding(30.dp, 10.dp)
+                                    .width(400.dp)
+                                    .clickable { onDetails(R.drawable.voucher_rm1, "RM1") }
+                            )
+                            Image(
+                                painter = painterResource(R.drawable.voucher_rm3_redeemed),
+                                contentDescription = "Voucher RM3 Available",
+                                modifier = Modifier
+                                    .padding(30.dp, 10.dp)
+                                    .width(400.dp)
+                                    .clickable { onDetails(R.drawable.voucher_rm3, "RM3") }
+                            )
+                        }
+                    }
+                    else if (user.point >= 1000) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.voucher_rm1_redeemed),
+                                contentDescription = "Voucher RM1 Available",
+                                modifier = Modifier
+                                    .padding(30.dp, 10.dp)
+                                    .width(400.dp)
+                                    .clickable { onDetails(R.drawable.voucher_rm1, "RM1") }
+                            )
+                            Image(
+                                painter = painterResource(R.drawable.voucher_rm3_redeemed),
+                                contentDescription = "Voucher RM3 Available",
+                                modifier = Modifier
+                                    .padding(30.dp, 10.dp)
+                                    .width(400.dp)
+                                    .clickable { onDetails(R.drawable.voucher_rm3, "RM3") }
+                            )
+                            Image(
+                                painter = painterResource(R.drawable.voucher_rm10_redeemed),
+                                contentDescription = "Voucher RM10 Redeemed",
+                                modifier = Modifier
+                                    .padding(30.dp, 10.dp)
+                                    .width(400.dp)
+                                    .clickable { onDetails(R.drawable.voucher_rm10, "RM10") }
+                            )
+                        }
                     }
                 }
             }
@@ -359,5 +410,5 @@ fun RewardPopUp(onDismiss: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun RewardsScreenPreview() {
-    RewardsScreen({}, {drawableId: Int, voucherRM: String -> } , {drawableId: Int, voucherRM: String -> },234)
+    RewardsScreen({}, {drawableId: Int, voucherRM: String -> } , {drawableId: Int, voucherRM: String -> }, userId = 6)
 }
