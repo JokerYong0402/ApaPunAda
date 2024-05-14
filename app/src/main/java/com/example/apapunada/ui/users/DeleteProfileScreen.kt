@@ -44,8 +44,7 @@ import com.example.apapunada.ui.components.MyTopTitleBar
 
 @Composable
 fun DeleteProfileScreen(
-
-
+    onLogin: () -> Unit
 ) {
     var textInputDelete by remember { mutableStateOf("") }
     var openAlertDialog by remember { mutableStateOf(false) }
@@ -60,6 +59,7 @@ fun DeleteProfileScreen(
             },
             dialogTitle = "Confirmation",
             dialogText = "Are you sure want to delete this account?",
+            onLogin = onLogin
         )
     }
 
@@ -224,6 +224,7 @@ fun DeleteProfileAlertDialog(
     onConfirmation: () -> Unit,
     dialogTitle: String,
     dialogText: String,
+    onLogin: () -> Unit
 ) {
     val context = LocalContext.current
     AlertDialog(
@@ -241,6 +242,7 @@ fun DeleteProfileAlertDialog(
                 onClick = {
                     Toast.makeText(context, "Deleted Successfully",Toast.LENGTH_SHORT).show()
                     onConfirmation()
+                    onLogin()
                 }
             ) {
                 Text("Confirm")
@@ -263,6 +265,6 @@ fun DeleteProfileAlertDialog(
 @Composable
 fun DeleteProfileScreenPreview() {
     DeleteProfileScreen(
-
+    onLogin = {}
     )
 }

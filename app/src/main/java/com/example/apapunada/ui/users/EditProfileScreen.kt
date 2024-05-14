@@ -3,14 +3,12 @@ package com.example.apapunada.ui.users
 import android.app.DatePickerDialog
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -69,10 +67,8 @@ import com.example.apapunada.data.dataclass.User
 import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.MyTopTitleBar
 import com.example.apapunada.ui.components.formattedDate
-import com.example.apapunada.viewmodel.UserListState
 import com.example.apapunada.viewmodel.UserState
 import com.example.apapunada.viewmodel.UserViewModel
-import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -82,7 +78,8 @@ import java.util.Date
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileScreen(
-    viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    onProfile: () -> Unit
 ) {
     var userState = viewModel.userState.collectAsState(initial = UserState())
     viewModel.loadUserByUserId(3)
@@ -122,6 +119,7 @@ fun EditProfileScreen(
             onConfirmation = { openAlertDialog = false },
             dialogTitle = "SUCCESS",
             dialogText = "Your profile has been updated.",
+            onProfile = onProfile
         )
     }
 
@@ -387,14 +385,14 @@ fun EditProfileScreen(
                 Button(
                     onClick = {
                         openAlertDialog = true
-                        User(
-                            username = editedname,
-                            gender = editedgender,
-                            dob = getStringToDate(editeddob) ,
-                            email = editedemail,
-                            password = editedpassword,
-                            phoneNo = editedphonenum,
-                        )
+//                        User(
+//                            username = editedname,
+//                            gender = editedgender,
+//                            dob = getStringToDate(editeddob) ,
+//                            email = editedemail,
+//                            password = editedpassword,
+//                            phoneNo = editedphonenum,
+//                        )
                               },
                     colors = ButtonDefaults.buttonColors(
                         colorResource(R.color.primary)
@@ -497,6 +495,7 @@ fun EditProfileAlertDialog(
     onConfirmation: () -> Unit,
     dialogTitle: String,
     dialogText: String,
+    onProfile: () -> Unit
 ) {
     val context = LocalContext.current
     AlertDialog(
@@ -514,6 +513,7 @@ fun EditProfileAlertDialog(
                 onClick = {
                     Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
                     onConfirmation()
+                    onProfile()
                 }
             ) {
                 Text("Confirm")
@@ -610,5 +610,7 @@ fun isValidEmail(email: String): Boolean {
 @Preview(showBackground = true)
 @Composable
 fun EditProfileScreenPreview() {
-    EditProfileScreen()
+    EditProfileScreen(
+        onProfile = {}
+    )
 }

@@ -39,22 +39,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
-import com.example.apapunada.data.dataclass.User
 import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.MyTopTitleBar
 import com.example.apapunada.ui.components.formattedDate
-import com.example.apapunada.viewmodel.UserListState
 import com.example.apapunada.viewmodel.UserState
 import com.example.apapunada.viewmodel.UserViewModel
 
 
 @Composable
 fun ProfileScreen(
-    viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    onLogin: () -> Unit
 ) {
     var userState = viewModel.userState.collectAsState(initial = UserState())
-    val userListState = viewModel.userListState.collectAsState(initial = UserListState())
-    var users: List<User> = listOf()
     viewModel.loadUserByUserId(3)
 
     var user = userState.value.user
@@ -127,7 +126,7 @@ fun ProfileScreen(
                                 width = 30.dp,
                                 height = 30.dp
                             )
-                            .clickable {}
+                            .clickable { onEdit() }
                     )
 
                 }
@@ -373,6 +372,7 @@ fun ProfileScreen(
                 ElevatedButton(
                     onClick = {
                         Toast.makeText(context, "Logout Successfully", Toast.LENGTH_SHORT).show()
+                        onLogin()
                     },
                     colors = ButtonDefaults.buttonColors(
                         colorResource(R.color.primary)
@@ -411,7 +411,7 @@ fun ProfileScreen(
                     ) {
                         Text(
                             modifier =  Modifier
-                                .clickable {  },
+                                .clickable { onDelete() },
                             text = "Request Account Deletion",
                             fontSize = 16.sp,
                             color = colorResource(id = R.color.primary)
@@ -434,5 +434,7 @@ fun ProfileScreen(
 @Preview(showBackground = true)
 @Composable
 fun ProfileScreenPreview() {
-    ProfileScreen()
+    ProfileScreen(
+        onDelete = {}, onLogin = {}, onEdit = {}
+    )
 }
