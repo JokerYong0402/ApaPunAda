@@ -57,6 +57,9 @@ fun formattedDate(millis: Long, option: String = ""): String {
         "time" -> {
             SimpleDateFormat("HH:mm:ss", Locale.getDefault())
         }
+        "mins" -> {
+            SimpleDateFormat("mm", Locale.getDefault())
+        }
         else -> {
             SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         }
@@ -168,7 +171,7 @@ fun PopupWindowDialog(
 @Composable
 fun DropDownMenu(
     itemList: List<String>
-) {
+): String {
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
     var selectedField by remember { mutableStateOf("Field") }
@@ -237,6 +240,7 @@ fun DropDownMenu(
             }
         }
     }
+    return selectedField
 }
 
 @Composable

@@ -1,10 +1,12 @@
 package com.example.apapunada.ui.users
 
 import android.os.CountDownTimer
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,6 +31,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,11 +48,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
-import com.example.apapunada.data.WaitlistSample
-import com.example.apapunada.data.dataclass.WaitList
+import com.example.apapunada.data.PrepopulateData
+import com.example.apapunada.data.dataclass.Waitlist
+import com.example.apapunada.ui.AppViewModelProvider
+import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.MyTopTitleBar
 import com.example.apapunada.ui.components.PopupWindowDialog
+import com.example.apapunada.viewmodel.WaitlistIDState
+import com.example.apapunada.viewmodel.WaitlistListState
+import com.example.apapunada.viewmodel.WaitlistState
+import com.example.apapunada.viewmodel.WaitlistViewModel
+import com.example.apapunada.viewmodel.WaitlistWithUsername
+import com.example.apapunada.viewmodel.WaitlistWithUsernameState
 
 @Composable
 fun WaitlistPager(initialPage: Int = 0) {
@@ -640,19 +653,42 @@ fun WaitlistPager(initialPage: Int = 0) {
 @Composable
 fun WaitlistScreen(
     modifier: Modifier = Modifier,
-    waitList: List<WaitList> = WaitlistSample.Waitlists,
-    onBackButtonClicked: () -> Unit = {}
+    onBackButtonClicked: () -> Unit = {},
+    viewModel: WaitlistViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ){
+    var waitlistListState = viewModel.waitlistWithUsernameState.collectAsState(initial = WaitlistWithUsernameState())
+    var waitlistIDState = viewModel.waitlistID.collectAsState(initial = WaitlistIDState())
+    var waitlists: List<WaitlistWithUsername> = listOf()
+
+    //hardcode user
+    var user = PrepopulateData.users[0]
+
+    if (waitlistListState.value.isLoading) {
+        Box( modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Gray.copy(alpha = 0.5f))
+            .clickable { /* no action */ }
+            .zIndex(2f)
+            ,
+            contentAlignment = Alignment.Center
+        ) {
+            IndeterminateCircularIndicator()
+        }
+    } else {
+        if (waitlistListState.value.errorMessage.isNotEmpty()) {
+            Text(text = "Error loading users: ${waitlistListState.value.errorMessage}")
+            Log.i("User", "StaffUserScreen: ${waitlistListState.value.errorMessage}")
+        } else {
+            waitlists = waitlistListState.value.waitlistWithUsername
+        }
+    }
+
     var size by remember { mutableStateOf(1) }
-
-    var queue by remember { mutableStateOf(waitList.size - 1) }
-
-    //val openAlertDialog = remember { mutableStateOf(false) }
+    var queue = waitlists.size
+    val primaryColor = colorResource(R.color.primary)
 
     var checkJoin by remember { mutableStateOf(false) }
-
     var checkQuit by remember { mutableStateOf(false) }
-
     var checkFinish by remember { mutableStateOf(false) }
 
     var numsInMinute :Long by remember{ mutableStateOf(10) }
@@ -671,13 +707,21 @@ fun WaitlistScreen(
 
         override fun onFinish(){
             checkFinish = true
-            queue = 1
             setView = "0 mins 0 secs"
             cuntNumStart = false
         }
     }
 
-    val primaryColor = colorResource(R.color.primary)
+    if (!checkJoin) {
+        viewModel.loadWaitlistsByCurrentStatus()
+    } else if (checkJoin && !checkQuit) {
+//        viewModel.loadLatestWaitlistID(6)
+//        var waitlistID = waitlistIDState.value.waitlistID
+//        Log.i("Waitlist", "latestWaitlistID: $waitlistID")
+        viewModel.loadInfrontWaitlists(10)
+    } else if (checkQuit) {
+
+    }
 
     Scaffold(
         topBar = { MyTopTitleBar(title = stringResource(R.string.waitlist),onBackButtonClicked) }
@@ -696,7 +740,7 @@ fun WaitlistScreen(
                             .padding(horizontal = 35.dp)
                             .fillMaxWidth()
                     ) {
-                        if (queue == 0){
+                        if (waitlists.size == 1){
                             Text(
                                 text = stringResource(id = R.string.waitlist_13),
                                 fontSize = 65.sp,
@@ -807,8 +851,8 @@ fun WaitlistScreen(
                         }
                         Button(
                             onClick = {
-                                queue = 0
-                                //cuntNum.start()
+                                //queue = 0
+                                cuntNum.start()
                             }
                         )
                         {
@@ -849,7 +893,7 @@ fun WaitlistScreen(
                                 .height(27.dp)
                         )
                     }
-                    if (queue != 0) {
+                    if (waitlists.size != 1) {
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -928,7 +972,7 @@ fun WaitlistScreen(
 
                                     )
                                     Text(
-                                        text = "$queue",
+                                        text = queue.toString(),
                                         fontSize = 60.sp,
                                         modifier = modifier
                                             .padding(start = 10.dp)
@@ -938,7 +982,7 @@ fun WaitlistScreen(
 
                         }
                     }
-                    } else if (queue == 0) {
+                    } else if (waitlists.size == 1) {
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -1019,12 +1063,7 @@ fun WaitlistScreen(
 
                     }
                 }
-                        if (!cuntNumStart){
-                            cuntNum.start()
-                        }
-
                     }
-
                     Row(
                         modifier = Modifier
                             .padding(
@@ -1086,6 +1125,16 @@ fun WaitlistScreen(
                                 //update "check" variable to call the function
                                 onClick = {
                                     checkJoin = true
+                                    //add new waitlist
+                                    viewModel.updateWaitlistState(
+                                        Waitlist(
+                                            userID = 2,
+                                            size = size,
+                                            datetime = System.currentTimeMillis(),
+                                            status = "Queue"
+                                        )
+                                    )
+                                    viewModel.saveWaitlist()
                                 }
                             ) {
                                 Text(text = stringResource(id = R.string.waitlist_7))
@@ -1109,23 +1158,30 @@ fun WaitlistScreen(
                                             checkQuit = false
                                         },
                                         onConfirmation = {
+                                            viewModel.updateWaitlistState(
+                                                Waitlist(
+                                                    waitlistID = 51,
+                                                    userID = 2,
+                                                    size = size,
+                                                    datetime = System.currentTimeMillis(),
+                                                    status = "Cancelled"
+                                                )
+                                            )
+                                            viewModel.updateWaitlist()
                                             checkJoin = false
                                             checkQuit = false
-                                            queue = 1
                                             cuntNum.cancel()  // Cancel the ongoing countdown
                                             cuntNumStart = false  // Reset the start flag (optional)
                                             numsInSecond = 0  // Reset seconds to initial value (optional)
                                             numsInMinute = 5  // Reset minutes to initial value (optional)
                                             setView = "$numsInMinute mins $numsInSecond secs" // Update display with initial value
                                             cuntNum.cancel()
-                                            println("Confirmation registered")
                                         },
                                         dialogTitle = stringResource(id = R.string.waitlist_8),
                                         confirmMessage = "Quit",
                                         containerColor = Color.Red
                                     )
                                 }
-
                                 Text(text = stringResource(id = R.string.waitlist_10))
                             }
                         }
@@ -1133,9 +1189,6 @@ fun WaitlistScreen(
                 }
             }
         }
-
-
-
     if (checkFinish) {
         PopupWindowAlert(
             onDismissRequest = {
@@ -1143,13 +1196,32 @@ fun WaitlistScreen(
                 checkQuit = false
                 checkJoin = false
                 size = 1
+                viewModel.updateWaitlistState(
+                    Waitlist(
+                        waitlistID = 51,
+                        userID = 2,
+                        size = size,
+                        datetime = System.currentTimeMillis(),
+                        status = "Cancelled"
+                    )
+                )
+                viewModel.updateWaitlist()
             },
             onConfirmation = {
                 checkFinish = false
                 checkQuit = false
                 checkJoin = false
                 size = 1
-                println("Confirmation registered")
+                viewModel.updateWaitlistState(
+                    Waitlist(
+                        waitlistID = 51,
+                        userID = 2,
+                        size = size,
+                        datetime = System.currentTimeMillis(),
+                        status = "Cancelled"
+                    )
+                )
+                viewModel.updateWaitlist()
             },
             dialogTitle = stringResource(id = R.string.waitlist_11),
             dialogText = stringResource(id = R.string.waitlist_12)
@@ -1289,27 +1361,7 @@ fun PopupWindowAlert(
             ) {
                 Text("Quit")
             }
-        }
-//        dismissButton = {
-//            TextButton(
-//                modifier = Modifier
-//                    .padding(
-//                        start = 70.dp
-//                    )
-//                    .size(width = 75.dp, height = 35.dp),
-//                shape = RoundedCornerShape(5.dp),
-//                border = BorderStroke(width = 1.dp, primaryColor),
-//                colors = ButtonDefaults.buttonColors(
-//                    containerColor = Color.White,
-//                    contentColor = primaryColor
-//                ),
-//                onClick = {
-//                    onDismissRequest()
-//                }
-//            ) {
-//                Text("Cancel")
-//            }
-//        }
+        },
     )
 }
 

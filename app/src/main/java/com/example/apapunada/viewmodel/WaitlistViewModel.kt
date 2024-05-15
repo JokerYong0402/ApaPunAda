@@ -26,6 +26,25 @@ data class WaitlistListState(
     val errorMessage: String = ""
 )
 
+data class WaitlistWithUsername(
+    val waitlistID: Int = 0,
+    val userID: Int = 0,
+    val size: Int = 1,
+    val datetime: Long = System.currentTimeMillis(),
+    val status: String = "",
+    val username: String = ""
+)
+
+data class WaitlistIDState(
+    val waitlistID: Int = 0
+)
+
+data class WaitlistWithUsernameState(
+    val isLoading: Boolean = false,
+    val waitlistWithUsername: List<WaitlistWithUsername> = listOf(WaitlistWithUsername()),
+    val errorMessage: String = ""
+)
+
 enum class WaitlistStatus(name: String) {
     Accepted("Accepted"),
     Queue("Queue"),
@@ -39,19 +58,50 @@ class WaitlistViewModel(
     private val _waitlistState = MutableStateFlow(WaitlistState())
     val waitlistState: StateFlow<WaitlistState> = _waitlistState.asStateFlow()
 
+    private val _waitlistID = MutableStateFlow(WaitlistIDState())
+    val waitlistID: StateFlow<WaitlistIDState> = _waitlistID.asStateFlow()
+
     private val _waitlistListState = MutableStateFlow(WaitlistListState())
     val waitlistListState: StateFlow<WaitlistListState> = _waitlistListState.asStateFlow()
+
+    private val _waitlistWithUsernameState = MutableStateFlow(WaitlistWithUsernameState())
+    val waitlistWithUsernameState: StateFlow<WaitlistWithUsernameState> = _waitlistWithUsernameState.asStateFlow()
 
     fun loadAllWaitlists() {
         viewModelScope.launch(Dispatchers.IO) {
             waitlistRepository.getAllWaitlistsStream()
-                .map { WaitlistListState(isLoading = false, waitlistList = it) }
-                .onStart { emit(WaitlistListState(isLoading = true)) }
+                .map { WaitlistWithUsernameState(isLoading = false, waitlistWithUsername = it) }
+                .onStart { emit(WaitlistWithUsernameState(isLoading = true)) }
                 .catch {
-                    emit(WaitlistListState(errorMessage = it.message.toString()))
+                    emit(WaitlistWithUsernameState(errorMessage = it.message.toString()))
                     Log.i("Waitlist", "loadAllWaitlists: " + it.message.toString())
                 }
-                .collect { _waitlistListState.value = it }
+                .collect { _waitlistWithUsernameState.value = it }
+        }
+    }
+
+    fun loadInfrontWaitlists(waitlistID: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            waitlistRepository.loadInfrontWaitlists(waitlistID)
+                .map { WaitlistWithUsernameState(isLoading = false, waitlistWithUsername = it) }
+                .onStart { emit(WaitlistWithUsernameState(isLoading = true)) }
+                .catch {
+                    emit(WaitlistWithUsernameState(errorMessage = it.message.toString()))
+                    Log.i("Waitlist", "loadAllWaitlists: " + it.message.toString())
+                }
+                .collect { _waitlistWithUsernameState.value = it }
+        }
+    }
+
+    fun loadLatestWaitlistID(userID: Int){
+        viewModelScope.launch(Dispatchers.IO) {
+            waitlistRepository.loadLatestWaitlistID(userID)
+                .map { WaitlistIDState()}
+                .catch {
+                    emit(WaitlistIDState())
+                    Log.i("Waitlist", "loadAllWaitlists: " + it.message.toString())
+                }
+                .collect { _waitlistID.value = it }
         }
     }
 
@@ -84,6 +134,7 @@ class WaitlistViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             if (validateWaitlistInput()) {
                 try {
+                    Log.i("Waitlist", "saveWaitlist: " + waitlistState.value.waitlist)
                     waitlistRepository.insertWaitlist(waitlistState.value.waitlist)
                 } catch (e: Exception) {
                     Log.i("Waitlist", "saveWaitlist: " + e.message.toString())
@@ -115,4 +166,77 @@ class WaitlistViewModel(
             }
         }
     }
+
+    fun loadWaitlistsByCurrentStatus() {
+        viewModelScope.launch(Dispatchers.IO) {
+            waitlistRepository.loadWaitlistsByCurrentStatus()
+                .map { WaitlistWithUsernameState(isLoading = false, waitlistWithUsername = it) }
+                .onStart { emit(WaitlistWithUsernameState(isLoading = true)) }
+                .catch {
+                    emit(WaitlistWithUsernameState(errorMessage = it.message.toString()))
+                    Log.i("Waitlist", "loadAllWaitlists: " + it.message.toString())
+                }
+                .collect { _waitlistWithUsernameState.value = it }
+        }
+    }
+
+    fun loadWaitlistsByHistoryStatus() {
+        viewModelScope.launch(Dispatchers.IO) {
+            waitlistRepository.loadWaitlistsByHistoryStatus()
+                .map { WaitlistWithUsernameState(isLoading = false, waitlistWithUsername = it) }
+                .onStart { emit(WaitlistWithUsernameState(isLoading = true)) }
+                .catch {
+                    emit(WaitlistWithUsernameState(errorMessage = it.message.toString()))
+                    Log.i("Waitlist", "loadAllWaitlists: " + it.message.toString())
+                }
+                .collect { _waitlistWithUsernameState.value = it }
+        }
+    }
+
+    fun loadWaitlistBySize(status: String, status2: String, size: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            waitlistRepository.loadWaitlistBySize(status, status2, size)
+                .map { WaitlistWithUsernameState(isLoading = false, waitlistWithUsername = it) }
+                .onStart { emit(WaitlistWithUsernameState(isLoading = true)) }
+                .catch {
+                    emit(WaitlistWithUsernameState(errorMessage = it.message.toString()))
+                    Log.i("Waitlist", "loadAllWaitlists: " + it.message.toString())
+                }
+                .collect { _waitlistWithUsernameState.value = it
+                    Log.i("Waitlist", "loadAllWaitlists: " + it)
+                }
+        }
+    }
+
+    fun loadWaitlistByParty(status: String, status2: String, party: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            waitlistRepository.loadWaitlistByParty(status, status2, party)
+                .map { WaitlistWithUsernameState(isLoading = false, waitlistWithUsername = it) }
+                .onStart { emit(WaitlistWithUsernameState(isLoading = true)) }
+                .catch {
+                    emit(WaitlistWithUsernameState(errorMessage = it.message.toString()))
+                    Log.i("Waitlist", "loadAllWaitlists: " + it.message.toString())
+                }
+                .collect { _waitlistWithUsernameState.value = it
+                    Log.i("Waitlist", "loadAllWaitlists: " + it)
+                }
+        }
+    }
+
+    fun loadWaitlistByStatus(status: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            waitlistRepository.loadWaitlistByStatus(status)
+                .map { WaitlistWithUsernameState(isLoading = false, waitlistWithUsername = it) }
+                .onStart { emit(WaitlistWithUsernameState(isLoading = true)) }
+                .catch {
+                    emit(WaitlistWithUsernameState(errorMessage = it.message.toString()))
+                    Log.i("Waitlist", "loadAllWaitlists: " + it.message.toString())
+                }
+                .collect { _waitlistWithUsernameState.value = it
+                    Log.i("Waitlist", "loadAllWaitlists: " + it)
+                }
+        }
+    }
+
+
 }
