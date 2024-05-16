@@ -30,5 +30,6 @@ data class OrderDetails(
     val quantity: Int = 0,
     val remark: String = "",
     val option: String = "",
-    val total: Double = 0.0
+    val total: Double = 0.0,
+//    val status: String = ""
 )

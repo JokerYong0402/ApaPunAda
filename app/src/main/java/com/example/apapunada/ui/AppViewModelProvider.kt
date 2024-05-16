@@ -9,6 +9,7 @@ import com.example.apapunada.viewmodel.FeedbackViewModel
 import com.example.apapunada.viewmodel.MenuItemViewModel
 import com.example.apapunada.viewmodel.OrderViewModel
 import com.example.apapunada.viewmodel.UserViewModel
+import com.example.apapunada.viewmodel.VoucherViewModel
 import com.example.apapunada.viewmodel.WaitlistViewModel
 
 object AppViewModelProvider {
@@ -39,6 +40,10 @@ object AppViewModelProvider {
 
         initializer {
             WaitlistViewModel(apaPunAdaApplication().container.waitlistRepository)
+        }
+
+        initializer {
+            VoucherViewModel(apaPunAdaApplication().container.voucherRepository)
         }
     }
 }

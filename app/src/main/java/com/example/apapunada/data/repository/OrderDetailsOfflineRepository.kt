@@ -6,6 +6,10 @@ import kotlinx.coroutines.flow.Flow
 
 class OrderDetailsOfflineRepository(private val orderDetailsDao: OrderDetailsDao)
     : OrderDetailsRepository {
+
+    override fun getOrderDetailsByOrderDetailsIdStream(id: Int): Flow<OrderDetails>
+        = orderDetailsDao.getOrderDetailsByOrderDetailsId(id)
+
     override fun getOrderDetailsByMenuItemIdStream(id: Int): Flow<List<OrderDetails>>
         = orderDetailsDao.getOrderDetailsByMenuItemId(id)
 

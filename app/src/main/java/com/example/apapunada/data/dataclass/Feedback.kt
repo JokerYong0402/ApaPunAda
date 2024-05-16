@@ -20,5 +20,6 @@ data class Feedback(
     val star: Int = 5,
     val category: String = "",
     val images: String = "",
+//    val images: List<ByteArray> = listOf(ByteArray(10)), TODO
     val comments: String = ""
 )

@@ -12,6 +12,7 @@ data class MenuItem(
     val price: Double = 0.0,
     val rating: Double = 0.0,
     val image: String = "",
+//    val image: ByteArray = ByteArray(10), TODO
     val description: String = "",
     val status: String = "",
 )

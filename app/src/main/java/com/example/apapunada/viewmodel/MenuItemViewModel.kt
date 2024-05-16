@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
 data class MenuItemState(
+    val isLoading: Boolean = false,
     val menuItem: MenuItem = MenuItem(),
     val isValid: Boolean = false,
     val errorMessage: String = ""
@@ -91,7 +92,8 @@ class MenuItemViewModel(
     fun loadMenuItemByMenuItemId(id: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             menuItemRepository.getMenuItemByMenuItemIdStream(id)
-                .map { MenuItemState(menuItem = it) }
+                .map { MenuItemState(isLoading = false, menuItem = it) }
+                .onStart { emit(MenuItemState(isLoading = true)) }
                 .catch {
                     emit(MenuItemState(errorMessage = it.message.toString()))
                     Log.i(

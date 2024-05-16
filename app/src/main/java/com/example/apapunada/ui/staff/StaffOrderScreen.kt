@@ -66,7 +66,6 @@ import com.example.apapunada.ui.components.formattedString
 import com.example.apapunada.ui.components.getEnumList
 import com.example.apapunada.viewmodel.OrderDetailsListState
 import com.example.apapunada.viewmodel.OrderListState
-import com.example.apapunada.viewmodel.OrderState
 import com.example.apapunada.viewmodel.OrderStatus
 import com.example.apapunada.viewmodel.OrderViewModel
 
@@ -76,7 +75,6 @@ fun StaffOrderScreen(
     viewModel: OrderViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
 
-    var orderState = viewModel.orderState.collectAsState(initial = OrderState())
     val orderListState = viewModel.orderListState.collectAsState(initial = OrderListState())
     val orderDetailsListState = viewModel.orderDetailsListState
         .collectAsState(initial = OrderDetailsListState())
@@ -98,8 +96,8 @@ fun StaffOrderScreen(
         }
     } else {
         if (orderListState.value.errorMessage.isNotEmpty()) {
-            Text(text = "Error loading users: ${orderListState.value.errorMessage}")
-            Log.i("User", "StaffUserScreen: ${orderListState.value.errorMessage}")
+            Text(text = "Error loading orders: ${orderListState.value.errorMessage}")
+            Log.i("Order", "StaffOrderScreen: ${orderListState.value.errorMessage}")
         } else {
             orders = orderListState.value.orderList
         }

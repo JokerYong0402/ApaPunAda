@@ -5,6 +5,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface OrderDetailsRepository {
 
+    fun getOrderDetailsByOrderDetailsIdStream(id: Int): Flow<OrderDetails>
+
     fun getOrderDetailsByMenuItemIdStream(id: Int): Flow<List<OrderDetails>>
 
     fun getOrderDetailsByOrderIdStream(id: Int): Flow<List<OrderDetails>>

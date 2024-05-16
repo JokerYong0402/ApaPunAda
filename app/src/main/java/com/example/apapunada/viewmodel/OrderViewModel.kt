@@ -3,6 +3,7 @@ package com.example.apapunada.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.apapunada.data.dataclass.MenuItem
 import com.example.apapunada.data.dataclass.Order
 import com.example.apapunada.data.dataclass.OrderDetails
 import com.example.apapunada.data.repository.OrderDetailsRepository
@@ -25,6 +26,15 @@ data class OrderState(
 data class OrderListState(
     val isLoading: Boolean = false,
     val orderList: List<Order> = listOf(Order()),
+    val tableNumber: Int = 0,
+    val address: String = "",
+    val paymentMethod: String = "",
+    val errorMessage: String = ""
+)
+
+data class OrderDetailState(
+    val orderDetails: OrderDetails = OrderDetails(),
+    val isValid: Boolean = false,
     val errorMessage: String = ""
 )
 
@@ -35,11 +45,15 @@ data class OrderDetailsListState(
     val errorMessage: String = ""
 )
 
+data class OrderIdState(
+    val orderID: Int = 0,
+    val errorMessage: String = ""
+)
+
 enum class OrderMethod(method: String) {
     Dine("Dine-in"),
     Takeaway("Takeaway"),
     Delivery("Delivery")
-
 }
 
 enum class PaymentStatus(name: String) {
@@ -48,10 +62,16 @@ enum class PaymentStatus(name: String) {
 }
 
 enum class OrderStatus(name: String) {
+    Pending("Pending"),
     Preparing("Preparing"),
     Ready("Ready"),
     Completed("Completed"),
     Cancelled("Cancelled"),
+}
+
+enum class OrderDetailStatus(name: String) {
+    Active("Active"),
+    Removed("Removed")
 }
 
 class OrderViewModel(
@@ -65,8 +85,14 @@ class OrderViewModel(
     private val _orderListState = MutableStateFlow(OrderListState())
     val orderListState: StateFlow<OrderListState> = _orderListState.asStateFlow()
 
+    private val _orderDetailState = MutableStateFlow(OrderDetailState())
+    val orderDetailState: StateFlow<OrderDetailState> = _orderDetailState.asStateFlow()
+
     private val _orderDetailsListState = MutableStateFlow(OrderDetailsListState())
     val orderDetailsListState: StateFlow<OrderDetailsListState> = _orderDetailsListState.asStateFlow()
+
+    private val _orderIdState = MutableStateFlow(OrderIdState())
+    val orderIdState: StateFlow<OrderIdState> = _orderIdState.asStateFlow()
 
     fun loadAllOrders() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -106,6 +132,21 @@ class OrderViewModel(
         }
     }
 
+    fun loadOrderDetailsByOrderDetailsId(id: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            orderDetailsRepository.getOrderDetailsByOrderDetailsIdStream(id)
+                .map { OrderDetailState(orderDetails = it) }
+                .catch {
+                    emit(OrderDetailState(errorMessage = it.message.toString()))
+                    Log.i(
+                        "OrderDetails", "loadOrderDetailsByOrderDetailsId: "
+                                + it.message.toString()
+                    )
+                }
+                .collect { _orderDetailState.value = it }
+        }
+    }
+
     fun loadOrderDetailsByOrderId(id: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             orderDetailsRepository.getOrderDetailsByOrderIdStream(id)
@@ -139,28 +180,87 @@ class OrderViewModel(
 
     private fun validateOrderInput(): Boolean {
         return with(_orderState.value.order) {
-            method.isNotBlank() && paymentStatus.isNotBlank() && orderStatus.isNotBlank() // TODO
+            method.isNotBlank() && orderStatus.isNotBlank()
         }
     }
 
     private fun validateDetailsInput(): Boolean {
-        var validation: Boolean = true
-
-        for (detail in _orderDetailsListState.value.orderDetails) {
-            validation = with(detail) {
-                total.isNaN()
-            }
-
-            if (!validation) {
-                break
-            }
+        return with(_orderDetailState.value.orderDetails) {
+            total > 0 // TODO
         }
-
-        return validation
     }
 
     fun updateOrderState(order: Order) {
         _orderState.value = OrderState(order = order, isValid = validateOrderInput())
+    }
+
+    fun updateOrderDetailState(orderDetail: OrderDetails) {
+        _orderDetailState.value = OrderDetailState(
+            orderDetails = orderDetail,
+            isValid = validateDetailsInput()
+        )
+    }
+
+    fun updateOrderDetailsState(orderDetails: List<OrderDetails>) {
+        _orderDetailsListState.value = OrderDetailsListState(
+            orderDetails = orderDetails,
+            isValid = validateOrderInput()
+        )
+    }
+
+    fun getLatestOrderID() {
+        viewModelScope.launch(Dispatchers.IO) {
+            orderRepository.getLatestOrderId()
+                .map { OrderIdState(orderID = it) }
+                .catch {
+                    emit(OrderIdState(errorMessage = it.message.toString()))
+                    Log.i("Order", "getLatestOrderID: " + it.message.toString())
+                }
+                .collect { _orderIdState.value = it }
+        }
+    }
+
+    fun calculateDetailsNumber(): Int {
+        var count = 0
+        for (detail in _orderDetailsListState.value.orderDetails) {
+            count += 1
+        }
+        return count
+    }
+
+    fun calculateDetailsTotal(
+        menuItem: MenuItem,
+        quantity: Int,
+        option: Int,
+    ): Double {
+
+        return if (menuItem.cuisine == "Beverage" && option == 2) {
+            quantity * (menuItem.price + 1)
+        } else if (menuItem.cuisine != "Beverage" && option == 2) {
+            quantity * (menuItem.price + 1.5)
+        } else if (menuItem.cuisine != "Beverage" && option == 3) {
+            quantity * (menuItem.price + 3)
+        } else {
+            quantity * menuItem.price
+        }
+    }
+
+    fun calculateOrderSubtotal(details: List<OrderDetails>): Double {
+        var subtotal: Double = 0.0
+        for (detail in details) {
+            subtotal += detail.total
+        }
+        return subtotal
+    }
+
+    fun calculateOrderTotal(details: List<OrderDetails>): Double {
+        var total: Double = 0.0
+        for (detail in details) {
+            total += detail.total
+        }
+        //tax
+        //delivery fees
+        return total
     }
 
     fun saveOrder() {
@@ -186,7 +286,6 @@ class OrderViewModel(
             }
         }
     }
-
     private suspend fun deleteOrder() {
         viewModelScope.launch(Dispatchers.IO) {
             if (validateOrderInput()) {
@@ -203,9 +302,7 @@ class OrderViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             if (validateDetailsInput()) {
                 try {
-                    for (detail in orderDetailsListState.value.orderDetails) {
-                        orderDetailsRepository.insertOrderDetails(detail)
-                    }
+                    orderDetailsRepository.insertOrderDetails(orderDetailState.value.orderDetails)
                 } catch (e: Exception) {
                     Log.i("OrderDetail", "saveOrderDetail: " + e.message.toString())
                 }
@@ -217,9 +314,7 @@ class OrderViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             if (validateDetailsInput()) {
                 try {
-                    for (detail in orderDetailsListState.value.orderDetails) {
-                        orderDetailsRepository.updateOrderDetails(detail)
-                    }
+                    orderDetailsRepository.updateOrderDetails(orderDetailState.value.orderDetails)
                 } catch (e: Exception) {
                     Log.i("OrderDetail", "updateOrderDetail: " + e.message.toString())
                 }
@@ -231,9 +326,7 @@ class OrderViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             if (validateDetailsInput()) {
                 try {
-                    for (detail in orderDetailsListState.value.orderDetails) {
-                        orderDetailsRepository.deleteOrderDetails(detail)
-                    }
+                    orderDetailsRepository.deleteOrderDetails(orderDetailState.value.orderDetails)
                 } catch (e: Exception) {
                     Log.i("OrderDetail", "deleteOrderDetail: " + e.message.toString())
                 }

@@ -57,8 +57,18 @@
     <string name="profile">My Profile</string>
     <string name="edit_profile">Edit Profile</string>
     <string name="delete_profile">Delete Account</string>
+
     <string name="introduction">Introduction</string>
     <string name="order">Order</string>
     <string name="rewards">Rewards</string>
-    <string name="more">more</string>
+    <string name="more">More</string>
+
+    <string name="order_option">Order Option</string>
+    <string name="order_menu">Order Menu</string>
+    <string name="order_customize">Order Customization</string>
+    <string name="order_cart">Order Cart</string>
+    <string name="order_checkout">Order Checkout</string>
+    <string name="order_payment">Order Payment</string>
+    <string name="order_success">Order Success</string>
+    <string name="order_failed">Order Failed</string>
 </resources>

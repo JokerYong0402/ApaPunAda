@@ -87,6 +87,25 @@ class VoucherViewModel(
         )
     }
 
+    fun getAvailableVoucher(vouchers: List<Voucher>, points: Int, total: Double): List<Voucher> {
+        Log.i("Voucher", "getAvailableVoucher: $vouchers")
+        val availableVoucher: MutableList<Voucher> = mutableListOf()
+        if (points >= 100 && total > 1) {
+            Log.i("Voucher", "getAvailableVoucher: 1")
+            availableVoucher.add(vouchers[0])
+        }
+        if (points >= 300 && total > 3) {
+            Log.i("Voucher", "getAvailableVoucher: 2")
+            availableVoucher.add(vouchers[1])
+        }
+        if (points >= 1000 && total > 10) {
+            Log.i("Voucher", "getAvailableVoucher: 3")
+            availableVoucher.add(vouchers[2])
+        }
+        Log.i("Voucher", "getAvailableVoucher: $availableVoucher")
+        return availableVoucher
+    }
+
     fun saveVoucher() {
         viewModelScope.launch(Dispatchers.IO) {
             if (validateVoucherInput()) {

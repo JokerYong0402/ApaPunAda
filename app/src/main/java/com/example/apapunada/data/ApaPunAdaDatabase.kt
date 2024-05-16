@@ -55,6 +55,7 @@ abstract class ApaPunAdaDatabase: RoomDatabase() {
         fun getDatabase(context: Context): ApaPunAdaDatabase {
             return Instance ?:synchronized(this) {
                 Room.databaseBuilder(context, ApaPunAdaDatabase::class.java, "apapunada_database")
+//                    .fallbackToDestructiveMigration()
                     .build().also { Instance = it }
             }
         }

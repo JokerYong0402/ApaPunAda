@@ -28,4 +28,9 @@ interface OrderDao {
 
     @Query("SELECT * FROM `order` WHERE userID = :id")
     fun getOrderByUserId(id: Int): Flow<List<Order>>
+
+    @Query("SELECT MAX(orderID) FROM `order`")
+    fun getLatestOrderID(): Flow<Int>
+
+    // TODO History where not "pending"
 }

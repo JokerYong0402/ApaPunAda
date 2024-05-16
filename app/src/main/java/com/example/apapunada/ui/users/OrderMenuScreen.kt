@@ -1,8 +1,11 @@
 package com.example.apapunada.ui.users
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -16,7 +19,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.rounded.AddCircle
+import androidx.compose.material.icons.rounded.Warning
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -25,8 +31,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -39,30 +51,145 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
-import com.example.apapunada.data.MenuSample.Menus
-import com.example.apapunada.data.OrderSample.Orders
-import com.example.apapunada.data.dataclass.Cuisine
-import com.example.apapunada.data.dataclass.Menu
+import com.example.apapunada.data.dataclass.MenuItem
+import com.example.apapunada.data.dataclass.Order
+import com.example.apapunada.ui.AppViewModelProvider
+import com.example.apapunada.ui.components.IndeterminateCircularIndicator
+import com.example.apapunada.ui.components.MyAlertDialog
 import com.example.apapunada.ui.components.MyBottomButton
 import com.example.apapunada.ui.components.MyTopTitleBar
 import com.example.apapunada.ui.components.formattedString
+import com.example.apapunada.ui.components.getEnumList
+import com.example.apapunada.viewmodel.Cuisine
+import com.example.apapunada.viewmodel.MenuItemViewModel
+import com.example.apapunada.viewmodel.MenuListState
+import com.example.apapunada.viewmodel.OrderViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun OrderMenuScreen(
-    tabs: List<Cuisine> = FoodCuisines,
-    orderMenu: List<Menu> = Menus,
-    orderId: Int = 0,
+    onBackButtonClicked: () -> Unit,
+    onAddButtonClicked: (Int) -> Unit,
+    onCheckoutButtonClicked: () -> Unit,
+    orderViewModel: OrderViewModel,
+    menuViewModel: MenuItemViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     val primaryColor = R.color.primary
-    val currentOrder = Orders[orderId]
+    val tabs = getEnumList(Cuisine::class.java)
+
+    orderViewModel.getLatestOrderID()
+    val orderID = orderViewModel.orderIdState.value.orderID
+
+    // load current order
+    orderViewModel.loadOrderByOrderId(orderID)
+    val currentOrder = orderViewModel.orderState.value.order
+
+    // load orderDetails to get number and calculate subtotal
+    orderViewModel.loadOrderDetailsByOrderId(orderID)
+    val orderDetailsList = orderViewModel.orderDetailsListState.value.orderDetails
+    var detailsNumber = orderViewModel.calculateDetailsNumber()
+
+    // load menu to list
+    val menuListState = menuViewModel.menuListState.collectAsState(initial = MenuListState())
+    var orderMenu: List<MenuItem> = listOf()
+
+    menuViewModel.loadAllMenuItem() // TODO load only active
+
+    if (menuListState.value.isLoading) {
+        Box( modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Gray.copy(alpha = 0.5f))
+            .clickable { /* no action */ }
+            .zIndex(2f)
+            ,
+            contentAlignment = Alignment.Center
+        ) {
+            IndeterminateCircularIndicator()
+        }
+    } else {
+        if (menuListState.value.errorMessage.isNotEmpty()) {
+            Text(text = "Error loading menus: ${menuListState.value.errorMessage}")
+            Log.i("Menu", "StaffMenuScreen: ${menuListState.value.errorMessage}")
+        } else {
+            orderMenu = menuListState.value.menuItemList
+        }
+    }
+
+    var back by remember { mutableStateOf(false) }
+    if (back) {
+        MyAlertDialog(
+            onDismissRequest = { back = false },
+            onConfirmation = { onBackButtonClicked() },
+            dialogTitle = "Confirm Discard?",
+            dialogText = "You will lost your orders if you leave.",
+            icon = Icons.Default.Warning
+        )
+    }
+
+    var checkout by remember { mutableStateOf(false) }
+    if (checkout) {
+        AlertDialog(
+            icon = {
+                Icon(
+                    imageVector = Icons.Rounded.Warning,
+                    contentDescription = "Warning Icon"
+                )
+            },
+            title = {
+                Text(text = "Oops!")
+            },
+            text = {
+                Text(text = "You can't checkout because your cart is empty.")
+            },
+            onDismissRequest = { },
+            confirmButton = {
+                TextButton(
+                    onClick = { checkout = false }
+                ) {
+                    Text("Dismiss")
+                }
+            },
+        )
+    }
 
     Scaffold(
-        topBar = { MyTopTitleBar(title = "Order") },
-        bottomBar = { MyBottomButton(content = "Checkout", currentOrder) }
+        topBar = {
+            MyTopTitleBar(
+                title = "Order",
+                onBackButtonClicked = { back = true }
+            )
+        },
+        bottomBar = {
+            MyBottomButton(
+                content = "Checkout",
+                order = currentOrder,
+                detailCount = detailsNumber,
+                amount = orderViewModel.calculateOrderSubtotal(orderDetailsList),
+                onClick = {
+                    detailsNumber = orderViewModel.calculateDetailsNumber()
+                    if (detailsNumber > 0) {
+                        val latestOrder = Order(
+                            orderID = currentOrder.orderID,
+                            userID = currentOrder.userID,
+                            method = currentOrder.method,
+                            amount = orderViewModel.calculateOrderSubtotal(orderDetailsList),
+                            dateTime = System.currentTimeMillis(),
+                            orderStatus = currentOrder.orderStatus
+                        )
+                        orderViewModel.updateOrderState(latestOrder)
+                        orderViewModel.updateOrder()
+                        onCheckoutButtonClicked()
+                    } else {
+                        checkout = true
+                    }
+                }
+            )
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier.padding(innerPadding)
@@ -81,12 +208,12 @@ fun OrderMenuScreen(
                             Tab(
                                 selected = true,
                                 onClick = { 
-                                          coroutineScope.launch {
+                                    coroutineScope.launch {
                                               scrollState.animateScrollTo(300)
                                               /*TODO*/
                                           }
                                 },
-                                text = { Text(text = tab.cuisineName) }
+                                text = { Text(text = tab) }
                             )
                         }
                     }
@@ -101,13 +228,13 @@ fun OrderMenuScreen(
 
                     tabs.forEach { tab ->
                         Text(
-                            text = tab.cuisineName,
+                            text = tab,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                         )
 
                         orderMenu.forEach { menu ->
-                            if (menu.cuisine.cuisineName == tab.cuisineName
+                            if (menu.cuisine == tab
                                 && menu.status == "Active") {
                                 Card(
                                     colors = CardDefaults.cardColors(Color.White),
@@ -127,8 +254,10 @@ fun OrderMenuScreen(
                                     ) {
                                         Column {
                                             Image(
-                                                painter = painterResource(menu.image),
-                                                contentDescription = menu.name,
+                                                painter = painterResource(
+                                                    R.drawable.cabonarapastapic
+                                                ),
+                                                contentDescription = menu.itemName,
                                                 contentScale = ContentScale.Crop,
                                                 modifier = Modifier
                                                     .fillMaxHeight()
@@ -142,7 +271,7 @@ fun OrderMenuScreen(
                                                 .size(200.dp, 55.dp)
                                         ) {
                                             Text(
-                                                text = menu.name,
+                                                text = menu.itemName,
                                                 fontSize = 16.sp,
                                                 fontWeight = FontWeight.Bold
                                             )
@@ -167,7 +296,9 @@ fun OrderMenuScreen(
 
                                         Column{
                                             IconButton(
-                                                onClick = { /*TODO*/
+                                                onClick = {
+                                                    val menuItemID = menu.menuItemID
+                                                    onAddButtonClicked(menuItemID)
                                                 }
                                             ) {
                                                 Icon(
@@ -192,5 +323,5 @@ fun OrderMenuScreen(
 @Preview(showBackground = true)
 @Composable
 fun OrderMenuScreenPreview() {
-    OrderMenuScreen()
+//    OrderMenuScreen()
 }

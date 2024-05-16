@@ -8,6 +8,7 @@ data class Voucher(
     @PrimaryKey(autoGenerate = true)
     val voucherID: Int = 0,
     val image: String = "",
+//    val image: ByteArray = ByteArray(10),
     val description: String = "",
     val code: String = "",
     val value: Double = 0.0,
