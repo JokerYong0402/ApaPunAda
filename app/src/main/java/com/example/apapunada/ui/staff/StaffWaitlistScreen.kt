@@ -79,13 +79,11 @@ fun StaffWaitlistScreen(
     var waitlistWithUsernameState = waitlistViewModel.waitlistWithUsernameState.collectAsState(initial = WaitlistWithUsernameState())
     var waitlistsWithUsername: List<WaitlistWithUsername> = listOf()
 
-    //waitlistViewModel.loadWaitlistsByCurrentStatus()
-
     if (waitlistWithUsernameState.value.isLoading) {
         Box( modifier = Modifier
             .fillMaxSize()
             .background(Color.Gray.copy(alpha = 0.5f))
-            .clickable { /* no action */ }
+            .clickable {}
             .zIndex(2f)
             ,
             contentAlignment = Alignment.Center
@@ -107,6 +105,7 @@ fun StaffWaitlistScreen(
         waitlistViewModel.loadWaitlistsByHistoryStatus()
     }
 
+    //screen width
     val config  = LocalConfiguration.current
     val width by remember(config) {
         mutableStateOf(config.screenWidthDp)
@@ -132,7 +131,6 @@ fun StaffWaitlistScreen(
             waitlist = currentWaitlist
         )
     }
-
     if (callCancel) {
         CancelStatus(
             onDismissRequest = {callCancel = false},
@@ -155,14 +153,12 @@ fun StaffWaitlistScreen(
         Pair("Wait", 170.dp),
         Pair("Actions", 200.dp)
     )
-
     val historyHeaderList = listOf(
         // (Header name, Column width)
         Pair("  No. ", 80.dp),
         Pair("Party", 400.dp),
         Pair("Size", 200.dp),
         Pair("Quoted", 180.dp),
-        Pair("Wait", 170.dp),
         Pair("Status", 200.dp)
     )
 
@@ -170,7 +166,6 @@ fun StaffWaitlistScreen(
         "Party",
         "Size"
     )
-
     val historyList = listOf(
         "Party",
         "Size",
@@ -190,8 +185,8 @@ fun StaffWaitlistScreen(
                 modifier = Modifier
                     .padding(top = 12.dp),
                 border = BorderStroke(width = 1.dp, color = primaryColor),
-                colors = ButtonDefaults.outlinedButtonColors( // Access default colors
-                    containerColor = if (isSelected == "current") primaryColor else Color.White, // Set custom background color
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = if (isSelected == "current") primaryColor else Color.White,
                     contentColor = if (isSelected == "current") Color.White else primaryColor,
                 ),
                 shape = RoundedCornerShape(
@@ -206,9 +201,9 @@ fun StaffWaitlistScreen(
                 modifier = Modifier
                     .padding(top = 12.dp),
                 border = BorderStroke(width = 1.dp, color = primaryColor),
-                colors = ButtonDefaults.buttonColors( // Access default colors
-                    containerColor = if (isSelected == "current") Color.White else primaryColor, // Set custom background color
-                    contentColor = if (isSelected == "current") primaryColor else Color.White // Set custom text color
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isSelected == "current") Color.White else primaryColor,
+                    contentColor = if (isSelected == "current") primaryColor else Color.White
                 ),
                 shape = RoundedCornerShape(
                     topEnd = 16.dp,
@@ -230,7 +225,7 @@ fun StaffWaitlistScreen(
                 if (selectField == "Party" && textInput != "") {
                     waitlistViewModel.loadWaitlistByParty("Queue", "Queue", "%" + textInput + "%")
                 } else if (selectField == "Size" && textInput != ""){
-                    waitlistViewModel.loadWaitlistBySize("Queue", "Queue", "%" + textInput + "%")
+                    waitlistViewModel.loadWaitlistBySize("Queue", "Queue", textInput.toInt())
                 }
             } else if (width > 600 && isSelected == "history") {
                 selectField = DropDownMenu(historyList)
@@ -243,7 +238,7 @@ fun StaffWaitlistScreen(
                 if (selectField == "Party" && textInput != "") {
                     waitlistViewModel.loadWaitlistByParty("Accepted", "Cancelled", "%" + textInput + "%")
                 } else if (selectField == "Size" && textInput != ""){
-                    waitlistViewModel.loadWaitlistBySize("Accepted", "Cancelled", "%" + textInput + "%")
+                    waitlistViewModel.loadWaitlistBySize("Accepted", "Cancelled",  textInput.toInt())
                 } else if (selectField == "Status" && textInput != "") {
                     waitlistViewModel.loadWaitlistByStatus("%" + textInput + "%")
                 }
@@ -261,7 +256,7 @@ fun StaffWaitlistScreen(
                 if (selectField == "Party" && textInput != "") {
                     waitlistViewModel.loadWaitlistByParty("Queue", "Queue", "%" + textInput + "%")
                 } else if (selectField == "Size" && textInput != ""){
-                    waitlistViewModel.loadWaitlistBySize("Queue", "Queue", "%" + textInput + "%")
+                    waitlistViewModel.loadWaitlistBySize("Queue", "Queue",  textInput.toInt())
                 }
             }
         } else if (width <= 600 && isSelected == "history") {
@@ -276,7 +271,7 @@ fun StaffWaitlistScreen(
                 if (selectField == "Party" && textInput != "") {
                     waitlistViewModel.loadWaitlistByParty("Accepted", "Cancelled", "%" + textInput + "%")
                 } else if (selectField == "Size" && textInput != ""){
-                    waitlistViewModel.loadWaitlistBySize("Accepted", "Cancelled", "%" + textInput + "%")
+                    waitlistViewModel.loadWaitlistBySize("Accepted", "Cancelled",  textInput.toInt())
                 } else if (selectField == "Status" && textInput != "") {
                     waitlistViewModel.loadWaitlistByStatus("%" + textInput + "%")
                 }
@@ -323,7 +318,6 @@ fun StaffWaitlistScreen(
                     }
                 }
             }
-
             items(waitlistsWithUsername.size) { i ->
                 val waitlist = waitlistsWithUsername[i]
                     Row(
@@ -340,7 +334,7 @@ fun StaffWaitlistScreen(
                                 .padding(start = 20.dp)
                         )
                         Text(
-                            text = waitlist.username, //TODO
+                            text = waitlist.username,
                             fontSize = 22.sp,
                             modifier = Modifier
                                 .width(currentHeaderList[1].second)
@@ -351,20 +345,20 @@ fun StaffWaitlistScreen(
                             modifier = Modifier
                                 .width(currentHeaderList[2].second)
                         )
-
                         Text(
-                            text = formattedDate(waitlist.datetime * 1000, "date"),
+                            text = formattedDate(waitlist.datetime, "date"),
                             fontSize = 22.sp,
                             modifier = Modifier
                                 .width(currentHeaderList[3].second)
                         )
-
-                        Text(
-                            text = formattedDate((System.currentTimeMillis() - (waitlist.datetime * 1000) ), "mins") + " mins",
-                            fontSize = 22.sp,
-                            modifier = Modifier
-                                .width(currentHeaderList[4].second)
-                        )
+                        if (isSelected == "current") {
+                            Text(
+                                text = (((System.currentTimeMillis() - (waitlist.datetime))/60000).toString() + " mins"),
+                                fontSize = 22.sp,
+                                modifier = Modifier
+                                    .width(currentHeaderList[4].second)
+                            )
+                        }
                         if (waitlist.status == "Queue") {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,

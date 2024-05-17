@@ -93,17 +93,18 @@ class WaitlistViewModel(
         }
     }
 
-    fun loadLatestWaitlistID(userID: Int){
+    fun loadQueueWaitlistID(userID: Int){
         viewModelScope.launch(Dispatchers.IO) {
-            waitlistRepository.loadLatestWaitlistID(userID)
-                .map { WaitlistIDState()}
+            waitlistRepository.loadQueueWaitlistID(userID)
+                .map { WaitlistIDState(waitlistID = it)}
                 .catch {
                     emit(WaitlistIDState())
                     Log.i("Waitlist", "loadAllWaitlists: " + it.message.toString())
                 }
-                .collect { _waitlistID.value = it }
+                .collect { _waitlistID.value = it}
         }
     }
+
 
     fun loadWaitlistsByUserId(id: Int) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -193,7 +194,7 @@ class WaitlistViewModel(
         }
     }
 
-    fun loadWaitlistBySize(status: String, status2: String, size: String) {
+    fun loadWaitlistBySize(status: String, status2: String, size: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             waitlistRepository.loadWaitlistBySize(status, status2, size)
                 .map { WaitlistWithUsernameState(isLoading = false, waitlistWithUsername = it) }

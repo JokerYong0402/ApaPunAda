@@ -59,6 +59,45 @@ class FeedbackViewModel(
         }
     }
 
+    fun loadFeedbacksByStar(star: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            feedbackRepository.getFeedbackByStarStream(star)
+                .map { FeedbackListState(isLoading = false, feedbackList = it) }
+                .onStart { emit(FeedbackListState(isLoading = true)) }
+                .catch {
+                    emit(FeedbackListState(errorMessage = it.message.toString()))
+                    Log.i("Feedback", "loadAllFeedbacks: " + it.message.toString())
+                }
+                .collect { _feedbackListState.value = it }
+        }
+    }
+
+    fun loadFeedbacksByCategory(category: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            feedbackRepository.getFeedbackByCategoryStream(category)
+                .map { FeedbackListState(isLoading = false, feedbackList = it) }
+                .onStart { emit(FeedbackListState(isLoading = true)) }
+                .catch {
+                    emit(FeedbackListState(errorMessage = it.message.toString()))
+                    Log.i("Feedback", "loadAllFeedbacks: " + it.message.toString())
+                }
+                .collect { _feedbackListState.value = it }
+        }
+    }
+
+    fun loadFeedbacksByComment(comment: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            feedbackRepository.getFeedbackByCommentStream(comment)
+                .map { FeedbackListState(isLoading = false, feedbackList = it) }
+                .onStart { emit(FeedbackListState(isLoading = true)) }
+                .catch {
+                    emit(FeedbackListState(errorMessage = it.message.toString()))
+                    Log.i("Feedback", "loadAllFeedbacks: " + it.message.toString())
+                }
+                .collect { _feedbackListState.value = it }
+        }
+    }
+
     private fun validateFeedbackInput(): Boolean {
         return with(feedbackState.value.feedback) {
             category.isNotBlank() // TODO

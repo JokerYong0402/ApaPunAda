@@ -12,7 +12,7 @@ class WaitlistOfflineRepository(private val waitlistDao: WaitlistDao): WaitlistR
 
     override fun loadInfrontWaitlists(waitlistID: Int): Flow<List<WaitlistWithUsername>> = waitlistDao.getInfrontWaitlist(waitlistID)
 
-    override fun loadLatestWaitlistID(userID: Int): Flow<WaitlistIDState> = waitlistDao.getLatestWaitlistID(userID)
+    override fun loadQueueWaitlistID(userID: Int): Flow<Int> = waitlistDao.getQueueWaitlistID(userID)
 
     override fun getWaitlistByUserId(id: Int): Flow<List<Waitlist>> =
         waitlistDao.getWaitlistByUserId(id)
@@ -21,7 +21,7 @@ class WaitlistOfflineRepository(private val waitlistDao: WaitlistDao): WaitlistR
 
     override fun loadWaitlistsByHistoryStatus(): Flow<List<WaitlistWithUsername>> = waitlistDao.getWaitlistsByHistoryStatus()
 
-    override fun loadWaitlistBySize(status: String, status2: String, size: String): Flow<List<WaitlistWithUsername>> = waitlistDao.getWaitlistBySize(status, status2, size)
+    override fun loadWaitlistBySize(status: String, status2: String, size: Int): Flow<List<WaitlistWithUsername>> = waitlistDao.getWaitlistBySize(status, status2, size)
 
     override fun loadWaitlistByParty(status: String, status2: String, party: String): Flow<List<WaitlistWithUsername>> = waitlistDao.getWaitlistByParty(status, status2, party)
 

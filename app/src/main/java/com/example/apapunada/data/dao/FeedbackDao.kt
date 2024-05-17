@@ -21,4 +21,13 @@ interface FeedbackDao {
 
     @Query("SELECT * FROM `feedback`")
     fun getAllFeedback(): Flow<List<Feedback>>
+
+    @Query("SELECT * FROM `feedback` WHERE star = :star")
+    fun getFeedbackByStar(star: Int): Flow<List<Feedback>>
+
+    @Query("SELECT * FROM `feedback` WHERE category LIKE :category")
+    fun getFeedbackByCategory(category: String): Flow<List<Feedback>>
+
+    @Query("SELECT * FROM `feedback` WHERE comments LIKE :comment")
+    fun getFeedbackByComment(comment: String): Flow<List<Feedback>>
 }

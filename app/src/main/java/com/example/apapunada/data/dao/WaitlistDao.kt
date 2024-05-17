@@ -43,8 +43,8 @@ interface WaitlistDao {
 
     @Query("SELECT w.waitlistID, w.userID, w.datetime, w.size, w.status," +
             "u.username FROM `waitlist` w JOIN `user` u ON w.userID = u.userID " +
-            "WHERE w.size LIKE :size AND (w.status = :status OR w.status = :status2)")
-    fun getWaitlistBySize(status: String, status2: String, size: String): Flow<List<WaitlistWithUsername>>
+            "WHERE w.size = :size AND (w.status = :status OR w.status = :status2)")
+    fun getWaitlistBySize(status: String, status2: String, size: Int): Flow<List<WaitlistWithUsername>>
 
     @Query("SELECT w.waitlistID, w.userID, w.datetime, w.size, w.status," +
             "u.username FROM `waitlist` w JOIN `user` u ON w.userID = u.userID " +
@@ -58,10 +58,11 @@ interface WaitlistDao {
 
     @Query("SELECT w.waitlistID, w.userID, w.datetime, w.size, w.status," +
             "u.username FROM `waitlist` w JOIN `user` u ON w.userID = u.userID " +
-            "WHERE w.waitlistID > :waitlistID AND w.status LIKE 'Queue'")
+            "WHERE w.waitlistID < :waitlistID AND w.status LIKE 'Queue'")
     fun getInfrontWaitlist(waitlistID: Int): Flow<List<WaitlistWithUsername>>
 
     @Query("SELECT w.waitlistID FROM `waitlist` w JOIN `user` u ON w.userID = u.userID " +
             "WHERE u.userID = :userID AND w.status LIKE 'Queue'")
-    fun getLatestWaitlistID(userID: Int): Flow<WaitlistIDState>
+    fun getQueueWaitlistID(userID: Int): Flow<Int>
+
 }

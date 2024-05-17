@@ -11,7 +11,7 @@ interface WaitlistRepository {
 
     fun loadInfrontWaitlists(waitlistID: Int): Flow<List<WaitlistWithUsername>>
 
-    fun loadLatestWaitlistID(userID: Int): Flow<WaitlistIDState>
+    fun loadQueueWaitlistID(userID: Int): Flow<Int>
 
     fun getWaitlistByUserId(id: Int): Flow<List<Waitlist>>
 
@@ -19,7 +19,7 @@ interface WaitlistRepository {
 
     fun loadWaitlistsByHistoryStatus(): Flow<List<WaitlistWithUsername>>
 
-    fun loadWaitlistBySize(status: String, status2: String, size: String): Flow<List<WaitlistWithUsername>>
+    fun loadWaitlistBySize(status: String, status2: String, size: Int): Flow<List<WaitlistWithUsername>>
 
     fun loadWaitlistByParty(status: String, status2: String, party: String): Flow<List<WaitlistWithUsername>>
 

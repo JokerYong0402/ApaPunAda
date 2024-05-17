@@ -25,6 +25,8 @@
     <string name="feedback_7">Thanks for your feedback!</string>
     <string name="feedback_8">We appreciate your feedback—it fuels our improvement process.</string>
     <string name="feedback_9">Are you sure you want to submit the feedback form?</string>
+    <string name="feedback_10">"Cannot submit emtpy feedback form!"</string>
+    <string name="feedback_11">"Kindly choose the category to avoid empty feedback form. Thank you!"</string>
     <string name="waitlist">Waitlist</string>
     <string name="waitlist_1">Welcome, Ali</string>
     <string name="waitlist_2">Size : </string>
