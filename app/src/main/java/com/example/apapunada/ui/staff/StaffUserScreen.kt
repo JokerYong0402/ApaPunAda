@@ -2,7 +2,10 @@ package com.example.apapunada.ui.staff
 
 import android.app.DatePickerDialog
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Environment
 import android.util.Log
 import android.widget.DatePicker
 import android.widget.Toast
@@ -48,6 +51,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -84,10 +88,10 @@ import com.example.apapunada.viewmodel.UserListState
 import com.example.apapunada.viewmodel.UserState
 import com.example.apapunada.viewmodel.UserStatus
 import com.example.apapunada.viewmodel.UserViewModel
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.TimeZone
 
@@ -96,8 +100,8 @@ import java.util.TimeZone
 fun StaffUserScreen(
     viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    var userState = viewModel.userState.collectAsState(initial = UserState())
-    Log.i("User State", "StaffUserScreen: "+userState.value.errorMessage)
+    val userState = viewModel.userState.collectAsState(initial = UserState())
+    Log.i("User State", "StaffUserScreen: "+userState.value)
     val userListState = viewModel.userListState.collectAsState(initial = UserListState())
     var users: List<User> = listOf()
 
@@ -130,6 +134,10 @@ fun StaffUserScreen(
     var editButton by remember { mutableStateOf(false) }
     var detailButton by remember { mutableStateOf(false) }
     var currentUser by remember { mutableStateOf(User()) }
+    var onConfirmAdd by remember { mutableStateOf(false) }
+    var onConfirmEdit by remember { mutableStateOf(false) }
+    var editedUser by remember { mutableStateOf(User()) }
+    var addUser by remember { mutableStateOf(User()) }
 
     val headerList = listOf(
         // (Header name, Column width)
@@ -146,12 +154,9 @@ fun StaffUserScreen(
         DialogOfAddUser(
             onDismissRequest = { addButton = false },
             onConfirmation = {
-                viewModel.updateUserState(it)
-                viewModel.saveUser()
+                addUser = it
+                onConfirmAdd = true
                 addButton = false
-                if (userState.value.errorMessage != "") {
-                    Toast.makeText(context, userState.value.errorMessage, Toast.LENGTH_SHORT).show()
-                }
             },
             user = User()
         )
@@ -161,21 +166,52 @@ fun StaffUserScreen(
         DialogOfEditUser(
             onDismissRequest = { editButton = false },
             onConfirmation = {
-                viewModel.updateUserState(it)
-                viewModel.updateUser()
+                editedUser = it
+                onConfirmEdit = true
                 editButton = false
-                if (userState.value.errorMessage != "") {
-                    Toast.makeText(context, userState.value.errorMessage, Toast.LENGTH_SHORT).show()
-                }
             },
             user = currentUser
         )
     }
 
+    if (onConfirmAdd) {
+        onConfirmAdd = false
+        val validate = viewModel.validateInput()
+        Log.i("Check Add User State", "UserScreen: $addUser")
+        viewModel.updateUserState(addUser)
+        if (!validate) {
+            LaunchedEffect(userState) {
+                Log.i("Add Updated User State", "UserScreen: ${userState}")
+                if (userState.value.errorMessage.isNotEmpty()) {
+                    Log.i("Check User Error Message", "UserScreen: Invalid Username $addUser")
+                    Toast.makeText(context, userState.value.errorMessage, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        viewModel.saveUser()
+    }
+
+    if (onConfirmEdit) {
+        onConfirmEdit = false
+        val validate = viewModel.validateInput()
+        Log.i("Check Edit User State", "UserScreen: $editedUser")
+        viewModel.updateUserState(editedUser)
+        if (!validate) {
+            LaunchedEffect(userState) {
+                Log.i("Edit Updated User State", "UserScreen: ${userState}")
+                if (userState.value.errorMessage.isNotEmpty()) {
+                    Log.i("Check User Error Message", "UserScreen: Invalid Username $editedUser")
+                    Toast.makeText(context, userState.value.errorMessage, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        viewModel.updateUser()
+    }
+
     if (detailButton) {
         DialogOfUserDetail(
             onDismissRequest = { detailButton = false },
-            user = currentUser //TODO
+            user = currentUser
         )
     }
 
@@ -240,98 +276,216 @@ fun StaffUserScreen(
                     }
                 }
             }
-
-            items(users.size) { i ->
-                val user = users[i]
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(100.dp)
-                ) {
-                    Text(
-                        text = user.userID.toString(), //TODO
-                        fontSize = 22.sp,
-                        modifier = Modifier
-                            .width(headerList[0].second)
-                            .padding(start = 20.dp)
-                    )
-                    Row(
-                        modifier = Modifier.width(headerList[1].second)
-                    ) {
-
-                        Image(
-                            painter = painterResource(R.drawable.ic_android_black_24dp), // TODO
-                            contentDescription = "userImage",
-                            modifier = Modifier
-                                .padding(horizontal = 15.dp)
-                                .size(50.dp)
-                        )
-                        Text(
-                            text = user.username,
-                            fontSize = 22.sp,
-                            modifier = Modifier.align(Alignment.CenterVertically)
-                        )
-                    }
-                    Text(
-                        text = user.email,
-                        fontSize = 22.sp,
-                        modifier = Modifier
-                            .width(headerList[2].second)
-                    )
-
-                    Row {
-//                        Icon(painter = painterResource(R.id))
-                        Text(
-                            text = user.phoneNo,
-                            fontSize = 22.sp,
-                            modifier = Modifier
-                                .width(headerList[3].second)
-                        )
-                    }
-
-                    Text(
-                        text = user.point.toString(),
-                        fontSize = 22.sp,
-                        modifier = Modifier
-                            .width(headerList[4].second)
-                    )
-
-                    Text(
-                        text = user.status,
-                        fontSize = 22.sp,
-                        modifier = Modifier
-                            .width(headerList[5].second)
-                    )
+            if (search == "") {
+                viewModel.loadAllUsers()
+                items(users.size) { i ->
+                    val user = users[i]
+                    val imageUri = user.image
+                    val painter = rememberAsyncImagePainter(imageUri)
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.width(headerList[6].second)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp)
                     ) {
-                        IconButton(
-                            onClick = {
-                                currentUser = user
-                                editButton = true
-                            }
+                        Text(
+                            text = user.userID.toString(), //TODO
+                            fontSize = 22.sp,
+                            modifier = Modifier
+                                .width(headerList[0].second)
+                                .padding(start = 20.dp)
+                        )
+                        Row(
+                            modifier = Modifier.width(headerList[1].second)
                         ) {
-                            Icon(
-                                painter = painterResource(R.drawable.editicon),
-                                contentDescription = "Edit button",
-                                modifier = Modifier.size(30.dp)
-                            )
+                            Card(
+                                shape = CircleShape,
+                                modifier = Modifier
+                                    .padding(horizontal = 15.dp)
+                                    .size(70.dp)
+                            ){
+                                Image(
+                                    painter = painter,
+                                    contentDescription = "userImage",
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
 
-                        }
-                        IconButton(
-                            onClick = {
-                                currentUser = user
-                                detailButton = true
-                            }
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.emailicon),
-                                contentDescription = "Detail button",
-                                modifier = Modifier.size(30.dp)
+                            Text(
+                                text = user.username,
+                                fontSize = 22.sp,
+                                modifier = Modifier.align(Alignment.CenterVertically)
                             )
                         }
+                        Text(
+                            text = user.email,
+                            fontSize = 22.sp,
+                            modifier = Modifier
+                                .width(headerList[2].second)
+                        )
+
+                        Row {
+//                        Icon(painter = painterResource(R.id))
+                            Text(
+                                text = user.phoneNo,
+                                fontSize = 22.sp,
+                                modifier = Modifier
+                                    .width(headerList[3].second)
+                            )
+                        }
+
+                        Text(
+                            text = user.point.toString(),
+                            fontSize = 22.sp,
+                            modifier = Modifier
+                                .width(headerList[4].second)
+                        )
+
+                        Text(
+                            text = user.status,
+                            fontSize = 22.sp,
+                            modifier = Modifier
+                                .width(headerList[5].second)
+                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.width(headerList[6].second)
+                        ) {
+                            IconButton(
+                                onClick = {
+                                    currentUser = user
+                                    editButton = true
+                                }
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.editicon),
+                                    contentDescription = "Edit button",
+                                    modifier = Modifier.size(30.dp)
+                                )
+
+                            }
+                            IconButton(
+                                onClick = {
+                                    currentUser = user
+                                    detailButton = true
+                                }
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.emailicon),
+                                    contentDescription = "Detail button",
+                                    modifier = Modifier.size(30.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            viewModel.loadUsersByName(search)
+            items(userListState.value.userList.size) { i ->
+                if (userListState.value.userList.isNotEmpty()) {
+                    val user = users[i]
+                    val imageUri = user.image
+                    val painter = rememberAsyncImagePainter(imageUri)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp)
+                    ) {
+                        Text(
+                            text = user.userID.toString(), //TODO
+                            fontSize = 22.sp,
+                            modifier = Modifier
+                                .width(headerList[0].second)
+                                .padding(start = 20.dp)
+                        )
+                        Row(
+                            modifier = Modifier.width(headerList[1].second)
+                        ) {
+                            Card(
+                                shape = CircleShape,
+                                modifier = Modifier
+                                    .padding(horizontal = 15.dp)
+                                    .size(70.dp)
+                            ){
+                                Image(
+                                    painter = painter,
+                                    contentDescription = "userImage",
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+
+                            Text(
+                                text = user.username,
+                                fontSize = 22.sp,
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            )
+                        }
+                        Text(
+                            text = user.email,
+                            fontSize = 22.sp,
+                            modifier = Modifier
+                                .width(headerList[2].second)
+                        )
+
+                        Row {
+//                        Icon(painter = painterResource(R.id))
+                            Text(
+                                text = user.phoneNo,
+                                fontSize = 22.sp,
+                                modifier = Modifier
+                                    .width(headerList[3].second)
+                            )
+                        }
+
+                        Text(
+                            text = user.point.toString(),
+                            fontSize = 22.sp,
+                            modifier = Modifier
+                                .width(headerList[4].second)
+                        )
+
+                        Text(
+                            text = user.status,
+                            fontSize = 22.sp,
+                            modifier = Modifier
+                                .width(headerList[5].second)
+                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.width(headerList[6].second)
+                        ) {
+                            IconButton(
+                                onClick = {
+                                    currentUser = user
+                                    editButton = true
+                                }
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.editicon),
+                                    contentDescription = "Edit button",
+                                    modifier = Modifier.size(30.dp)
+                                )
+
+                            }
+                            IconButton(
+                                onClick = {
+                                    currentUser = user
+                                    detailButton = true
+                                }
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.emailicon),
+                                    contentDescription = "Detail button",
+                                    modifier = Modifier.size(30.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+                else {
+                    Row {
+                        Text(text = "There are no user name like $search")
                     }
                 }
             }
@@ -467,7 +621,7 @@ fun DialogOfAddUser(
                         )
                         ExposedDropdownMenu(
                             expanded = expandedG,
-                            onDismissRequest = { /*TODO*/ }
+                            onDismissRequest = {  }
                         ) {
                             userGender.forEach {
                                 DropdownMenuItem(
@@ -524,13 +678,14 @@ fun DialogOfEditUser(
     user: User
 ) {
     var username by remember { mutableStateOf(user.username) }
-    var email by remember { mutableStateOf(user.email) }
-    var password by remember { mutableStateOf(user.password) }
+    val email by remember { mutableStateOf(user.email) }
+    val password by remember { mutableStateOf(user.password) }
     var phoneNo by remember { mutableStateOf(user.phoneNo) }
     var gender by remember { mutableStateOf(user.gender) }
     var dob by remember { mutableStateOf(user.dob) }
     var point by remember { mutableStateOf(user.point) }
     var status by remember { mutableStateOf(user.status) }
+    var image by remember { mutableStateOf(user.image) }
 
     val userGender: List<Gender> = enumValues<Gender>().toList()
     val userStatus: List<UserStatus> = enumValues<UserStatus>().toList()
@@ -548,6 +703,8 @@ fun DialogOfEditUser(
     ) {uri: Uri? ->
         uri?.let { imageUri.value = it.toString() }
     }
+
+    var bitmapUri: Uri?
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
@@ -651,7 +808,7 @@ fun DialogOfEditUser(
                         )
                         ExposedDropdownMenu(
                             expanded = expandedG,
-                            onDismissRequest = { /*TODO*/ }
+                            onDismissRequest = {  }
                         ) {
                             userGender.forEach {
                                 DropdownMenuItem(
@@ -716,7 +873,7 @@ fun DialogOfEditUser(
                         }
                     }
                 }
-
+//                Log.i("Check Image", "DialogOfEditUser: "+imageUri.value)
                 // Buttons
                 Row(
                     horizontalArrangement = Arrangement.End,
@@ -727,9 +884,15 @@ fun DialogOfEditUser(
                     }
 
                     TextButton(onClick = {
+                        if (imageUri.value != "") {
+                            bitmapUri = saveImageFromUri(context, imageUri.value)
+                            image = bitmapUri.toString()
+//                            Log.i("Check Bitmap URI", "DialogOfEditUser: "+bitmapUri)
+                        }
+//                        Log.i("Check Image2", "DialogOfEditUser: "+image)
                         onConfirmation(
                             User(
-                                image = imageUri.value,
+                                image = image,
                                 userID = user.userID,
                                 username = username,
                                 email = email,
@@ -737,7 +900,7 @@ fun DialogOfEditUser(
                                 phoneNo = phoneNo,
                                 gender = gender,
                                 dob = dob,
-                                role = "User", // TODO
+                                role = "User",
                                 point = point,
                                 status = status,
                             )
@@ -751,12 +914,25 @@ fun DialogOfEditUser(
     }
 }
 
-fun getStringToDate(date: String): Long {
-    val l = LocalDate.parse(date, DateTimeFormatter.ofPattern("dd-MM-yyyy"))
-    val unix = l.atStartOfDay(ZoneId.systemDefault()).toInstant().epochSecond
-    Log.i("Change to Date", "getStringToDate: "+unix)
-    return unix
+fun saveImageFromUri(context: Context, imageUriString: String): Uri? {
+    val imageUri = Uri.parse(imageUriString)
+    val inputStream = context.contentResolver.openInputStream(imageUri)
+    val bitmap = BitmapFactory.decodeStream(inputStream)
+
+    val file = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "image.jpg")
+
+    try {
+        val fos = FileOutputStream(file)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
+        fos.close()
+        return Uri.fromFile(file)
+    } catch (e: IOException) {
+        e.printStackTrace()
+    }
+
+    return null
 }
+
 fun convertDateToLong(dateString: String): Long {
     val format = SimpleDateFormat("dd-MM-yyyy") // Specify the date format
     format.timeZone = TimeZone.getTimeZone("UTC")
@@ -996,7 +1172,6 @@ fun DialogOfUserDetail(
                     }
                 }
 
-                // Buttons
                 Row(
                     horizontalArrangement = Arrangement.End,
                     modifier = Modifier.fillMaxWidth()
@@ -1009,31 +1184,6 @@ fun DialogOfUserDetail(
         }
     }
 }
-
-//@Composable
-//private fun reloadUserList(viewModel: UserViewModel): UserListState {
-//    viewModel.loadAllUsers()
-//    return viewModel.userListState
-//}
-//
-//@Composable
-//private fun getUserByUserId(viewModel: UserViewModel, id: Int): User {
-//    var userState: UserState = UserState()
-//    var isLoading by remember { mutableStateOf(true) }
-//    LaunchedEffect(Unit) {
-//        viewModel.loadUserByUserId(id)
-//        delay(5000)
-//        userState = viewModel.userState
-//        Log.i("User", "getUserByUserId: $userState")
-//        isLoading = false
-//    }
-//
-//    if(isLoading) {
-//        IndeterminateCircularIndicator()
-//    }
-//
-//    return userState.user
-//}
 
 @Preview(showBackground = true, device = Devices.TABLET)
 @Composable

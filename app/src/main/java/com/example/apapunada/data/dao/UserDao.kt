@@ -26,4 +26,6 @@ interface UserDao {
     @Query("SELECT * FROM `user` WHERE userID = :id")
     fun getUserById(id: Int): Flow<User>
 
+    @Query("SELECT * FROM user WHERE username LIKE '%' || :name || '%'")
+    fun getUsersByName(name: String): Flow<List<User>>
 }

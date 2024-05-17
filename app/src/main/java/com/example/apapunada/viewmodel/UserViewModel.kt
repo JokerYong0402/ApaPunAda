@@ -1,6 +1,7 @@
 package com.example.apapunada.viewmodel
 
 import android.util.Log
+import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.apapunada.data.dataclass.User
@@ -71,30 +72,75 @@ class UserViewModel(private val userRepository: UserRepository): ViewModel() {
         }
     }
 
-    private fun validateInput(): Boolean {
-        if (!validateSameUser()) {
-            return false
-        }
-        return with(_userState.value.user) {
-            username.isNotBlank() && password.isNotBlank()
+    fun loadUsersByName(name: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userRepository.getUsersStream(name)
+                .map { UserListState(isLoading = false, userList = it) }
+                .onStart { emit(UserListState(isLoading = true)) }
+                .catch {
+                    emit(UserListState(errorMessage = it.message.toString()))
+                }
+                .collect { _userListState.value = it }
         }
     }
 
-    private fun validateSameUser(): Boolean {
-        val userList = _userListState.value.userList
-        val currentUser = _userState.value.user
-        for(user in userList) {
-            if (currentUser.username == user.username){
-                return false
+    fun validateInput(): Boolean {
+        var isValid = true
+        var errorMessage = ""
+        val user = _userState.value.user
+
+        if (validateSameUser(user)) {
+
+            errorMessage = "User already exists!"
+            isValid = false
+        }
+
+        if (user.username.isEmpty() || user.username.length > 30) {
+            errorMessage = "Invalid Username!"
+            isValid = false
+        }
+
+        if (user.gender.isEmpty()) {
+            errorMessage = "Invalid Gender!"
+            isValid = false
+        }
+
+        if (!Patterns.EMAIL_ADDRESS.matcher(user.email).matches()) {
+            errorMessage = "Invalid Email!"
+            isValid = false
+        }
+
+        if (user.password.isEmpty() || user.password.length > 30) {
+            errorMessage = "Invalid Password!"
+            isValid = false
+        }
+
+        if (user.phoneNo.length < 10 || user.phoneNo.length > 12) {
+            errorMessage = "Invalid Phone Number!"
+            isValid = false
+        }
+
+        _userState.value = _userState.value.copy(
+            errorMessage = if (isValid) "" else errorMessage
+        )
+        return isValid
+    }
+
+    private fun validateSameUser(user: User): Boolean {
+        loadAllUsers()
+        var userList: List<User>
+        do {
+            userList = _userListState.value.userList
+        } while(userList.isEmpty())
+        for (existingUser in userList) {
+            if (user.username == existingUser.username && user.userID != existingUser.userID) {
+                return true
             }
         }
-        return true
+        return false
     }
 
     fun updateUserState(user: User) {
-        if (!validateInput()) {
-            _userState.value = _userState.value.copy(errorMessage = "Invalid Username!")
-        }
         _userState.value = _userState.value.copy(user = user, isValid = validateInput())
     }
 
