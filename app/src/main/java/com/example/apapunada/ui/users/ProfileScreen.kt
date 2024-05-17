@@ -53,10 +53,10 @@ fun ProfileScreen(
     onDelete: () -> Unit,
     onLogin: () -> Unit
 ) {
-    var userState = viewModel.userState.collectAsState(initial = UserState())
+    val userState = viewModel.userState.collectAsState(initial = UserState())
     viewModel.loadUserByUserId(3)
 
-    var user = userState.value.user
+    val user = userState.value.user
 
     Scaffold(
         topBar = { MyTopTitleBar(title = stringResource(R.string.profile)) },

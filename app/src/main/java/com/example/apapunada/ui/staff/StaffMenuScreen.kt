@@ -44,7 +44,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -66,8 +65,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Devices
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -76,28 +73,29 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.apapunada.R
+import com.example.apapunada.data.dataclass.FoodDetails
 import com.example.apapunada.data.dataclass.MenuItem
+import com.example.apapunada.data.dataclass.NutritionFacts
 import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.formattedString
 import com.example.apapunada.ui.components.getEnumList
 import com.example.apapunada.viewmodel.Cuisine
+import com.example.apapunada.viewmodel.FoodDetailsState
 import com.example.apapunada.viewmodel.MenuItemState
 import com.example.apapunada.viewmodel.MenuItemViewModel
 import com.example.apapunada.viewmodel.MenuListState
+import com.example.apapunada.viewmodel.NutritionFactsState
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun StaffMenuScreen(
-//    menuType: String,
-//    menus: List<Menu> = Menus
-    viewModel: MenuItemViewModel = viewModel(factory = AppViewModelProvider.Factory)
-) {
-    var menuItemState = viewModel.menuItemState.collectAsState(initial = MenuItemState())
+    viewModel: MenuItemViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    ) {
     val menuListState = viewModel.menuListState.collectAsState(initial = MenuListState())
     var menus: List<MenuItem> = listOf()
 
-    viewModel.loadAllMenuItem()
+    //viewModel.loadAllMenuItem()
 
     if (menuListState.value.isLoading) {
         Box( modifier = Modifier
@@ -118,6 +116,7 @@ fun StaffMenuScreen(
             menus = menuListState.value.menuItemList
         }
     }
+
 
     val dishCuisine = getEnumList(Cuisine::class.java)
 
@@ -140,35 +139,89 @@ fun StaffMenuScreen(
     var search by remember { mutableStateOf("") }
 
     var currentMenu by remember { mutableStateOf(MenuItem()) }
+    var addmenu by remember {mutableStateOf(MenuItem())}
+
+    var nutritionFacts: NutritionFacts = NutritionFacts()
+    var foodDetails: FoodDetails = FoodDetails()
+    var currentMenuItemId by remember { mutableStateOf(0) }
 
     if (openAddDishDialog) {
         AddDishDialog(
             onDismissRequest = { openAddDishDialog = false },
-            onConfirmation = { openAddDishDialog = false }
+            onConfirmation = { newMenuItem, newFoodDetails, newNutritionFacts ->
+                viewModel.updateMenuItemState(newMenuItem)
+                viewModel.updateFoodDetailsState(newFoodDetails)
+                viewModel.updateNutritionFactsState(newNutritionFacts)
+
+                viewModel.saveMenuItem()
+                viewModel.saveFoodDetails()
+                viewModel.saveNutritionFacts()
+
+                openAddDishDialog = false },
+            menu = addmenu,
+            foodDetails = foodDetails,
+            nutritionFacts = nutritionFacts
         )
     }
 
     if (openEditDishDialog) {
+        viewModel.loadFoodDetailsByMenuItemId(currentMenuItemId)
+        val foodDetailsState = viewModel.foodDetailsState.collectAsState(initial = FoodDetailsState())
+        foodDetails = foodDetailsState.value.foodDetails
+
+        viewModel.loadNutritionFactsByFoodDetailsId(foodDetails.foodDetailsID)
+        val nutritionFactsState = viewModel.nutritionFactsState.collectAsState(initial = NutritionFactsState())
+        nutritionFacts = nutritionFactsState.value.nutritionFacts
         EditDishDialog(
             onDismissRequest = { openEditDishDialog = false },
-            onConfirmation = { openEditDishDialog = false },
+            onConfirmation = { updatedMenuItem, updatedMoodDetails, updatedNutritionFacts ->
+                viewModel.updateMenuItemState(updatedMenuItem)
+                viewModel.updateFoodDetailsState(updatedMoodDetails)
+                viewModel.updateNutritionFactsState(updatedNutritionFacts)
+
+                viewModel.updateMenuItem()
+                viewModel.updateFoodDetails()
+                viewModel.updateNutritionFacts()
+                openEditDishDialog = false },
             menu = currentMenu,
+            foodDetails = foodDetails,
+            nutritionFacts = nutritionFacts
             )
     }
 
     if (openStatusDishDialog) {
+        viewModel.loadMenuItemByMenuItemId(currentMenuItemId)
+        val menuItemsState = viewModel.menuItemState.collectAsState(initial = MenuItemState())
+
         ChangeDishStatusDialog(
-            onDismissRequest = { openStatusDishDialog = false },
-            onConfirmation = { openStatusDishDialog = false },
             menu = currentMenu,
+
+            onDismissRequest = { openStatusDishDialog = false },
+            onConfirmation = {
+                changedMenuItemStatus ->
+                viewModel.updateMenuItemState(changedMenuItemStatus)
+
+                viewModel.updateMenuItem()
+                openStatusDishDialog = false },
+
             )
     }
 
 
     if (openDishDetailDialog) {
+        viewModel.loadFoodDetailsByMenuItemId(currentMenuItemId)
+        val foodDetailsState = viewModel.foodDetailsState.collectAsState(initial = FoodDetailsState())
+        foodDetails = foodDetailsState.value.foodDetails
+
+        viewModel.loadNutritionFactsByFoodDetailsId(foodDetails.foodDetailsID)
+        val nutritionFactsState = viewModel.nutritionFactsState.collectAsState(initial = NutritionFactsState())
+        nutritionFacts = nutritionFactsState.value.nutritionFacts
+
         DishDetailDialog(
             onDismissRequest = { openDishDetailDialog = false },
             menu = currentMenu,
+            foodDetails = foodDetails,
+            nutritionFacts = nutritionFacts,
             labelList = headerList
             )
     }
@@ -197,48 +250,6 @@ fun StaffMenuScreen(
                 onValueChange = { search = it },
                 modifier = Modifier
             )
-
-            ExposedDropdownMenuBox(
-                expanded = expandedSearchCuisine,
-                onExpandedChange = { expandedSearchCuisine = !expandedSearchCuisine },
-                modifier = Modifier.padding(end = 10.dp)
-            ) {
-                TextField(
-                    value = searchCuisineDropdown,
-                    onValueChange = { searchCuisineDropdown = it },
-                    label = {
-                        Text(
-                            text = "Dish Cuisine",
-                            fontSize = 12.sp,
-                        ) },
-                    readOnly = true,
-                    textStyle = TextStyle(
-                        fontSize = 14.sp,
-                        color = Color.Black
-                    ),
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedSearchCuisine)
-                    },
-                    modifier = Modifier
-                        .size(width = 200.dp, height = 50.dp)
-                        .menuAnchor()
-                )
-                ExposedDropdownMenu(
-                    expanded = expandedSearchCuisine,
-                    onDismissRequest = { /*TODO*/ }
-                ) {
-                    searchCuisine.forEach { cuisine ->
-                        DropdownMenuItem(
-                            text = { Text(text = cuisine ) },
-                            onClick = {
-                                selectedSearchCuisine = cuisine
-                                expandedSearchCuisine = false
-                                searchCuisineDropdown = cuisine
-                            }
-                        )
-                    }
-                }
-            }
             Column(
                 horizontalAlignment = Alignment.End,
                 modifier = Modifier
@@ -264,7 +275,6 @@ fun StaffMenuScreen(
             }
         }
 
-
         //Row of Button
         Row(
             modifier = Modifier
@@ -275,10 +285,35 @@ fun StaffMenuScreen(
             verticalAlignment = Alignment.CenterVertically
 
         ){
-            CuisineButtonAll()
+            //CuisineButtonAll()
+
+            ElevatedButton(
+                onClick = { viewModel.loadAllMenuItem() },
+                colors = ButtonDefaults.buttonColors(
+                    colorResource(R.color.white)
+                ),
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier
+                    .width(170.dp)
+                    .height(55.dp)
+                    .padding(horizontal = 16.dp)
+                    .shadow(5.dp, shape = RoundedCornerShape(10.dp))
+            ) {
+                Text(
+                    text = "All",
+                    fontSize = 18.sp,
+                    textAlign = TextAlign.Center,
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+            }
+
             dishCuisine.forEach{ cuisine ->
                 ElevatedButton(
-                    onClick = { /* Filter menus by this cuisine (if applicable) */ },
+                    onClick = { viewModel.loadMenuItemByCuisine(cuisine) },
                     colors = ButtonDefaults.buttonColors(
                         colorResource(R.color.white)
                     ),
@@ -335,8 +370,10 @@ fun StaffMenuScreen(
                         }
                     }
                 }
+
                 items(menus.size) { i ->
                     val menu = menus[i]
+
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
@@ -407,6 +444,7 @@ fun StaffMenuScreen(
                             IconButton(
                                 onClick = {
                                     currentMenu = getMenu(i, menus)
+                                    currentMenuItemId = menu.menuItemID
                                     openEditDishDialog = true
                                 }
                             ) {
@@ -433,6 +471,7 @@ fun StaffMenuScreen(
                             IconButton(
                                 onClick = {
                                     currentMenu = getMenu(i, menus)
+                                    currentMenuItemId = menu.menuItemID
                                     openDishDetailDialog = true
                                 }
                             ) {
@@ -507,7 +546,7 @@ fun MenuSearchBar(
 
 
 @Composable
-fun UploadDishImage(){
+fun UploadAddDishImage(){
     val imageUri = rememberSaveable { mutableStateOf("") }
     val painter = rememberAsyncImagePainter(imageUri.value.ifEmpty { R.drawable.dishimage }
     )
@@ -522,44 +561,46 @@ fun UploadDishImage(){
     ){
         Card(shape = CircleShape,
             modifier = Modifier
-                .padding(10.dp)
-                .size(100.dp)
+                //.padding(10.dp)
+                .size(70.dp)
         ){
             Image(
                 painter = painter,
                 contentDescription = null,
-                Modifier.clickable { launcher.launch("image/*") }
+                //contentScale = ContentScale.Crop,
+
+                modifier = Modifier.clickable { launcher.launch("image/*") }
             )
         }
     }
 }
 
-@Composable
-fun CuisineButtonAll(){
-    ElevatedButton(
-        onClick = { /*TODO*/ },
-        colors = ButtonDefaults.buttonColors(
-            colorResource(R.color.white)
-        ),
-        shape = RoundedCornerShape(10.dp),
-        modifier = Modifier
-            .width(170.dp)
-            .height(55.dp)
-            .padding(horizontal = 16.dp)
-            .shadow(5.dp, shape = RoundedCornerShape(10.dp))
-    ) {
-        Text(
-            text = "All",
-            fontSize = 18.sp,
-            textAlign = TextAlign.Center,
-            color = Color.Black,
-            fontWeight = FontWeight.Bold,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .fillMaxWidth()
-        )
-    }
-}
+//@Composable
+//fun CuisineButtonAll(){
+//    ElevatedButton(
+//        onClick = { viewModel.loadAllMenuItem() },
+//        colors = ButtonDefaults.buttonColors(
+//            colorResource(R.color.white)
+//        ),
+//        shape = RoundedCornerShape(10.dp),
+//        modifier = Modifier
+//            .width(170.dp)
+//            .height(55.dp)
+//            .padding(horizontal = 16.dp)
+//            .shadow(5.dp, shape = RoundedCornerShape(10.dp))
+//    ) {
+//        Text(
+//            text = "All",
+//            fontSize = 18.sp,
+//            textAlign = TextAlign.Center,
+//            color = Color.Black,
+//            fontWeight = FontWeight.Bold,
+//            overflow = TextOverflow.Ellipsis,
+//            modifier = Modifier
+//                .fillMaxWidth()
+//        )
+//    }
+//}
 
 
 
@@ -567,7 +608,10 @@ fun CuisineButtonAll(){
 @Composable
 fun AddDishDialog(
     onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit
+    onConfirmation: (MenuItem,FoodDetails,NutritionFacts) -> Unit,
+    menu: MenuItem,
+    foodDetails: FoodDetails,
+    nutritionFacts: NutritionFacts
 ) {
     val context = LocalContext.current
     var newDishName by remember { mutableStateOf("") }
@@ -578,6 +622,13 @@ fun AddDishDialog(
     var newDishPrice by remember { mutableStateOf("") }
     var newDishStatus by remember { mutableStateOf("") }
     var newDishServingSize by remember { mutableStateOf("") }
+    var newDishCarbohydrates by remember { mutableStateOf("") }
+    var newDishProtein by remember { mutableStateOf("") }
+    var newDishFats by remember { mutableStateOf("") }
+    var newDishSalt by remember { mutableStateOf("") }
+    var newDishSugar by remember { mutableStateOf("") }
+
+
 
     var isUploadImage by remember { mutableStateOf(false) }
     val dialogTitle = "ADD NEW DISH"
@@ -588,7 +639,7 @@ fun AddDishDialog(
 
     var expandedStatus by remember { mutableStateOf(false) }
     var selectedStatus by remember { mutableStateOf("") }
-    val menuStatus = listOf("Available","Unavailable")
+    val menuStatus = listOf("Active","Disabled","Deleted")
 
 
     androidx.compose.ui.window.Dialog(onDismissRequest = { onDismissRequest() }) {
@@ -610,7 +661,7 @@ fun AddDishDialog(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 10.dp)
                 )
-                UploadDishImage()
+                UploadAddDishImage()
                 Text(
                     text = "Upload Image",
                     fontSize = 18.sp,
@@ -728,7 +779,7 @@ fun AddDishDialog(
                         onValueChange = { newDishStatus = it },
                         label = {
                             Text(
-                                text = "Dish Availability",
+                                text = "Dish Status",
                                 fontSize = 17.sp,
                             ) },
                         readOnly = true,
@@ -788,13 +839,95 @@ fun AddDishDialog(
                     )},
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                     modifier = Modifier
-                        //.padding(vertical = 20.dp)
+                        .padding(vertical = 10.dp)
+                )
+                OutlinedTextField(//new dish Carbohydrates
+                    value = newDishCarbohydrates,
+                    onValueChange = { newDishCarbohydrates = it },
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        fontSize = 18.sp,
+                        color = Color.Black
+                    ),
+                    label = {Text(
+                        text = "Dish Carbohydrates",
+                        fontSize = 17.sp,
+                    )},
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                    modifier = Modifier
+                    .padding(vertical = 10.dp)
+                )
+                OutlinedTextField(//new dish Protein
+                    value = newDishProtein,
+                    onValueChange = { newDishProtein = it },
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        fontSize = 18.sp,
+                        color = Color.Black
+                    ),
+                    label = {Text(
+                        text = "Dish Protein",
+                        fontSize = 17.sp,
+                    )},
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                    modifier = Modifier
+                    .padding(vertical = 10.dp)
+                )
+                OutlinedTextField(//new dish Fats
+                    value = newDishFats,
+                    onValueChange = { newDishFats = it },
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        fontSize = 18.sp,
+                        color = Color.Black
+                    ),
+                    label = {Text(
+                        text = "Dish Fats",
+                        fontSize = 17.sp,
+                    )},
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                    modifier = Modifier
+                    .padding(vertical = 10.dp)
+                )
+                OutlinedTextField(//new dish Salt
+                    value = newDishSalt,
+                    onValueChange = { newDishSalt = it },
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        fontSize = 18.sp,
+                        color = Color.Black
+                    ),
+                    label = {Text(
+                        text = "Dish Salt",
+                        fontSize = 17.sp,
+                    )},
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                    modifier = Modifier
+                        .padding(vertical = 10.dp)
+                )
+                OutlinedTextField(//new dish Sugar
+                    value = newDishSugar,
+                    onValueChange = { newDishSugar = it },
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        fontSize = 18.sp,
+                        color = Color.Black
+                    ),
+                    label = {Text(
+                        text = "Dish Sugar",
+                        fontSize = 17.sp,
+                    )},
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                    modifier = Modifier
+                        .padding(vertical = 10.dp)
                 )
 
                 // Buttons
                 Row(
                     horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth().padding(top = 20.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 20.dp)
                 ) {
                     TextButton(
                         onClick = { onDismissRequest() }
@@ -805,8 +938,27 @@ fun AddDishDialog(
                     TextButton(
                         onClick =
                         {
+                            val newMenuItem = MenuItem(
+                                itemName = newDishName,
+                                description = newDishDescription,
+                                cuisine = newDishCuisine,
+                                rating = newDishRating.toDouble(),
+                                price = newDishPrice.toDouble(),
+                                status = newDishCuisine,
+                            )
+                            val newFoodDetails = FoodDetails(
+                                servingSize = newDishServingSize.toDouble(),
+                                ingredient = newDishIngredient
+                            )
+                            val newNutritionFacts = NutritionFacts(
+                                carbohydrates = newDishCarbohydrates.toDouble(),
+                                proteins = newDishProtein.toDouble(),
+                                fats = newDishFats.toDouble(),
+                                sugar = newDishSugar.toDouble(),
+                                salt = newDishSalt.toDouble()
+                            )
                         Toast.makeText(context, "Dish Added Successfully", Toast.LENGTH_SHORT).show()
-                        onConfirmation()
+                        onConfirmation(newMenuItem,newFoodDetails,newNutritionFacts)
                         }
                     ) {
                         Text(text = "Confirm")
@@ -823,20 +975,36 @@ fun AddDishDialog(
 @Composable
 fun EditDishDialog(
     onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit,
+    onConfirmation: (MenuItem,FoodDetails,NutritionFacts) -> Unit,
     menu: MenuItem,
+    foodDetails: FoodDetails,
+    nutritionFacts: NutritionFacts
     ) {
+
     val context = LocalContext.current
     var editDishName by remember { mutableStateOf(menu.itemName) }
     var editDishDescription by remember { mutableStateOf(menu.description) }
     var editDishRating by remember { mutableStateOf(menu.rating.toString()) }
-//    var editDishIngredient by remember { mutableStateOf(menu.ingredient) }
     var editDishCuisine by remember { mutableStateOf(menu.cuisine) }
     var editDishPrice by remember { mutableStateOf(menu.price.toString()) }
     var editDishStatus by remember { mutableStateOf(menu.status) }
-    var editDishServingSize by remember { mutableStateOf("") }
+    var editDishServingSize by remember { mutableStateOf(foodDetails.servingSize.toString()) }
+    var editDishIngredient by remember { mutableStateOf(foodDetails.ingredient) }
+    var editDishCarbohydrates by remember { mutableStateOf(nutritionFacts.carbohydrates.toString()) }
+    var editDishProtein by remember { mutableStateOf(nutritionFacts.proteins.toString()) }
+    var editDishFat by remember { mutableStateOf(nutritionFacts.fats.toString()) }
+    var editDishSalt by remember { mutableStateOf(nutritionFacts.salt.toString()) }
+    var editDishSugar by remember { mutableStateOf(nutritionFacts.sugar.toString()) }
 
-    var isUploadImage by remember { mutableStateOf(false) }
+    if (foodDetails != null) {
+        editDishIngredient = foodDetails.ingredient
+        editDishServingSize = foodDetails.servingSize.toString()
+        editDishCarbohydrates = nutritionFacts.carbohydrates.toString()
+        editDishProtein = nutritionFacts.proteins.toString()
+        editDishFat = nutritionFacts.fats.toString()
+        editDishSalt = nutritionFacts.salt.toString()
+        editDishSugar = nutritionFacts.sugar.toString()
+    }
 
     val dialogTitle = "EDIT DISH"
 
@@ -846,8 +1014,16 @@ fun EditDishDialog(
 
     var expandedEditStatus by remember { mutableStateOf(false) }
     var selectedEditStatus by remember { mutableStateOf("") }
-    val menuStatus = listOf("Available","Unavailable")
+    val menuStatus = listOf("Active","Disabled", "Deleted")
 
+    val imageUri = rememberSaveable { mutableStateOf("") }
+    val painter = rememberAsyncImagePainter(imageUri.value.ifEmpty {menu.image }
+    )
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) {uri: Uri? ->
+        uri?.let { imageUri.value = it.toString() }
+    }
 
     androidx.compose.ui.window.Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
@@ -868,7 +1044,25 @@ fun EditDishDialog(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 10.dp)
                 )
-                UploadDishImage()
+
+                Column(
+                    modifier = Modifier
+                ){
+                    Card(//shape = CircleShape,
+                        modifier = Modifier
+                            //.padding(10.dp)
+                            .size(80.dp)
+                    ){
+                        Image(
+                            painter = painter,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+
+                            modifier = Modifier.clickable { launcher.launch("image/*") }
+                        )
+                    }
+                }
+                //UploadDishImage()
 
                 Text(
                     text = "Upload Image",
@@ -956,7 +1150,8 @@ fun EditDishDialog(
                         color = Color.Black
                     ),
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                    label = {Text(
+                    label = {
+                        Text(
                         text = "Dish Rating",
                         fontSize = 17.sp,
                     )},
@@ -988,7 +1183,7 @@ fun EditDishDialog(
                         onValueChange = { editDishStatus = it },
                         label = {
                             Text(
-                                text = "Dish Availability",
+                                text = "Dish Status",
                                 fontSize = 17.sp,
                             ) },
                         readOnly = true,
@@ -1019,21 +1214,24 @@ fun EditDishDialog(
                         }
                     }
                 }
-//                OutlinedTextField(//edit dish ingredient
-//                    value = editDishIngredient,
-//                    onValueChange = { editDishIngredient = it },
-//                    singleLine = false,
-//                    textStyle = TextStyle(
-//                        fontSize = 18.sp,
-//                        color = Color.Black
-//                    ),
-//                    label = {Text(
-//                        text = "Dish Ingredient",
-//                        fontSize = 17.sp,
-//                    )},
-//                    modifier = Modifier
-//                        .padding(vertical = 20.dp)
-//                )
+
+                OutlinedTextField(//edit dish ingredient
+                    value = editDishIngredient,
+                    onValueChange = { editDishIngredient = it },
+                    singleLine = false,
+                    textStyle = TextStyle(
+                        fontSize = 18.sp,
+                        color = Color.Black
+                    ),
+                    label = {
+                        Text(
+                        text = "Dish Ingredient",
+                        fontSize = 17.sp,
+                    )},
+                    modifier = Modifier
+                        .padding(vertical = 20.dp)
+                )
+
                 OutlinedTextField(//edit dish serving size
                     value = editDishServingSize,
                     onValueChange = { editDishServingSize = it },
@@ -1043,18 +1241,108 @@ fun EditDishDialog(
                         color = Color.Black
                     ),
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                    label = {Text(
-                        text = "Dish Serving",
+                    label = {
+                        Text(
+                        text = "Dish Serving Size",
                         fontSize = 17.sp,
                     )},
                     modifier = Modifier
                         .padding(bottom = 20.dp)
                 )
+                OutlinedTextField(//edit dish carbohydrates
+                    value = editDishCarbohydrates,
+                    onValueChange = { editDishCarbohydrates = it },
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        fontSize = 18.sp,
+                        color = Color.Black
+                    ),
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                    label = {
+                        Text(
+                            text = "Dish Carbohydrates",
+                            fontSize = 17.sp,
+                        )},
+                    modifier = Modifier
+                        .padding(bottom = 20.dp)
+                )
+                OutlinedTextField(//edit dish protein
+                    value = editDishProtein,
+                    onValueChange = { editDishProtein = it },
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        fontSize = 18.sp,
+                        color = Color.Black
+                    ),
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                    label = {
+                        Text(
+                            text = "Dish Protein",
+                            fontSize = 17.sp,
+                        )},
+                    modifier = Modifier
+                        .padding(bottom = 20.dp)
+                )
+                OutlinedTextField(//edit dish fats
+                    value = editDishFat,
+                    onValueChange = { editDishFat = it },
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        fontSize = 18.sp,
+                        color = Color.Black
+                    ),
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                    label = {
+                        Text(
+                            text = "Dish Fat",
+                            fontSize = 17.sp,
+                        )},
+                    modifier = Modifier
+                        .padding(bottom = 20.dp)
+                )
+                OutlinedTextField(//edit dish salt
+                    value = editDishSalt,
+                    onValueChange = { editDishSalt = it },
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        fontSize = 18.sp,
+                        color = Color.Black
+                    ),
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                    label = {
+                        Text(
+                            text = "Dish Salt",
+                            fontSize = 17.sp,
+                        )},
+                    modifier = Modifier
+                        .padding(bottom = 20.dp)
+                )
+                OutlinedTextField(//edit dish salt
+                    value = editDishSugar,
+                    onValueChange = { editDishSugar = it },
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        fontSize = 18.sp,
+                        color = Color.Black
+                    ),
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                    label = {
+                        Text(
+                            text = "Dish Sugar",
+                            fontSize = 17.sp,
+                        )},
+                    modifier = Modifier
+                        .padding(bottom = 20.dp)
+                )
+
+
 
                 // Buttons
                 Row(
                     horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth().padding(top = 20.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 20.dp)
                 ) {
                     TextButton(
                         onClick = { onDismissRequest() }
@@ -1065,8 +1353,32 @@ fun EditDishDialog(
                     TextButton(
                         onClick =
                         {
+                            val latestMenuItem = MenuItem(
+                                menuItemID = menu.menuItemID,
+                                itemName = editDishName,
+                                description = editDishDescription,
+                                cuisine = editDishCuisine,
+                                rating = editDishRating.toDouble(),
+                                price = editDishPrice.toDouble(),
+                                status = editDishStatus,
+                            )
+                            val latestFoodDetails = FoodDetails(
+                                foodDetailsID = foodDetails.foodDetailsID,
+                                servingSize = editDishServingSize.toDouble(),
+                                ingredient = editDishIngredient
+                            )
+                            val latestNutritionFacts = NutritionFacts(
+                                nutritionFactsID = nutritionFacts.nutritionFactsID,
+                                carbohydrates = editDishCarbohydrates.toDouble(),
+                                proteins = editDishProtein.toDouble(),
+                                fats = editDishFat.toDouble(),
+                                sugar = editDishSugar.toDouble(),
+                                salt = editDishSalt.toDouble()
+                            )
+
                             Toast.makeText(context, "Dish Edited Successfully", Toast.LENGTH_SHORT).show()
-                            onConfirmation()
+                            onConfirmation(latestMenuItem,latestFoodDetails,latestNutritionFacts)
+
                         }
                     ) {
                         Text(text = "Confirm")
@@ -1083,14 +1395,14 @@ fun EditDishDialog(
 @Composable
 fun ChangeDishStatusDialog(
     onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit,
-    menu: MenuItem
+    onConfirmation: (MenuItem) -> Unit,
+    menu: MenuItem,
 ){
 
     val context = LocalContext.current
     var expandedChangeStatus by remember { mutableStateOf(false) }
     var selectedChangeStatus by remember { mutableStateOf(menu.status) }
-    val changeStatusOptions = listOf("Available","Unavailable")
+    val changeStatusOptions = listOf("Active","Disabled", "Deleted")
     var changeStatus by remember { mutableStateOf("") }
 
     val dialogTitle = "Change Status of Dish"
@@ -1124,7 +1436,7 @@ fun ChangeDishStatusDialog(
                         onValueChange = { selectedChangeStatus = it },
                         label = {
                             Text(
-                                text = "Dish Availability",
+                                text = "Dish Status",
                                 fontSize = 17.sp,
                             ) },
                         readOnly = true,
@@ -1158,7 +1470,9 @@ fun ChangeDishStatusDialog(
             }
             Row(
                 horizontalArrangement = Arrangement.End,
-                modifier = Modifier.fillMaxWidth().padding(end = 15.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = 15.dp)
             ) {
                 TextButton(
                     onClick = { onDismissRequest() }
@@ -1169,8 +1483,21 @@ fun ChangeDishStatusDialog(
                 TextButton(
                     onClick =
                     {
+                        Log.i("change status", "ChangeDishStatusDialog: $selectedChangeStatus")
+                        val changedMenuItemStatus = MenuItem(
+                            menuItemID = menu.menuItemID,
+                            itemName = menu.itemName,
+                            price = menu.price,
+                            rating = menu.rating,
+                            description = menu.description,
+                            cuisine = menu.cuisine,
+                            status = selectedChangeStatus,
+                        )
                         Toast.makeText(context, "Status Changed", Toast.LENGTH_SHORT).show()
-                        onConfirmation()
+                        onConfirmation(changedMenuItemStatus)
+                        MenuItem(
+                            status = menu.status
+                        )
                     }
                 ) {
                     Text(text = "Confirm")
@@ -1188,18 +1515,28 @@ fun ChangeDishStatusDialog(
 fun DishDetailDialog(
     onDismissRequest: () -> Unit = {},
     menu: MenuItem,
+    foodDetails: FoodDetails,
+    nutritionFacts: NutritionFacts,
     labelList: List<Pair<String, Dp>>
 
 ) {
+    Log.i("dishdetaildialogf", "DishDetailDialog: $foodDetails$nutritionFacts")
+    Log.i("dishdetaildialogn", "DishDetailDialog: $nutritionFacts")
+
     val image = menu.image
     val name = menu.itemName
     val price = menu.price
     val rating = menu.rating
     val description = menu.description
     val status = menu.status
-//    val ingredient = menu.ingredient
+    val ingredient = foodDetails.ingredient
     val cuisine = menu.cuisine
-//    val nutrition = menu.nutrition
+    val nutritionCarbohydrates = nutritionFacts.carbohydrates
+    val nutritionProtein = nutritionFacts.proteins
+    val nutritionFat = nutritionFacts.fats
+    val nutritionSalt = nutritionFacts.salt
+    val nutritionSugar = nutritionFacts.sugar
+
 
     val userHeader = listOf(
         // (Header name, Column width)
@@ -1345,17 +1682,7 @@ fun DishDetailDialog(
                                 color = Color.Green
                             )
                         }
-//                        Column {
-//                            Text(//ingredient
-//                                text = userHeader[7].first,
-//                                fontWeight = FontWeight.Medium,
-//                                fontSize = 22.sp
-//                            )
-//                            Text(
-//                                text = ingredient,
-//                                fontSize = 20.sp
-//                            )
-//                        }
+
                     }
                 }
 
@@ -1372,8 +1699,7 @@ fun DishDetailDialog(
                             fontSize = 22.sp
                         )
                         Text(
-//                            text = ingredient,  TODO
-                            text = "Ingredient...",
+                            text = ingredient,
                             fontSize = 20.sp
                         )
                     }
@@ -1386,16 +1712,21 @@ fun DishDetailDialog(
                         .padding(top = 20.dp, bottom = 10.dp)
                 ) {
                     Column {
-                        Text(//ingredient
+                        Text(//nutrition
                             text = userHeader[8].first,
                             fontWeight = FontWeight.Medium,
                             fontSize = 22.sp
                         )
                         Text(
-//                            text = nutrition, TODO
-                            text = "Nutrition...",
-                            fontSize = 20.sp
+                            text = "Carbohydrates : " + nutritionCarbohydrates.toString() + "g\n" +
+                                    "Protein  : " + nutritionProtein.toString() + "g\n" +
+                                    "Fats         : " + nutritionFat.toString() + "g\n" +
+                                    "Salt         : " + nutritionSalt.toString() + "g\n" +
+                                    "Sugar        : " + nutritionSugar.toString() + "g\n"
+
+                                    ,fontSize = 20.sp
                         )
+
                     }
                 }
 
@@ -1421,15 +1752,15 @@ private fun getMenu(
 }
 
 
-@Preview(showBackground = true, device = Devices.TABLET)
-@Composable
-fun StaffMenuLandscapePreview(){
-    StaffMenuScreen()
-}
-
-@Preview(showBackground = true, device = Devices.PHONE)
-@Composable
-fun StaffMenuScreenPhonePreview() {
-    StaffMenuScreen()
-}
+//@Preview(showBackground = true, device = Devices.TABLET)
+//@Composable
+//fun StaffMenuLandscapePreview(){
+//    StaffMenuScreen()
+//}
+//
+//@Preview(showBackground = true, device = Devices.PHONE)
+//@Composable
+//fun StaffMenuScreenPhonePreview() {
+//    StaffMenuScreen()
+//}
 

@@ -42,7 +42,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -57,20 +56,23 @@ import com.example.apapunada.viewmodel.NutritionFactsState
 
 @Composable
 fun FoodDetailScreen(
-    viewModel: MenuItemViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: MenuItemViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    onOrder: () -> Unit,
+    onBackButtonClicked: () -> Unit,
+    currentDishId: Int
 ) {
     var menuItemState = viewModel.menuItemState.collectAsState(initial = MenuItemState())
-    viewModel.loadMenuItemByMenuItemId(2)
+    viewModel.loadMenuItemByMenuItemId(currentDishId)
     var menu = menuItemState.value.menuItem
 
     //serving size
     var FoodDetailState = viewModel.foodDetailsState.collectAsState(initial = FoodDetailsState())
-    viewModel.loadFoodDetailsByMenuItemId(2)
+    viewModel.loadFoodDetailsByMenuItemId(currentDishId)
     var foodDetails = FoodDetailState.value.foodDetails
 
     //nutrition facts
     var NutritionFactsState = viewModel.nutritionFactsState.collectAsState(initial = NutritionFactsState())
-    viewModel.loadNutritionFactsByFoodDetailsId(1)
+    viewModel.loadNutritionFactsByFoodDetailsId(foodDetails.foodDetailsID)
     var nutritionFacts = NutritionFactsState.value.nutritionFacts
 
     var servingsizeC by remember { mutableStateOf(foodDetails.servingSize) }
@@ -100,7 +102,7 @@ fun FoodDetailScreen(
 
 
     Scaffold(
-        topBar = { MyTopTitleBar(title = stringResource(R.string.menu)) },
+        topBar = { MyTopTitleBar(title = stringResource(R.string.menu), onBackButtonClicked = onBackButtonClicked) },
         //bottomBar = { MyBottomNavBar() }
     ) { innerPadding ->
         Surface(
@@ -667,7 +669,7 @@ fun FoodDetailScreen(
                             ) {
                                 Button(
                                     modifier = Modifier.size(300.dp,50.dp),
-                                    onClick = {},
+                                    onClick = { onOrder() },
                                     colors = ButtonDefaults.buttonColors(
                                         colorResource(R.color.primary)
                                     ),
@@ -718,8 +720,11 @@ fun NutritionBar(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun FoodDetailScreenPreview() {
-    FoodDetailScreen()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun FoodDetailScreenPreview() {
+//    FoodDetailScreen(
+//        onOrder = {}
+//
+//    )
+//}

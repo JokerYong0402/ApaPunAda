@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -40,10 +41,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -53,18 +51,21 @@ import com.example.apapunada.data.dataclass.MenuItem
 import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.MyTopTitleBar
-import com.example.apapunada.viewmodel.MenuItemState
 import com.example.apapunada.viewmodel.MenuItemViewModel
 import com.example.apapunada.viewmodel.MenuListState
 
 @Composable
 fun FoodListScreen(
     menuType: String,
+    onDish: (Int) -> Unit,
+    onBackButtonClicked: () -> Unit,
     viewModel: MenuItemViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    var menuItemState = viewModel.menuItemState.collectAsState(initial = MenuItemState())
     val menuListState = viewModel.menuListState.collectAsState(initial = MenuListState())
     var menus: List<MenuItem> = listOf()
+
+    var currentDishId by remember { mutableIntStateOf(0) }
+
 
     viewModel.loadAllMenuItem()
 
@@ -87,24 +88,18 @@ fun FoodListScreen(
             menus = menuListState.value.menuItemList
         }
     }
-
-
     var textInput by remember { mutableStateOf("") }
 
-    var filteredFood: List<MenuItem> = listOf()
-
-    if (menuType != "Recommended" && menuType != "Popular") {
-        menus.forEach { menu ->
-            if (menu.cuisine == menuType) {
-                filteredFood = filteredFood + menu
-            }
-        }
-    } else {
-        filteredFood = menus
+    val filteredFood = if (menuType != "Recommended" && menuType != "Popular" && menuType != "All") {
+        menus.filter { it.cuisine == menuType }
+    } else if(menuType == "Popular"){
+        menus.filter { it.rating >= 4.5 }
+    } else{
+        menus
     }
 
     Scaffold(
-        topBar = { MyTopTitleBar(title = stringResource(R.string.menu)) },
+        topBar = { MyTopTitleBar(title = menuType, onBackButtonClicked = onBackButtonClicked) },
         //bottomBar = { MyBottomNavBar() }
     ) { innerPadding ->
         Surface(
@@ -119,24 +114,8 @@ fun FoodListScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        //.height(40.dp)
-                        .padding(horizontal = 10.dp, vertical  = 10.dp),
-                    ){
-                    Text(
-                        text = menuType,
-                        fontSize = 25.sp,
-                        textAlign = TextAlign.Center,
-                        color = Color.Black,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
                         .height(100.dp)
-                    .padding(horizontal = 10.dp, vertical  = 10.dp),
+                        .padding(horizontal = 10.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
 
@@ -185,7 +164,9 @@ fun FoodListScreen(
                                             containerColor = Color.White
                                         ),
                                         modifier = Modifier
-                                            .clickable { /*TODO*/ }
+                                            .clickable {
+                                                currentDishId = filteredFood[i].menuItemID
+                                                onDish(currentDishId) }
                                             .size(
                                                 170.dp,
                                                 200.dp
@@ -202,7 +183,7 @@ fun FoodListScreen(
                                                 .fillMaxSize()
                                         ) {
                                             Image(
-                                                painter = painterResource(R.drawable.cabonarapastapic),
+                                                painter = painterResource(R.drawable.dishimage),
                                                 contentDescription = filteredFood[i].description,
                                                 contentScale = ContentScale.Crop,
                                                 modifier = Modifier
@@ -250,7 +231,9 @@ fun FoodListScreen(
                                             containerColor = Color.White
                                         ),
                                         modifier = Modifier
-                                            .clickable { /*TODO*/ }
+                                            .clickable {
+                                                currentDishId = filteredFood[i + 1].menuItemID
+                                                onDish(currentDishId) }
                                             .size(
                                                 170.dp,
                                                 200.dp
@@ -267,7 +250,7 @@ fun FoodListScreen(
                                                 .fillMaxSize()
                                         ) {
                                             Image(
-                                                painter = painterResource(R.drawable.beefburgerpic),
+                                                painter = painterResource(R.drawable.dishimage),
                                                 contentDescription = "Beef Burger",
                                                 contentScale = ContentScale.Crop,
                                                 modifier = Modifier
@@ -324,13 +307,13 @@ fun FoodListSearchBar(
         onValueChange = onValueChange,
         singleLine = true,
         modifier = modifier
-            .padding(start = 5.dp,top = 10.dp, bottom = 10.dp, end = 20.dp)
+            .padding(start = 5.dp, top = 10.dp, bottom = 10.dp, end = 20.dp)
             //.fillMaxWidth()
             .height(50.dp)
             .clip(
                 shape = RoundedCornerShape(
                     size = 20.dp,
-                    ),
+                ),
             )
             .background(color = Color.White)
             .border(
@@ -359,8 +342,8 @@ fun FoodListSearchBar(
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun FoodListScreenPreview() {
-    FoodListScreen("Thai")
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun FoodListScreenPreview() {
+//    FoodListScreen("Japanese", onDish = {})
+//}

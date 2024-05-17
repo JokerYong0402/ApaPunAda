@@ -25,7 +25,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -38,11 +37,11 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -56,7 +55,6 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -76,8 +74,9 @@ import java.util.TimeZone
 @Composable
 fun EditProfileScreen(
     viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    onProfile: () -> Unit
-) {
+    onProfile: () -> Unit,
+    onBackButtonClicked: () -> Unit
+    ) {
     var userState = viewModel.userState.collectAsState(initial = UserState())
     viewModel.loadUserByUserId(3)
 
@@ -87,7 +86,7 @@ fun EditProfileScreen(
     val imageUrl = rememberSaveable{mutableStateOf("")}
     var editedname by remember { mutableStateOf("") }
     var editedgender by remember { mutableStateOf("") }
-    var editeddob by remember { mutableStateOf("") }
+    var editeddob by remember { mutableLongStateOf(user.dob) }
     var editedemail by remember { mutableStateOf("") }
     var editedpassword by remember { mutableStateOf("") }
     var editedphonenum by remember { mutableStateOf("") }
@@ -104,25 +103,14 @@ fun EditProfileScreen(
     if (user != null){
         editedname = user.username
         editedgender = user.gender
-        editeddob = user.dob.toString()
+        editeddob = user.dob
         editedemail = user.email
         editedpassword = user.password
         editedphonenum = user.phoneNo
     }
 
-
-    if (openAlertDialog) {
-        EditProfileAlertDialog(
-            onDismissRequest = { openAlertDialog = false },
-            onConfirmation = { openAlertDialog = false },
-            dialogTitle = "SUCCESS",
-            dialogText = "Your profile has been updated.",
-            onProfile = onProfile
-        )
-    }
-
     Scaffold(
-        topBar = { MyTopTitleBar(title = stringResource(R.string.edit_profile)) },
+        topBar = { MyTopTitleBar(title = stringResource(R.string.edit_profile), onBackButtonClicked = onBackButtonClicked) },
         //bottomBar = { MyBottomNavBar() }
     ) { innerPadding ->
         Surface(
@@ -134,7 +122,12 @@ fun EditProfileScreen(
             Column(
                 modifier = Modifier.padding(innerPadding)
             ) {
-                ChangeProfilePic()
+                Column (
+                    modifier = Modifier.padding(top = 10.dp)
+                ){
+                    ChangeProfilePic()
+                }
+
 
                 Row(//EDIT NAME
                     modifier = Modifier
@@ -227,13 +220,6 @@ fun EditProfileScreen(
                                 }
                             }
                         }
-//                        EditTextFieldProfile(
-//                            value = editedgender,
-//                            textlabel = "Gender",
-//                            onValueChange = { editedgender = it },
-//                            modifier = Modifier
-//                            //    .fillMaxWidth()
-//                        )
                     }
                 }
 
@@ -261,8 +247,8 @@ fun EditProfileScreen(
                         horizontalAlignment = Alignment.Start,
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        DatePickerDialog(context, userState.value.user)
-                        //DobDatePicker(context, user)
+                         editeddob = DatePickerDialog(context, user)
+
                     }
                 }
 
@@ -376,23 +362,32 @@ fun EditProfileScreen(
                             textlabel = "Phone Number",
                             onValueChange = { if(it.length <= maxCharPhoneNum) editedphonenum = it },
                             modifier = Modifier
-                            //    .fillMaxWidth()
                         )
                     }
                 }
 
                 Button(
                     onClick = {
-                        openAlertDialog = true
-                        User(
+                        val latestUser = User(
                             image = imageUrl.value,
+                            userID = user.userID,
                             username = editedname,
-                            gender = editedgender,
-                            dob = convertDateToLong(editeddob) ,
                             email = editedemail,
                             password = editedpassword,
                             phoneNo = editedphonenum,
+                            gender = editedgender,
+                            dob = editeddob,
+                            role = user.role,
+                            point = user.point,
+                            status = user.status
                         )
+                        viewModel.updateUserState(latestUser)
+
+                        viewModel.updateUser()
+                        Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
+
+                        openAlertDialog = true
+
                               },
                     colors = ButtonDefaults.buttonColors(
                         colorResource(R.color.primary)
@@ -443,7 +438,7 @@ fun ChangeProfilePic() {
             shape = CircleShape,
             modifier = Modifier
                 //.padding(8.dp)
-                .size(100.dp)
+                .size(80.dp)
 
         ){
             Image(
@@ -479,47 +474,12 @@ fun EditTextFieldProfile(
         singleLine = true,
         onValueChange = onValueChange,
         modifier = modifier
-            //.size(100.dp)
-            //.background(color = Color.Transparent)
             .height(120.dp)
             .width(300.dp),
         label = {
             Text(text = textlabel)
                 },
         )
-}
-
-@Composable
-fun EditProfileAlertDialog(
-    onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit,
-    dialogTitle: String,
-    dialogText: String,
-    onProfile: () -> Unit
-) {
-    val context = LocalContext.current
-    AlertDialog(
-        title = {
-            Text(text = dialogTitle)
-        },
-        text = {
-            Text(text = dialogText)
-        },
-        onDismissRequest = {
-            onDismissRequest()
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
-                    onConfirmation()
-                    onProfile()
-                }
-            ) {
-                Text("Confirm")
-            }
-        }
-    )
 }
 
 @Composable
@@ -547,55 +507,6 @@ fun ReadonlyTextField(
         )
     }
 }
-
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun DobDatePicker(
-//    context: Context,
-//    user: User
-//) {
-//    val year: Int
-//    val month: Int
-//    val day: Int
-//
-//    val calender = Calendar.getInstance()
-//    year = calender.get(Calendar.YEAR)
-//    month = calender.get(Calendar.MONTH)
-//    day = calender.get(Calendar.DAY_OF_MONTH)
-//    calender.time = Date()
-//
-//    var editeddob = remember { mutableStateOf(user.dob) }
-//    val datePickerDialog = remember {
-//        DatePickerDialog(
-//            context,
-//            { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-//                editeddob.value = getStringToDate("$dayOfMonth/$month/$year")
-//            }, year, month, day
-//        )
-//    }
-//
-//
-//    Column(//EDIT DOB
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .height(80.dp),
-//        horizontalAlignment = Alignment.CenterHorizontally
-//    ) {
-//        ReadonlyTextField(
-//            value = formattedDate(editeddob.value, "date"),
-//            onValueChange = { editeddob.value = getStringToDate(it) },
-//            label = { Text("Date of Birth") },
-//            modifier = Modifier
-//                .size(width = 280.dp, height = 55.dp),
-//            onClick = { datePickerDialog.show() },
-//            colors = OutlinedTextFieldDefaults.colors(
-//                focusedBorderColor = Color.Gray,
-//                unfocusedBorderColor = Color.Gray,
-//            )
-//        )
-//    }
-//}
-
 
 @Composable
 fun DatePickerDialog(
@@ -634,20 +545,16 @@ fun convertDateToLong(dateString: String): Long {
     val date = format.parse(dateString)
     return date.time
 }
-//fun getStringToDate(date: String): Long {
-//    val l = LocalDate.parse(date, DateTimeFormatter.ofPattern("dd-MM-yyyy"))
-//    val unix = l.atStartOfDay(ZoneId.systemDefault()).toInstant().epochSecond
-//    return unix
-//}
+
 fun isValidEmail(email: String): Boolean {
     val emailRegex = Regex("^\\S+@\\S+\\.\\S+\$")
     return emailRegex.matches(email)
 }
 
-@Preview(showBackground = true)
-@Composable
-fun EditProfileScreenPreview() {
-    EditProfileScreen(
-        onProfile = {}
-    )
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun EditProfileScreenPreview() {
+//    EditProfileScreen(
+//        onProfile = {}
+//    )
+//}

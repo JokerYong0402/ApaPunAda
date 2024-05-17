@@ -31,11 +31,15 @@ fun ProfileNav(
         }
         composable(route = "EditProfile"){
             EditProfileScreen(
+                onBackButtonClicked = {navController.navigate(ProfileNav.Profile.name)},
+
                 onProfile = { navController.navigate("Profile")}
             )
         }
         composable(route = "DeleteProfile"){
             DeleteProfileScreen(
+                onBackButtonClicked = {navController.navigate(ProfileNav.Profile.name)},
+
                 onLogin = {navController.navigate("login")}
             )
         }

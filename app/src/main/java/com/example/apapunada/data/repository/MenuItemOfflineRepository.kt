@@ -9,9 +9,13 @@ class MenuItemOfflineRepository(private val menuItemDao: MenuItemDao): MenuItemR
 
     override fun getMenuItemByMenuItemIdStream(id: Int): Flow<MenuItem> = menuItemDao.getMenuItemByMenuItemId(id)
 
+    override fun getMenuMenuItemsByCuisineStream(cuisine: String): Flow<List<MenuItem>> = menuItemDao.getMenuItemsByCuisine(cuisine)
+
     override suspend fun deleteMenuItem(menuItem: MenuItem) = menuItemDao.deleteMenuItem(menuItem)
 
     override suspend fun updateMenuItem(menuItem: MenuItem) = menuItemDao.updateMenuItem(menuItem)
 
     override suspend fun insertMenuItem(menuItem: MenuItem) = menuItemDao.insertMenuItem(menuItem)
+
 }
+
