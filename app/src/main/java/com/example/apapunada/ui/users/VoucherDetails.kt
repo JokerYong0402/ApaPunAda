@@ -77,17 +77,12 @@ fun VoucherDetails(
                     )
                     Text(
                         modifier = Modifier.padding(top = 15.dp),
-                        text = "1. This Voucher is valid for delivery only.",
+                        text = "1. This Voucher is not exchangeable or replaceable for cash.",
                         fontSize = 16.sp,
                     )
                     Text(
                         modifier = Modifier.padding(top = 15.dp),
-                        text = "2. This Voucher is not exchangeable or replaceable for cash.",
-                        fontSize = 16.sp,
-                    )
-                    Text(
-                        modifier = Modifier.padding(top = 15.dp),
-                        text = "3. APAPUNADA shall be entitled to withhold any benefits under the services rendered," +
+                        text = "2. APAPUNADA shall be entitled to withhold any benefits under the services rendered," +
                                 " with or without notice to the users, if the user is found to have breached APAPUNADA Users Terms and Conditions.",
                         fontSize = 16.sp,
                     )

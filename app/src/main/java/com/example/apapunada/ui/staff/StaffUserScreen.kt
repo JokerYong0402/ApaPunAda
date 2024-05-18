@@ -2,9 +2,13 @@ package com.example.apapunada.ui.staff
 
 import android.app.DatePickerDialog
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Environment
 import android.util.Log
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -24,6 +28,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -46,6 +51,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,6 +62,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
@@ -75,21 +82,25 @@ import com.example.apapunada.data.dataclass.User
 import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.formattedDate
-import com.example.apapunada.ui.components.getEnumList
 import com.example.apapunada.viewmodel.Gender
 import com.example.apapunada.viewmodel.UserListState
 import com.example.apapunada.viewmodel.UserState
 import com.example.apapunada.viewmodel.UserStatus
 import com.example.apapunada.viewmodel.UserViewModel
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
+import java.util.TimeZone
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun StaffUserScreen(
     viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    var userState = viewModel.userState.collectAsState(initial = UserState())
+    val userState = viewModel.userState.collectAsState(initial = UserState())
+    Log.i("User State", "StaffUserScreen: "+userState.value)
     val userListState = viewModel.userListState.collectAsState(initial = UserListState())
     var users: List<User> = listOf()
 
@@ -106,10 +117,16 @@ fun StaffUserScreen(
         }
     }
 
+    val context = LocalContext.current
     var search by remember { mutableStateOf("") }
+    var addButton by remember { mutableStateOf(false) }
     var editButton by remember { mutableStateOf(false) }
     var detailButton by remember { mutableStateOf(false) }
     var currentUser by remember { mutableStateOf(User()) }
+    var onConfirmAdd by remember { mutableStateOf(false) }
+    var onConfirmEdit by remember { mutableStateOf(false) }
+    var editedUser by remember { mutableStateOf(User()) }
+    var addUser by remember { mutableStateOf(User()) }
 
     val headerList = listOf(
         // (Header name, Column width)
@@ -122,22 +139,68 @@ fun StaffUserScreen(
         Pair("Action", 150.dp)
     )
 
+    if (addButton) {
+        DialogOfAddUser(
+            onDismissRequest = { addButton = false },
+            onConfirmation = {
+                addUser = it
+                onConfirmAdd = true
+                addButton = false
+            },
+            user = User()
+        )
+    }
+
     if (editButton) {
         DialogOfEditUser(
             onDismissRequest = { editButton = false },
             onConfirmation = {
-                viewModel.updateUserState(it)
-                viewModel.updateUser()
+                editedUser = it
+                onConfirmEdit = true
                 editButton = false
             },
             user = currentUser
         )
     }
 
+    if (onConfirmAdd) {
+        onConfirmAdd = false
+        val validate = viewModel.validateInput()
+        Log.i("Check Add User State", "UserScreen: $addUser")
+        viewModel.updateUserState(addUser)
+        if (!validate) {
+            LaunchedEffect(userState) {
+                Log.i("Add Updated User State", "UserScreen: ${userState}")
+                if (userState.value.errorMessage.isNotEmpty()) {
+                    Log.i("Check User Error Message", "UserScreen: Invalid Username $addUser")
+                    Toast.makeText(context, userState.value.errorMessage, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        viewModel.saveUser()
+    }
+
+    if (onConfirmEdit) {
+        onConfirmEdit = false
+        val validate = viewModel.validateInput()
+        Log.i("Check Edit User State", "UserScreen: $editedUser")
+        viewModel.updateUserState(editedUser)
+        if (!validate) {
+            LaunchedEffect(userState) {
+                Log.i("Edit Updated User State", "UserScreen: ${userState}")
+                if (userState.value.errorMessage.isNotEmpty()) {
+                    Log.i("Check User Error Message", "UserScreen: Invalid Username $editedUser")
+                    Toast.makeText(context, userState.value.errorMessage, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        viewModel.updateUser()
+    }
+
     if (detailButton) {
         DialogOfUserDetail(
             onDismissRequest = { detailButton = false },
-            user = currentUser //TODO
+            user = currentUser
         )
     }
 
@@ -170,23 +233,9 @@ fun StaffUserScreen(
             shape = RoundedCornerShape(16.dp)
         )
         Button(onClick = {
-//            TODO Dialog for add user
-//            val user = User(
-//                username = "Anson",
-//                email = "anson@gmail.com",
-//                password = "imanson",
-//                phoneNo = "015-59875412",
-//                gender = "Male",
-//                dob = 1072915200000,
-//                role = "User", // TODO
-//                point = 0,
-//                status = "Active",
-//            )
-//
-//            viewModel.updateUserState(user)
-//            viewModel.saveUser()
+            addButton = true
         }) {
-            Text(text = "Adduser")
+            Text(text = "Add User")
         }
         LazyColumn(
             modifier = Modifier
@@ -216,98 +265,216 @@ fun StaffUserScreen(
                     }
                 }
             }
-
-            items(users.size) { i ->
-                val user = users[i]
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(100.dp)
-                ) {
-                    Text(
-                        text = user.userID.toString(), //TODO
-                        fontSize = 22.sp,
-                        modifier = Modifier
-                            .width(headerList[0].second)
-                            .padding(start = 20.dp)
-                    )
-                    Row(
-                        modifier = Modifier.width(headerList[1].second)
-                    ) {
-
-                        Image(
-                            painter = painterResource(R.drawable.ic_android_black_24dp), // TODO
-                            contentDescription = "userImage",
-                            modifier = Modifier
-                                .padding(horizontal = 15.dp)
-                                .size(50.dp)
-                        )
-                        Text(
-                            text = user.username,
-                            fontSize = 22.sp,
-                            modifier = Modifier.align(Alignment.CenterVertically)
-                        )
-                    }
-                    Text(
-                        text = user.email,
-                        fontSize = 22.sp,
-                        modifier = Modifier
-                            .width(headerList[2].second)
-                    )
-
-                    Row {
-//                        Icon(painter = painterResource(R.id))
-                        Text(
-                            text = user.phoneNo,
-                            fontSize = 22.sp,
-                            modifier = Modifier
-                                .width(headerList[3].second)
-                        )
-                    }
-
-                    Text(
-                        text = user.point.toString(),
-                        fontSize = 22.sp,
-                        modifier = Modifier
-                            .width(headerList[4].second)
-                    )
-
-                    Text(
-                        text = user.status,
-                        fontSize = 22.sp,
-                        modifier = Modifier
-                            .width(headerList[5].second)
-                    )
+            if (search == "") {
+                viewModel.loadAllUsers()
+                items(users.size) { i ->
+                    val user = users[i]
+                    val imageUri = user.image
+                    val painter = rememberAsyncImagePainter(imageUri)
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.width(headerList[6].second)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp)
                     ) {
-                        IconButton(
-                            onClick = {
-                                currentUser = user
-                                editButton = true
-                            }
+                        Text(
+                            text = user.userID.toString(), //TODO
+                            fontSize = 22.sp,
+                            modifier = Modifier
+                                .width(headerList[0].second)
+                                .padding(start = 20.dp)
+                        )
+                        Row(
+                            modifier = Modifier.width(headerList[1].second)
                         ) {
-                            Icon(
-                                painter = painterResource(R.drawable.editicon),
-                                contentDescription = "Edit button",
-                                modifier = Modifier.size(30.dp)
-                            )
+                            Card(
+                                shape = CircleShape,
+                                modifier = Modifier
+                                    .padding(horizontal = 15.dp)
+                                    .size(70.dp)
+                            ){
+                                Image(
+                                    painter = painter,
+                                    contentDescription = "userImage",
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
 
-                        }
-                        IconButton(
-                            onClick = {
-                                currentUser = user
-                                detailButton = true
-                            }
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.emailicon),
-                                contentDescription = "Detail button",
-                                modifier = Modifier.size(30.dp)
+                            Text(
+                                text = user.username,
+                                fontSize = 22.sp,
+                                modifier = Modifier.align(Alignment.CenterVertically)
                             )
                         }
+                        Text(
+                            text = user.email,
+                            fontSize = 22.sp,
+                            modifier = Modifier
+                                .width(headerList[2].second)
+                        )
+
+                        Row {
+//                        Icon(painter = painterResource(R.id))
+                            Text(
+                                text = user.phoneNo,
+                                fontSize = 22.sp,
+                                modifier = Modifier
+                                    .width(headerList[3].second)
+                            )
+                        }
+
+                        Text(
+                            text = user.point.toString(),
+                            fontSize = 22.sp,
+                            modifier = Modifier
+                                .width(headerList[4].second)
+                        )
+
+                        Text(
+                            text = user.status,
+                            fontSize = 22.sp,
+                            modifier = Modifier
+                                .width(headerList[5].second)
+                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.width(headerList[6].second)
+                        ) {
+                            IconButton(
+                                onClick = {
+                                    currentUser = user
+                                    editButton = true
+                                }
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.editicon),
+                                    contentDescription = "Edit button",
+                                    modifier = Modifier.size(30.dp)
+                                )
+
+                            }
+                            IconButton(
+                                onClick = {
+                                    currentUser = user
+                                    detailButton = true
+                                }
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.emailicon),
+                                    contentDescription = "Detail button",
+                                    modifier = Modifier.size(30.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            viewModel.loadUsersByName(search)
+            items(userListState.value.userList.size) { i ->
+                if (userListState.value.userList.isNotEmpty()) {
+                    val user = users[i]
+                    val imageUri = user.image
+                    val painter = rememberAsyncImagePainter(imageUri)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp)
+                    ) {
+                        Text(
+                            text = user.userID.toString(), //TODO
+                            fontSize = 22.sp,
+                            modifier = Modifier
+                                .width(headerList[0].second)
+                                .padding(start = 20.dp)
+                        )
+                        Row(
+                            modifier = Modifier.width(headerList[1].second)
+                        ) {
+                            Card(
+                                shape = CircleShape,
+                                modifier = Modifier
+                                    .padding(horizontal = 15.dp)
+                                    .size(70.dp)
+                            ){
+                                Image(
+                                    painter = painter,
+                                    contentDescription = "userImage",
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+
+                            Text(
+                                text = user.username,
+                                fontSize = 22.sp,
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            )
+                        }
+                        Text(
+                            text = user.email,
+                            fontSize = 22.sp,
+                            modifier = Modifier
+                                .width(headerList[2].second)
+                        )
+
+                        Row {
+//                        Icon(painter = painterResource(R.id))
+                            Text(
+                                text = user.phoneNo,
+                                fontSize = 22.sp,
+                                modifier = Modifier
+                                    .width(headerList[3].second)
+                            )
+                        }
+
+                        Text(
+                            text = user.point.toString(),
+                            fontSize = 22.sp,
+                            modifier = Modifier
+                                .width(headerList[4].second)
+                        )
+
+                        Text(
+                            text = user.status,
+                            fontSize = 22.sp,
+                            modifier = Modifier
+                                .width(headerList[5].second)
+                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.width(headerList[6].second)
+                        ) {
+                            IconButton(
+                                onClick = {
+                                    currentUser = user
+                                    editButton = true
+                                }
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.editicon),
+                                    contentDescription = "Edit button",
+                                    modifier = Modifier.size(30.dp)
+                                )
+
+                            }
+                            IconButton(
+                                onClick = {
+                                    currentUser = user
+                                    detailButton = true
+                                }
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.emailicon),
+                                    contentDescription = "Detail button",
+                                    modifier = Modifier.size(30.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+                else {
+                    Row {
+                        Text(text = "There are no user name like $search")
                     }
                 }
             }
@@ -317,7 +484,7 @@ fun StaffUserScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DialogOfEditUser(
+fun DialogOfAddUser(
     onDismissRequest: () -> Unit = {},
     onConfirmation: (User) -> Unit,
     user: User
@@ -328,16 +495,9 @@ fun DialogOfEditUser(
     var phoneNo by remember { mutableStateOf(user.phoneNo) }
     var gender by remember { mutableStateOf(user.gender) }
     var dob by remember { mutableStateOf(user.dob) }
-    var point by remember { mutableStateOf(user.point) }
-    var status by remember { mutableStateOf(user.status) }
-
-    val userGender = getEnumList(Gender::class.java)
-    val userStatus = getEnumList(UserStatus::class.java)
-    var expandedS by remember { mutableStateOf(false) }
-    var expandedG by remember { mutableStateOf(false) }
-
     val context = LocalContext.current
-
+    val userGender: List<Gender> = enumValues<Gender>().toList()
+    var expandedG by remember { mutableStateOf(false) }
     val imageUri = rememberSaveable { mutableStateOf("") }
     val painter = rememberAsyncImagePainter(
         imageUri.value.ifEmpty { user.image }
@@ -347,7 +507,6 @@ fun DialogOfEditUser(
     ) {uri: Uri? ->
         uri?.let { imageUri.value = it.toString() }
     }
-
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
@@ -365,20 +524,26 @@ fun DialogOfEditUser(
                 Column(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 ) {
-                    Image(
-                        painter = painter,
-                        contentDescription = "User Profile Pic",
-                        Modifier
+                    Card(
+                        shape = CircleShape,
+                        modifier = Modifier
                             .align(Alignment.CenterHorizontally)
                             .size(70.dp)
-                            .clickable { launcher.launch("image/*") }
-                    )
+                    ){
+                        Image(
+                            painter = painter,
+                            contentDescription = "",
+                            modifier = Modifier
+                                .clickable { launcher.launch("image/*") },
+                            contentScale = ContentScale.Crop
+                        )
+                    }
                     OutlinedTextField(
                         value = username,
                         onValueChange = { username = it },
                         textStyle = TextStyle(fontSize = 15.sp),
                         label = { Text("Username") },
-                        modifier = Modifier.size(width = 280.dp, height = 55.dp),
+                        modifier = Modifier.size(width = 280.dp, height = 60.dp),
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = colorResource(R.color.primary),
@@ -386,24 +551,24 @@ fun DialogOfEditUser(
                         )
                     )
                     OutlinedTextField(
-                        value = user.email,
-                        onValueChange = { },
+                        value = email,
+                        onValueChange = { email = it },
                         textStyle = TextStyle(fontSize = 15.sp),
                         label = { Text("Email") },
-                        modifier = Modifier.size(width = 280.dp, height = 55.dp),
-                        readOnly = true,
+                        modifier = Modifier.size(width = 280.dp, height = 60.dp),
+                        singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = colorResource(R.color.primary),
                             unfocusedBorderColor = colorResource(R.color.primary),
                         )
                     )
                     OutlinedTextField(
-                        value = user.password,
-                        onValueChange = { },
+                        value = password,
+                        onValueChange = { password = it },
                         textStyle = TextStyle(fontSize = 15.sp),
                         label = { Text("Password") },
-                        modifier = Modifier.size(width = 280.dp, height = 55.dp),
-                        readOnly = true,
+                        modifier = Modifier.size(width = 280.dp, height = 60.dp),
+                        singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = colorResource(R.color.primary),
                             unfocusedBorderColor = colorResource(R.color.primary),
@@ -414,8 +579,9 @@ fun DialogOfEditUser(
                         onValueChange = { phoneNo = it },
                         textStyle = TextStyle(fontSize = 15.sp),
                         label = { Text("Phone Number") },
-                        modifier = Modifier.size(width = 280.dp, height = 55.dp),
+                        modifier = Modifier.size(width = 280.dp, height = 60.dp),
                         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                        singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = colorResource(R.color.primary),
                             unfocusedBorderColor = colorResource(R.color.primary),
@@ -435,7 +601,7 @@ fun DialogOfEditUser(
                                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedG)
                             },
                             modifier = Modifier
-                                .size(width = 280.dp, height = 55.dp)
+                                .size(width = 280.dp, height = 60.dp)
                                 .menuAnchor(),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = colorResource(R.color.primary),
@@ -444,20 +610,220 @@ fun DialogOfEditUser(
                         )
                         ExposedDropdownMenu(
                             expanded = expandedG,
-                            onDismissRequest = { /*TODO*/ }
+                            onDismissRequest = {  }
                         ) {
                             userGender.forEach {
                                 DropdownMenuItem(
-                                    text = { Text(text = it) },
+                                    text = { Text(text = it.fullName) },
                                     onClick = {
-                                        gender = it
+                                        gender = it.fullName
                                         expandedG = false
                                     }
                                 )
                             }
                         }
                     }
-                    DatePickerDialog(context, user)
+                    dob = DatePickerDialog(context, user)
+                }
+
+                // Buttons
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = { onDismissRequest() }) {
+                        Text(text = "Dismiss")
+                    }
+                    TextButton(onClick = {
+                        onConfirmation(
+                            User(
+                                image = imageUri.value,
+                                userID = user.userID,
+                                username = username,
+                                email = email,
+                                password = password,
+                                phoneNo = phoneNo,
+                                gender = gender,
+                                dob = dob,
+                                role = "User",
+                                point = 0,
+                                status = "Active",
+                            )
+                        )
+                    }) {
+                        Text(text = "Confirm")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DialogOfEditUser(
+    onDismissRequest: () -> Unit = {},
+    onConfirmation: (User) -> Unit,
+    user: User
+) {
+    var username by remember { mutableStateOf(user.username) }
+    val email by remember { mutableStateOf(user.email) }
+    val password by remember { mutableStateOf(user.password) }
+    var phoneNo by remember { mutableStateOf(user.phoneNo) }
+    var gender by remember { mutableStateOf(user.gender) }
+    var dob by remember { mutableStateOf(user.dob) }
+    var point by remember { mutableStateOf(user.point) }
+    var status by remember { mutableStateOf(user.status) }
+    var image by remember { mutableStateOf(user.image) }
+
+    val userGender: List<Gender> = enumValues<Gender>().toList()
+    val userStatus: List<UserStatus> = enumValues<UserStatus>().toList()
+    var expandedS by remember { mutableStateOf(false) }
+    var expandedG by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+
+    val imageUri = rememberSaveable { mutableStateOf("") }
+    val painter = rememberAsyncImagePainter(
+        imageUri.value.ifEmpty { user.image }
+    )
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) {uri: Uri? ->
+        uri?.let { imageUri.value = it.toString() }
+    }
+
+    var bitmapUri: Uri?
+
+    Dialog(onDismissRequest = { onDismissRequest() }) {
+        Card(
+            elevation = CardDefaults.cardElevation(15.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dimensionResource(R.dimen.padding_medium))
+        ) {
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(dimensionResource(R.dimen.padding_medium))
+            ) {
+
+                Column(
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Card(
+                        shape = CircleShape,
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .size(70.dp)
+                    ){
+                        Image(
+                            painter = painter,
+                            contentDescription = "",
+                            modifier = Modifier
+                                .clickable { launcher.launch("image/*") },
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                    OutlinedTextField(
+                        value = username,
+                        onValueChange = { username = it },
+                        textStyle = TextStyle(fontSize = 15.sp),
+                        label = { Text("Username") },
+                        modifier = Modifier.size(width = 280.dp, height = 60.dp),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = colorResource(R.color.primary),
+                            unfocusedBorderColor = colorResource(R.color.primary),
+                        )
+                    )
+                    OutlinedTextField(
+                        value = user.email,
+                        onValueChange = { },
+                        textStyle = TextStyle(fontSize = 15.sp),
+                        label = { Text("Email") },
+                        modifier = Modifier.size(width = 280.dp, height = 60.dp),
+                        readOnly = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = colorResource(R.color.primary),
+                            unfocusedBorderColor = colorResource(R.color.primary),
+                        )
+                    )
+                    OutlinedTextField(
+                        value = user.password,
+                        onValueChange = { },
+                        textStyle = TextStyle(fontSize = 15.sp),
+                        label = { Text("Password") },
+                        modifier = Modifier.size(width = 280.dp, height = 60.dp),
+                        readOnly = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = colorResource(R.color.primary),
+                            unfocusedBorderColor = colorResource(R.color.primary),
+                        )
+                    )
+                    OutlinedTextField(
+                        value = phoneNo,
+                        onValueChange = { phoneNo = it },
+                        textStyle = TextStyle(fontSize = 15.sp),
+                        label = { Text("Phone Number") },
+                        modifier = Modifier.size(width = 280.dp, height = 60.dp),
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = colorResource(R.color.primary),
+                            unfocusedBorderColor = colorResource(R.color.primary),
+                        )
+                    )
+                    ExposedDropdownMenuBox(
+                        expanded = expandedG,
+                        onExpandedChange = { expandedG = !expandedG }
+                    ) {
+                        OutlinedTextField(
+                            value = gender,
+                            onValueChange = { gender = it },
+                            textStyle = TextStyle(fontSize = 15.sp),
+                            label = { Text("Gender") },
+                            readOnly = true,
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedG)
+                            },
+                            modifier = Modifier
+                                .size(width = 280.dp, height = 60.dp)
+                                .menuAnchor(),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = colorResource(R.color.primary),
+                                unfocusedBorderColor = colorResource(R.color.primary),
+                            )
+                        )
+                        ExposedDropdownMenu(
+                            expanded = expandedG,
+                            onDismissRequest = {  }
+                        ) {
+                            userGender.forEach {
+                                DropdownMenuItem(
+                                    text = { Text(text = it.fullName) },
+                                    onClick = {
+                                        gender = it.fullName
+                                        expandedG = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    dob = DatePickerDialog(context, user)
+                    OutlinedTextField(
+                        value = point.toString(),
+                        onValueChange = { point = it.toInt() },
+                        textStyle = TextStyle(fontSize = 15.sp),
+                        label = { Text("Point") },
+                        readOnly = true,
+                        modifier = Modifier.size(width = 280.dp, height = 60.dp),
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = colorResource(R.color.primary),
+                            unfocusedBorderColor = colorResource(R.color.primary),
+                        )
+                    )
 
                     ExposedDropdownMenuBox(
                         expanded = expandedS,
@@ -473,7 +839,7 @@ fun DialogOfEditUser(
                                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedS)
                             },
                             modifier = Modifier
-                                .size(width = 280.dp, height = 55.dp)
+                                .size(width = 280.dp, height = 60.dp)
                                 .menuAnchor(),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = colorResource(R.color.primary),
@@ -486,9 +852,9 @@ fun DialogOfEditUser(
                         ) {
                             userStatus.forEach {
                                 DropdownMenuItem(
-                                    text = { Text(text = it) },
+                                    text = { Text(text = it.fullName) },
                                     onClick = {
-                                        status = it
+                                        status = it.fullName
                                         expandedS = false
                                     }
                                 )
@@ -496,7 +862,7 @@ fun DialogOfEditUser(
                         }
                     }
                 }
-
+//                Log.i("Check Image", "DialogOfEditUser: "+imageUri.value)
                 // Buttons
                 Row(
                     horizontalArrangement = Arrangement.End,
@@ -507,8 +873,15 @@ fun DialogOfEditUser(
                     }
 
                     TextButton(onClick = {
+                        if (imageUri.value != "") {
+                            bitmapUri = saveImageFromUri(context, imageUri.value)
+                            image = bitmapUri.toString()
+//                            Log.i("Check Bitmap URI", "DialogOfEditUser: "+bitmapUri)
+                        }
+//                        Log.i("Check Image2", "DialogOfEditUser: "+image)
                         onConfirmation(
                             User(
+                                image = image,
                                 userID = user.userID,
                                 username = username,
                                 email = email,
@@ -516,7 +889,7 @@ fun DialogOfEditUser(
                                 phoneNo = phoneNo,
                                 gender = gender,
                                 dob = dob,
-                                role = "User", // TODO
+                                role = "User",
                                 point = point,
                                 status = status,
                             )
@@ -530,39 +903,62 @@ fun DialogOfEditUser(
     }
 }
 
+fun saveImageFromUri(context: Context, imageUriString: String): Uri? {
+    val imageUri = Uri.parse(imageUriString)
+    val inputStream = context.contentResolver.openInputStream(imageUri)
+    val bitmap = BitmapFactory.decodeStream(inputStream)
+
+    val file = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "image.jpg")
+
+    try {
+        val fos = FileOutputStream(file)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
+        fos.close()
+        return Uri.fromFile(file)
+    } catch (e: IOException) {
+        e.printStackTrace()
+    }
+
+    return null
+}
+
+fun convertDateToLong(dateString: String): Long {
+    val format = SimpleDateFormat("dd-MM-yyyy") // Specify the date format
+    format.timeZone = TimeZone.getTimeZone("UTC")
+    val date = format.parse(dateString)
+    return date.time
+}
+
 @Composable
 fun DatePickerDialog(
     context: Context,
     user: User
-) {
-    val year: Int
-    val month: Int
-    val day: Int
+): Long {
     val calendar = Calendar.getInstance()
-    year = calendar.get(Calendar.YEAR)
-    month = calendar.get(Calendar.MONTH)
-    day = calendar.get(Calendar.DAY_OF_MONTH)
-    calendar.time = Date()
-    val date = remember { mutableStateOf(formattedDate(user.dob, "date")) }
+    val year = calendar.get(Calendar.YEAR)
+    val month = calendar.get(Calendar.MONTH)
+    val day = calendar.get(Calendar.DAY_OF_MONTH)
+    var date by remember { mutableStateOf(user.dob) }
     val datePickerDialog = DatePickerDialog(
         context,
-        {_: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-            date.value = "$dayOfMonth-${month+1}-$year" // TODO
+        { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+            val newDate = "$dayOfMonth-${month+1}-$year"
+            date = convertDateToLong(newDate)
         }, year, month, day
     )
     ReadonlyTextField(
-        value = date.value,
-        onValueChange = { date.value = it },
+        value = formattedDate(date, "date"),
+        onValueChange = { date = convertDateToLong(it) },
         textStyle = TextStyle(fontSize = 15.sp),
         label = { Text("Date of Birth") },
-        modifier = Modifier
-            .size(width = 280.dp, height = 55.dp),
+        modifier = Modifier.size(width = 280.dp, height = 60.dp),
         onClick = { datePickerDialog.show() },
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = colorResource(R.color.primary),
             unfocusedBorderColor = colorResource(R.color.primary),
         )
     )
+    return date
 }
 
 @Composable
@@ -619,6 +1015,11 @@ fun DialogOfUserDetail(
         Pair("Status", 100.dp)
     )
 
+    val imageUri = rememberSaveable { mutableStateOf(user.image) }
+    val painter = rememberAsyncImagePainter(
+        imageUri.value.ifEmpty { user.image }
+    )
+
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
             colors = CardDefaults.cardColors(Color.White),
@@ -633,12 +1034,20 @@ fun DialogOfUserDetail(
                     .verticalScroll(rememberScrollState())
                     .padding(dimensionResource(R.dimen.padding_medium))
             ) {
-                Image(
-                    painter = painterResource(R.drawable.ordermethod3), // TODO
-                    contentDescription = "User Image",
+                Card(
+                    shape = CircleShape,
                     modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
                         .size(70.dp)
-                )
+
+                ){
+                    Image(
+                        painter = painter,
+                        contentDescription = "",
+                        modifier = Modifier,
+                        contentScale = ContentScale.Crop
+                    )
+                }
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(30.dp),
                     modifier = Modifier
@@ -752,7 +1161,6 @@ fun DialogOfUserDetail(
                     }
                 }
 
-                // Buttons
                 Row(
                     horizontalArrangement = Arrangement.End,
                     modifier = Modifier.fillMaxWidth()

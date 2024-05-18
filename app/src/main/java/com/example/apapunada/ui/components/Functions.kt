@@ -79,7 +79,7 @@ fun formattedDate(millis: Long, option: String = ""): String {
 inline fun <reified T : Enum<*>> getEnumList(
     enumClass: Class<T> = T::class.java
 ): List<String> {
-    return enumClass.enumConstants!!.map { it.name }
+    return enumClass.enumConstants!!.map { (it as Enum<*>).name }
 }
 
 @Composable
