@@ -6,6 +6,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.apapunada.R
 import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.viewmodel.OrderViewModel
@@ -22,8 +23,8 @@ enum class OrderScreen(@StringRes val routeResId: Int) {
 }
 
 @Composable
-fun OrderNavHost(
-    navController: NavHostController,
+fun OrderNav(
+    navController: NavHostController = rememberNavController(),
     orderViewModel: OrderViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     NavHost(navController, startDestination = OrderScreen.Option.name) {

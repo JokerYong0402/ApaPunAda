@@ -75,4 +75,11 @@
     <string name="order_payment">Order Payment</string>
     <string name="order_success">Order Success</string>
     <string name="order_failed">Order Failed</string>
+
+    <string name="identify">Identify</string>
+    <string name="user">User</string>
+    <string name="staff">Staff</string>
+
+    <string name="food_list">Food List</string>
+    <string name="food_details">Food Details</string>
 </resources>

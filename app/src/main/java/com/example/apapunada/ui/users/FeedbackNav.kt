@@ -6,8 +6,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.example.apapunada.R
+import com.example.apapunada.UserScreen
 
 enum class FeedbackNav(@StringRes val title: Int){
     Feedback(R.string.feedback),
@@ -17,7 +17,7 @@ enum class FeedbackNav(@StringRes val title: Int){
 
 @Composable
 fun FeedbackNav(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController
 ) {
     NavHost(navController = navController, startDestination = FeedbackNav.Feedback.name) {
         composable(FeedbackNav.Feedback.name){
@@ -28,12 +28,8 @@ fun FeedbackNav(
 
         composable(FeedbackNav.FeedbackSuccess.name) {
             FeedbackSuccessScreen(
-                onClick = { navController.navigate("home")}
+                onClick = { navController.navigate(UserScreen.Home.name)}
             )
-        }
-
-        composable(FeedbackNav.Home.name) {
-            HomeScreen(navController = navController)
         }
     }
 }
@@ -43,5 +39,5 @@ fun FeedbackNav(
 fun FeedbackNavPreview(
 
 ){
-    FeedbackNav()
+//    FeedbackNav()
 }

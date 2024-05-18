@@ -343,7 +343,7 @@ fun PopupWindowAlert(
     buttonModifier: Modifier,
     buttonColor: ButtonColors,
     buttonText: String
-){
+) {
     AlertDialog(
         containerColor = Color.White,
         shape = RoundedCornerShape(5.dp),
@@ -365,6 +365,7 @@ fun PopupWindowAlert(
             }
         },
     )
+}
 fun convertDateToLong(dateString: String): Long {
     val format = SimpleDateFormat("dd-MM-yyyy") // Specify the date format
     format.timeZone = TimeZone.getTimeZone("UTC")
@@ -373,7 +374,7 @@ fun convertDateToLong(dateString: String): Long {
 }
 
 @Composable
-fun DatePickerDialog(
+fun MyDatePickerDialog(
     context: Context,
     user: User,
     modifier: Modifier = Modifier,
@@ -386,7 +387,7 @@ fun DatePickerDialog(
     val datePickerDialog = DatePickerDialog(
         context,
         { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-            val newDate = "$dayOfMonth-${month+1}-$year"
+            val newDate = "$dayOfMonth-${month + 1}-$year"
             date = convertDateToLong(newDate)
         }, calYear, calMonth, calDay
     )
@@ -416,7 +417,6 @@ fun ReadonlyTextField(
     textStyle: TextStyle
 ) {
     Box {
-
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
@@ -433,5 +433,6 @@ fun ReadonlyTextField(
                 .alpha(0f)
                 .clickable(onClick = onClick),
         )
+
     }
 }

@@ -41,7 +41,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.apapunada.R
 import com.example.apapunada.ui.components.MyBottomNavBar
-import com.example.apapunada.ui.components.MyTopAppBar
 
 @Composable
 fun MoreScreen(
@@ -54,10 +53,7 @@ fun MoreScreen(
 
     Scaffold(
         topBar = {
-            MyTopAppBar(
-                "User_1",
-                R.drawable.profile_image
-            )
+//            MyTopAppBar(User(), navController) // TODO
         },
         bottomBar = { MyBottomNavBar(5, navController) }
     ) { innerPadding ->

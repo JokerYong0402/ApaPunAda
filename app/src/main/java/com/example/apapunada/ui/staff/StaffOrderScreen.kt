@@ -56,6 +56,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
 import com.example.apapunada.data.dataclass.Order
 import com.example.apapunada.data.dataclass.OrderDetails
+import com.example.apapunada.data.dataclass.User
 import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.formattedDate
@@ -65,11 +66,13 @@ import com.example.apapunada.viewmodel.OrderDetailsListState
 import com.example.apapunada.viewmodel.OrderListState
 import com.example.apapunada.viewmodel.OrderStatus
 import com.example.apapunada.viewmodel.OrderViewModel
+import com.example.apapunada.viewmodel.UserViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun StaffOrderScreen(
-    viewModel: OrderViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: OrderViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    userViewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
 
     val orderListState = viewModel.orderListState.collectAsState(initial = OrderListState())
@@ -99,8 +102,8 @@ fun StaffOrderScreen(
     val headerList = listOf(
         // (Header name, Column width)
         Pair("  No.", 80.dp),
-        Pair("Order ID", 155.dp),
-        Pair("Username", 200.dp),
+        Pair("Order ID", 145.dp),
+        Pair("Username", 210.dp),
         Pair("Amount", 160.dp),
         Pair("Date", 170.dp),
         Pair("Time", 150.dp),
@@ -169,6 +172,13 @@ fun StaffOrderScreen(
 
             items(orders.size) { i ->
                 val o = orders[i]
+                userViewModel.loadUserByUserId(o.userID)
+                var user: User
+
+                do {
+                    user = userViewModel.userState.value.user
+                } while (user.userID != o.userID)
+
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
@@ -193,7 +203,7 @@ fun StaffOrderScreen(
                     Row {
 //                        Icon(painter = painterResource(R.id))
                         Text(
-                            text = o.userID.toString(),
+                            text = user.username,
                             fontSize = 22.sp,
                             modifier = Modifier
                                 .width(headerList[2].second)

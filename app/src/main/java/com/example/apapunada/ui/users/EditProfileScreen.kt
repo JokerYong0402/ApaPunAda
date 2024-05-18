@@ -1,9 +1,6 @@
 package com.example.apapunada.ui.users
 
-import android.app.DatePickerDialog
-import android.content.Context
 import android.net.Uri
-import android.widget.DatePicker
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -11,7 +8,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,7 +33,6 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,7 +43,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -62,13 +56,10 @@ import coil.compose.rememberImagePainter
 import com.example.apapunada.R
 import com.example.apapunada.data.dataclass.User
 import com.example.apapunada.ui.AppViewModelProvider
+import com.example.apapunada.ui.components.MyDatePickerDialog
 import com.example.apapunada.ui.components.MyTopTitleBar
-import com.example.apapunada.ui.components.formattedDate
 import com.example.apapunada.viewmodel.UserState
 import com.example.apapunada.viewmodel.UserViewModel
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.TimeZone
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -247,7 +238,7 @@ fun EditProfileScreen(
                         horizontalAlignment = Alignment.Start,
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
-                         editeddob = DatePickerDialog(context, user)
+                         editeddob = MyDatePickerDialog(context, user)
 
                     }
                 }
@@ -369,7 +360,7 @@ fun EditProfileScreen(
                 Button(
                     onClick = {
                         val latestUser = User(
-                            image = imageUrl.value,
+//                            image = imageUrl.value, TODO
                             userID = user.userID,
                             username = editedname,
                             email = editedemail,
@@ -480,70 +471,6 @@ fun EditTextFieldProfile(
             Text(text = textlabel)
                 },
         )
-}
-
-@Composable
-fun ReadonlyTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    label: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-    colors: TextFieldColors,
-) {
-    Box {
-        OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = modifier,
-            label = label,
-            colors = colors,
-        )
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .alpha(0f)
-                .clickable(onClick = onClick),
-        )
-    }
-}
-
-@Composable
-fun DatePickerDialog(
-    context: Context,
-    user: User
-): Long {
-    val calendar = Calendar.getInstance()
-    val year = calendar.get(Calendar.YEAR)
-    val month = calendar.get(Calendar.MONTH)
-    val day = calendar.get(Calendar.DAY_OF_MONTH)
-    var date by remember { mutableStateOf(user.dob) }
-    val datePickerDialog = DatePickerDialog(
-        context,
-        { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-            val newDate = "$dayOfMonth-${month+1}-$year"
-            date = convertDateToLong(newDate)
-        }, year, month, day
-    )
-    ReadonlyTextField(
-        value = formattedDate(date, "date"),
-        onValueChange = { date = convertDateToLong(it) },
-        //textStyle = androidx.compose.ui.text.TextStyle(fontSize = 15.sp),
-        label = { Text("Date of Birth") },
-        modifier = Modifier.size(width = 280.dp, height = 60.dp),
-        onClick = { datePickerDialog.show() },
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = colorResource(R.color.primary),
-            unfocusedBorderColor = colorResource(R.color.primary),
-        )
-    )
-    return date
-}
-fun convertDateToLong(dateString: String): Long {
-    val format = SimpleDateFormat("dd-MM-yyyy") // Specify the date format
-    format.timeZone = TimeZone.getTimeZone("UTC")
-    val date = format.parse(dateString)
-    return date.time
 }
 
 fun isValidEmail(email: String): Boolean {

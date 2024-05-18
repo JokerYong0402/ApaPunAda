@@ -68,8 +68,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
 import com.example.apapunada.data.dataclass.User
 import com.example.apapunada.ui.AppViewModelProvider
-import com.example.apapunada.ui.components.DatePickerDialog
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
+import com.example.apapunada.ui.components.MyDatePickerDialog
 import com.example.apapunada.ui.components.getEnumList
 import com.example.apapunada.viewmodel.Gender
 import com.example.apapunada.viewmodel.UserRole
@@ -353,7 +353,7 @@ fun SignUpScreen(
 
                         Spacer(modifier = Modifier.height(10.dp))
 
-                        dob = DatePickerDialog(context, User(), Modifier.fillMaxWidth())
+                        dob = MyDatePickerDialog(context, User(), Modifier.fillMaxWidth())
 
                         Spacer(modifier = Modifier.height(10.dp))
 
@@ -450,7 +450,7 @@ fun SignUpScreen(
                                         phoneNo = phoneNo,
                                         gender = gender,
                                         dob = dob,
-                                        image = "", // TODO default image
+//                                        image = "", TODO default image
                                         role = getEnumList(UserRole::class.java)[0],
                                         status = getEnumList(UserStatus::class.java)[0]
                                     )

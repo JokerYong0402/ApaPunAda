@@ -201,7 +201,7 @@ fun OrderCartScreen(
                                     painter = painterResource(
                                         R.drawable.cabonarapastapic
                                     ),
-                                    contentDescription = menu.image,
+                                    contentDescription = menu.image.toString(), // TODO
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier
                                         .fillMaxHeight()

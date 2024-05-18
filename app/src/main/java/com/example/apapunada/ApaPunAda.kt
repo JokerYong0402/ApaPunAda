@@ -12,8 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -43,7 +43,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.IntroductionPager
 import com.example.apapunada.ui.LoginScreen
-import com.example.apapunada.ui.components.StaffAppBarPortrait
+import com.example.apapunada.ui.components.StaffAppBar
+import com.example.apapunada.ui.components.getEnumList
 import com.example.apapunada.ui.staff.StaffDashboardScreen
 import com.example.apapunada.ui.staff.StaffFeedbackScreen
 import com.example.apapunada.ui.staff.StaffMenuScreen
@@ -51,14 +52,25 @@ import com.example.apapunada.ui.staff.StaffOrderScreen
 import com.example.apapunada.ui.staff.StaffUserScreen
 import com.example.apapunada.ui.staff.StaffWaitlistScreen
 import com.example.apapunada.ui.users.HomeScreen
+import com.example.apapunada.ui.users.MoreScreen
+import com.example.apapunada.ui.users.OrderNav
+import com.example.apapunada.ui.users.RewardsScreenNavigation
 import com.example.apapunada.ui.users.SignUpScreen
+import com.example.apapunada.ui.users.WaitlistScreen
 import com.example.apapunada.viewmodel.AuthViewModel
+import com.example.apapunada.viewmodel.UserRole
 import kotlinx.coroutines.launch
 
-enum class UserScreen(@StringRes val title: Int) {
+enum class StartScreen(@StringRes val title: Int) {
     Introduction(R.string.introduction),
     Login(R.string.login),
     SignUp(R.string.sign_up),
+    Identify(R.string.identify),
+    User(R.string.user),
+    Staff(R.string.staff),
+}
+
+enum class UserScreen(@StringRes val title: Int) {
     Home(R.string.home),
     Waitlist(R.string.waitlist),
     Order(R.string.order),
@@ -68,11 +80,11 @@ enum class UserScreen(@StringRes val title: Int) {
 
 enum class StaffScreen(@StringRes val title: Int, @DrawableRes val icon: Int) {
     Dashboard(R.string.app_name, R.drawable.editprofilepicicon),
-    User(R.string.user_mgmt, R.drawable.editprofilepicicon),
-    Menu(R.string.menu_mgmt, R.drawable.editprofilepicicon),
-    Waitlist(R.string.waitlist_mgmt, R.drawable.editprofilepicicon),
-    Ordering(R.string.order_mgmt, R.drawable.editprofilepicicon),
-    Feedback(R.string.feedback_mgmt, R.drawable.editprofilepicicon)
+    UserMgmt(R.string.user_mgmt, R.drawable.editprofilepicicon),
+    MenuMgmt(R.string.menu_mgmt, R.drawable.editprofilepicicon),
+    WaitlistMgmt(R.string.waitlist_mgmt, R.drawable.editprofilepicicon),
+    OrderingMgmt(R.string.order_mgmt, R.drawable.editprofilepicicon),
+    FeedbackMgmt(R.string.feedback_mgmt, R.drawable.editprofilepicicon)
 }
 
 @Composable
@@ -82,74 +94,89 @@ fun ApaPunAdaApp(
     val authViewModel: AuthViewModel = viewModel(factory = AppViewModelProvider.Factory)
 
     NavHost(
-        navController = navController, startDestination = UserScreen.Introduction.name
+        navController = navController, startDestination = StartScreen.Introduction.name
     ) {
-        composable(UserScreen.Introduction.name) {
+        composable(StartScreen.Introduction.name) {
             IntroductionPager(
-                onLoginButtonClicked = { navController.navigate(UserScreen.Login.name) },
-                onSignUpButtonClicked = { navController.navigate(UserScreen.SignUp.name) }
-                )
+                onLoginButtonClicked = { navController.navigate(StartScreen.Login.name) },
+                onSignUpButtonClicked = { navController.navigate(StartScreen.SignUp.name) }
+            )
         }
 
-        composable(UserScreen.Login.name) {
+        composable(StartScreen.Login.name) {
             LoginScreen(
                 onBackButtonClicked = { navController.navigateUp() },
-                onLoginButtonClicked = { navController.navigate(UserScreen.Home.name)},
+                onLoginButtonClicked = { navController.navigate(StartScreen.Identify.name) },
                 authViewModel = authViewModel,
                 navController = navController
             )
         }
 
-        composable(UserScreen.SignUp.name) {
+        composable(StartScreen.SignUp.name) {
             SignUpScreen(
                 onBackButtonClicked = { navController.navigateUp() },
-                onSignUpButtonClicked = { navController.navigate(UserScreen.Introduction.name) }
+                onSignUpButtonClicked = { navController.navigate(StartScreen.Introduction.name) }
             )
         }
 
-//        navigation(startDestination = UserScreen.Home.name, route = "userLoggedIn") {
-            composable(UserScreen.Home.name) {
-                HomeScreen(
-                    navController = navController,
-                    authViewModel = authViewModel
-                )
-            }
-
-            composable(UserScreen.Waitlist.name) {
-//                WaitlistScreen(
-//                    onBackButtonClicked = { navController.navigateUp() }
-//                )
-            }
-
-//            composable("feedback"){
-//                FeedbackNav(navController = navController)
-//            }
-
-            composable(UserScreen.Order.name) {
-//                OrderOptionScreen(
-//                    onBackButtonClicked = { navController.navigateUp() }
-//                )
-            }
-
-            composable(UserScreen.Rewards.name) {
-//                RewardsScreen(
-//                    onBackButtonClicked = { navController.navigateUp() },
-//                    onRedeem = {drawableId, voucherRM -> navController.navigate("VoucherRedeem/$drawableId/$voucherRM")},
-//                    onDetails = {drawableId, voucherRM -> navController.navigate("VoucherDetails/$drawableId/$voucherRM")},
-//                    userPoint = 1
-//                )
-            }
-
-            composable(UserScreen.More.name) {
-//                MoreScreen(navController = navController)
+        composable(StartScreen.Identify.name) {
+            if (authViewModel.userState.value.user.role == getEnumList(UserRole::class.java)[1]) {
+                navController.navigate(StartScreen.Staff.name)
+            } else {
+                navController.navigate(StartScreen.User.name)
             }
         }
-//    }
+
+        composable(StartScreen.User.name) {
+            UserNavigation(authViewModel = authViewModel)
+        }
+
+        composable(StartScreen.Staff.name) {
+            StaffUI(authViewModel = authViewModel)
+        }
+    }
+}
+
+@Composable
+fun UserNavigation(
+    navController: NavHostController = rememberNavController(),
+    authViewModel: AuthViewModel
+) {
+    NavHost(
+        navController = navController,
+        startDestination = UserScreen.Home.name,
+    ) {
+        composable(UserScreen.Home.name) {
+            HomeScreen(
+                navController = navController,
+                authViewModel = authViewModel
+            )
+        }
+
+        composable(UserScreen.Waitlist.name) {
+            WaitlistScreen(
+                onBackButtonClicked = { navController.navigateUp() }
+            )
+        }
+
+        composable(UserScreen.Order.name) {
+            OrderNav()
+        }
+
+        composable(UserScreen.Rewards.name) {
+            RewardsScreenNavigation()
+        }
+
+        composable(UserScreen.More.name) {
+            MoreScreen(navController = navController) // navigate another
+        }
+    }
 }
 
 @Composable
 fun StaffUI(
     navController: NavHostController = rememberNavController(),
+    authViewModel: AuthViewModel
 ) {
     var currentScreen by remember { mutableStateOf(StaffScreen.Dashboard) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -182,7 +209,7 @@ fun StaffUI(
                             },
                             label = {
                                 Text(
-                                    text = screen.name,
+                                    text = stringResource(screen.title),
                                     color = Color.Black
                                 )
                             },
@@ -201,7 +228,7 @@ fun StaffUI(
                             ),
                             modifier = Modifier.padding(5.dp)
                         )
-                        Divider()
+                        HorizontalDivider(Modifier.padding(horizontal = 10.dp))
                     }
                 }
             }
@@ -209,10 +236,13 @@ fun StaffUI(
 
     ) {
         Scaffold(
-            topBar = { StaffAppBarPortrait(
+            topBar = { StaffAppBar(
                 currentScreen = currentScreen,
                 drawerState = drawerState,
-                coroutineScope = coroutineScope
+                coroutineScope = coroutineScope,
+                user = authViewModel.userState.value.user,
+                navController = navController,
+                authViewModel = authViewModel,
             )}
         ) { innerPadding ->
             StaffNavigation(
@@ -240,27 +270,28 @@ fun StaffNavigation(
             StaffDashboardScreen()
         }
 
-        composable(route = StaffScreen.User.name){
-            currentScreen(StaffScreen.User)
+        composable(route = StaffScreen.UserMgmt.name){
+            currentScreen(StaffScreen.UserMgmt)
             StaffUserScreen()
         }
 
-        composable(route = StaffScreen.Menu.name){
-            currentScreen(StaffScreen.Menu)
+        composable(route = StaffScreen.MenuMgmt.name){
+            currentScreen(StaffScreen.MenuMgmt)
             StaffMenuScreen()
         }
 
-        composable(route = StaffScreen.Waitlist.name){
-            currentScreen(StaffScreen.Waitlist)
+        composable(route = StaffScreen.WaitlistMgmt.name){
+            currentScreen(StaffScreen.WaitlistMgmt)
             StaffWaitlistScreen()
         }
 
-        composable(route = StaffScreen.Ordering.name){
-            currentScreen(StaffScreen.Ordering)
+        composable(route = StaffScreen.OrderingMgmt.name){
+            currentScreen(StaffScreen.OrderingMgmt)
             StaffOrderScreen()
         }
 
-        composable(route = StaffScreen.Feedback.name){
+        composable(route = StaffScreen.FeedbackMgmt.name){
+            currentScreen(StaffScreen.FeedbackMgmt)
             StaffFeedbackScreen()
         }
     }
@@ -269,5 +300,5 @@ fun StaffNavigation(
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun ApaPunAdaAppPreview() {
-    StaffUI()
+//    StaffUI()
 }

@@ -65,8 +65,6 @@ fun HomeScreen(
 ) {
     SetPortraitOrientationOnly()
 
-    Log.i("User", "HomeScreen: ${authViewModel.userState.value.user}")
-
     val menuListState = menuItemViewModel.menuListState.collectAsState(initial = MenuListState())
     var topFoods: List<MenuItem> = listOf()
 
@@ -189,7 +187,7 @@ fun HomeScreen(
                             .horizontalScroll(rememberScrollState())
                     ) {
                         topFoods.forEach { food ->
-                            if (food.rating >= 4.5) {
+                            if (food.rating >= 4.8) {
                                 Card(
                                     colors = CardDefaults.cardColors(
                                         containerColor = Color.White
@@ -201,6 +199,7 @@ fun HomeScreen(
                                             elevation = 15.dp,
                                             spotColor = primaryColor,
                                         )
+                                        .clickable(enabled = false) {}
                                 ) {
                                     Column(
                                         verticalArrangement = Arrangement.SpaceBetween,

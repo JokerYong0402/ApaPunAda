@@ -61,5 +61,5 @@ fun RewardsScreenNavigation(
 @Preview(showBackground = true)
 @Composable
 fun PreviewRewardsScreenNavigation() {
-    RewardsScreenNavigation()
+//    RewardsScreenNavigation()
 }

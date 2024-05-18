@@ -1,13 +1,11 @@
 package com.example.apapunada.ui.staff
 
-import android.app.DatePickerDialog
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Environment
 import android.util.Log
-import android.widget.DatePicker
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -17,7 +15,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -48,7 +45,6 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -60,7 +56,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -81,6 +76,7 @@ import com.example.apapunada.R
 import com.example.apapunada.data.dataclass.User
 import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
+import com.example.apapunada.ui.components.MyDatePickerDialog
 import com.example.apapunada.ui.components.formattedDate
 import com.example.apapunada.viewmodel.Gender
 import com.example.apapunada.viewmodel.UserListState
@@ -90,9 +86,6 @@ import com.example.apapunada.viewmodel.UserViewModel
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.TimeZone
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -100,7 +93,6 @@ fun StaffUserScreen(
     viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val userState = viewModel.userState.collectAsState(initial = UserState())
-    Log.i("User State", "StaffUserScreen: "+userState.value)
     val userListState = viewModel.userListState.collectAsState(initial = UserListState())
     var users: List<User> = listOf()
 
@@ -368,113 +360,113 @@ fun StaffUserScreen(
                         }
                     }
                 }
-            }
-            viewModel.loadUsersByName(search)
-            items(userListState.value.userList.size) { i ->
-                if (userListState.value.userList.isNotEmpty()) {
-                    val user = users[i]
-                    val imageUri = user.image
-                    val painter = rememberAsyncImagePainter(imageUri)
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(100.dp)
-                    ) {
-                        Text(
-                            text = user.userID.toString(), //TODO
-                            fontSize = 22.sp,
-                            modifier = Modifier
-                                .width(headerList[0].second)
-                                .padding(start = 20.dp)
-                        )
-                        Row(
-                            modifier = Modifier.width(headerList[1].second)
-                        ) {
-                            Card(
-                                shape = CircleShape,
-                                modifier = Modifier
-                                    .padding(horizontal = 15.dp)
-                                    .size(70.dp)
-                            ){
-                                Image(
-                                    painter = painter,
-                                    contentDescription = "userImage",
-                                    contentScale = ContentScale.Crop
-                                )
-                            }
-
-                            Text(
-                                text = user.username,
-                                fontSize = 22.sp,
-                                modifier = Modifier.align(Alignment.CenterVertically)
-                            )
-                        }
-                        Text(
-                            text = user.email,
-                            fontSize = 22.sp,
-                            modifier = Modifier
-                                .width(headerList[2].second)
-                        )
-
-                        Row {
-//                        Icon(painter = painterResource(R.id))
-                            Text(
-                                text = user.phoneNo,
-                                fontSize = 22.sp,
-                                modifier = Modifier
-                                    .width(headerList[3].second)
-                            )
-                        }
-
-                        Text(
-                            text = user.point.toString(),
-                            fontSize = 22.sp,
-                            modifier = Modifier
-                                .width(headerList[4].second)
-                        )
-
-                        Text(
-                            text = user.status,
-                            fontSize = 22.sp,
-                            modifier = Modifier
-                                .width(headerList[5].second)
-                        )
+            } else {
+                viewModel.loadUsersByName(search)
+                items(userListState.value.userList.size) { i ->
+                    if (userListState.value.userList.isNotEmpty()) {
+                        val user = users[i]
+                        val imageUri = user.image
+                        val painter = rememberAsyncImagePainter(imageUri)
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.width(headerList[6].second)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(100.dp)
                         ) {
-                            IconButton(
-                                onClick = {
-                                    currentUser = user
-                                    editButton = true
-                                }
+                            Text(
+                                text = user.userID.toString(), //TODO
+                                fontSize = 22.sp,
+                                modifier = Modifier
+                                    .width(headerList[0].second)
+                                    .padding(start = 20.dp)
+                            )
+                            Row(
+                                modifier = Modifier.width(headerList[1].second)
                             ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.editicon),
-                                    contentDescription = "Edit button",
-                                    modifier = Modifier.size(30.dp)
-                                )
+                                Card(
+                                    shape = CircleShape,
+                                    modifier = Modifier
+                                        .padding(horizontal = 15.dp)
+                                        .size(70.dp)
+                                ) {
+                                    Image(
+                                        painter = painter,
+                                        contentDescription = "userImage",
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
 
-                            }
-                            IconButton(
-                                onClick = {
-                                    currentUser = user
-                                    detailButton = true
-                                }
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.emailicon),
-                                    contentDescription = "Detail button",
-                                    modifier = Modifier.size(30.dp)
+                                Text(
+                                    text = user.username,
+                                    fontSize = 22.sp,
+                                    modifier = Modifier.align(Alignment.CenterVertically)
                                 )
+                            }
+                            Text(
+                                text = user.email,
+                                fontSize = 22.sp,
+                                modifier = Modifier
+                                    .width(headerList[2].second)
+                            )
+
+                            Row {
+//                        Icon(painter = painterResource(R.id))
+                                Text(
+                                    text = user.phoneNo,
+                                    fontSize = 22.sp,
+                                    modifier = Modifier
+                                        .width(headerList[3].second)
+                                )
+                            }
+
+                            Text(
+                                text = user.point.toString(),
+                                fontSize = 22.sp,
+                                modifier = Modifier
+                                    .width(headerList[4].second)
+                            )
+
+                            Text(
+                                text = user.status,
+                                fontSize = 22.sp,
+                                modifier = Modifier
+                                    .width(headerList[5].second)
+                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.width(headerList[6].second)
+                            ) {
+                                IconButton(
+                                    onClick = {
+                                        currentUser = user
+                                        editButton = true
+                                    }
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.editicon),
+                                        contentDescription = "Edit button",
+                                        modifier = Modifier.size(30.dp)
+                                    )
+
+                                }
+                                IconButton(
+                                    onClick = {
+                                        currentUser = user
+                                        detailButton = true
+                                    }
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.emailicon),
+                                        contentDescription = "Detail button",
+                                        modifier = Modifier.size(30.dp)
+                                    )
+                                }
                             }
                         }
-                    }
-                }
-                else {
-                    Row {
-                        Text(text = "There are no user name like $search")
+                    } else {
+                        Row {
+                            Text(text = "There are no user name like $search")
+                        }
                     }
                 }
             }
@@ -623,7 +615,7 @@ fun DialogOfAddUser(
                             }
                         }
                     }
-                    dob = DatePickerDialog(context, user)
+                    dob = MyDatePickerDialog(context, user)
                 }
 
                 // Buttons
@@ -637,7 +629,7 @@ fun DialogOfAddUser(
                     TextButton(onClick = {
                         onConfirmation(
                             User(
-                                image = imageUri.value,
+//                                image = imageUri.value,
                                 userID = user.userID,
                                 username = username,
                                 email = email,
@@ -810,7 +802,7 @@ fun DialogOfEditUser(
                             }
                         }
                     }
-                    dob = DatePickerDialog(context, user)
+                    dob = MyDatePickerDialog(context, user)
                     OutlinedTextField(
                         value = point.toString(),
                         onValueChange = { point = it.toInt() },
@@ -875,7 +867,7 @@ fun DialogOfEditUser(
                     TextButton(onClick = {
                         if (imageUri.value != "") {
                             bitmapUri = saveImageFromUri(context, imageUri.value)
-                            image = bitmapUri.toString()
+//                            image = bitmapUri.toString()
 //                            Log.i("Check Bitmap URI", "DialogOfEditUser: "+bitmapUri)
                         }
 //                        Log.i("Check Image2", "DialogOfEditUser: "+image)
@@ -922,73 +914,6 @@ fun saveImageFromUri(context: Context, imageUriString: String): Uri? {
     return null
 }
 
-fun convertDateToLong(dateString: String): Long {
-    val format = SimpleDateFormat("dd-MM-yyyy") // Specify the date format
-    format.timeZone = TimeZone.getTimeZone("UTC")
-    val date = format.parse(dateString)
-    return date.time
-}
-
-@Composable
-fun DatePickerDialog(
-    context: Context,
-    user: User
-): Long {
-    val calendar = Calendar.getInstance()
-    val year = calendar.get(Calendar.YEAR)
-    val month = calendar.get(Calendar.MONTH)
-    val day = calendar.get(Calendar.DAY_OF_MONTH)
-    var date by remember { mutableStateOf(user.dob) }
-    val datePickerDialog = DatePickerDialog(
-        context,
-        { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-            val newDate = "$dayOfMonth-${month+1}-$year"
-            date = convertDateToLong(newDate)
-        }, year, month, day
-    )
-    ReadonlyTextField(
-        value = formattedDate(date, "date"),
-        onValueChange = { date = convertDateToLong(it) },
-        textStyle = TextStyle(fontSize = 15.sp),
-        label = { Text("Date of Birth") },
-        modifier = Modifier.size(width = 280.dp, height = 60.dp),
-        onClick = { datePickerDialog.show() },
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = colorResource(R.color.primary),
-            unfocusedBorderColor = colorResource(R.color.primary),
-        )
-    )
-    return date
-}
-
-@Composable
-fun ReadonlyTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    label: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-    colors: TextFieldColors,
-    textStyle: TextStyle
-) {
-    Box {
-        OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = modifier,
-            label = label,
-            colors = colors,
-            textStyle = textStyle
-        )
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .alpha(0f)
-                .clickable(onClick = onClick),
-        )
-    }
-}
-
 @Composable
 fun DialogOfUserDetail(
     onDismissRequest: () -> Unit = {},
@@ -1016,9 +941,9 @@ fun DialogOfUserDetail(
     )
 
     val imageUri = rememberSaveable { mutableStateOf(user.image) }
-    val painter = rememberAsyncImagePainter(
-        imageUri.value.ifEmpty { user.image }
-    )
+//    val painter = rememberAsyncImagePainter(
+//        imageUri.value.ifEmpty { user.image }
+//    )
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
@@ -1041,12 +966,12 @@ fun DialogOfUserDetail(
                         .size(70.dp)
 
                 ){
-                    Image(
-                        painter = painter,
-                        contentDescription = "",
-                        modifier = Modifier,
-                        contentScale = ContentScale.Crop
-                    )
+//                    Image(
+//                        painter = painter,
+//                        contentDescription = "",
+//                        modifier = Modifier,
+//                        contentScale = ContentScale.Crop
+//                    )
                 }
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(30.dp),

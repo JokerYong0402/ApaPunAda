@@ -4,11 +4,8 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -50,18 +47,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
-import com.example.apapunada.data.dataclass.User
 import com.example.apapunada.data.dataclass.Waitlist
 import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.DropDownMenu
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.SearchBar
 import com.example.apapunada.ui.components.formattedDate
-import com.example.apapunada.viewmodel.UserListState
-import com.example.apapunada.viewmodel.UserState
-import com.example.apapunada.viewmodel.UserViewModel
-import com.example.apapunada.viewmodel.WaitlistListState
-import com.example.apapunada.viewmodel.WaitlistState
 import com.example.apapunada.viewmodel.WaitlistViewModel
 import com.example.apapunada.viewmodel.WaitlistWithUsername
 import com.example.apapunada.viewmodel.WaitlistWithUsernameState
@@ -77,9 +68,9 @@ fun StaffWaitlistScreen(
     var waitlistWithUsernameState = waitlistViewModel.waitlistWithUsernameState.collectAsState(initial = WaitlistWithUsernameState())
     var waitlistsWithUsername: List<WaitlistWithUsername> = listOf()
 
-    viewModel.loadAllWaitlists()
+    waitlistViewModel.loadAllWaitlists()
 
-    if (waitlistListState.value.isLoading) {
+    if (waitlistWithUsernameState.value.isLoading) {
         IndeterminateCircularIndicator("Loading waitlist...")
     } else {
         if (waitlistWithUsernameState.value.errorMessage.isNotEmpty()) {

@@ -57,7 +57,9 @@ import com.example.apapunada.data.dataclass.OrderDetails
 import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.MyBottomButton
 import com.example.apapunada.ui.components.formattedString
+import com.example.apapunada.ui.components.getEnumList
 import com.example.apapunada.viewmodel.MenuItemViewModel
+import com.example.apapunada.viewmodel.OrderDetailStatus
 import com.example.apapunada.viewmodel.OrderViewModel
 
 @Composable
@@ -131,7 +133,7 @@ fun OrderCustomizeScreen(
                         remark = remark,
                         option = detailOption,
                         total = total,
-//                        status = getEnumList(OrderDetailStatus::class.java)[0] TODO
+                        status = getEnumList(OrderDetailStatus::class.java)[0]
                     )
                     orderViewModel.updateOrderDetailState(orderDetail)
                     orderViewModel.saveDetails()

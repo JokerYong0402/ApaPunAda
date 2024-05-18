@@ -35,7 +35,7 @@ import com.example.apapunada.data.dataclass.Waitlist
         Voucher::class,
         Waitlist::class
    ],
-    version = 2
+    version = 3
 )
 abstract class ApaPunAdaDatabase: RoomDatabase() {
 
@@ -55,7 +55,7 @@ abstract class ApaPunAdaDatabase: RoomDatabase() {
         fun getDatabase(context: Context): ApaPunAdaDatabase {
             return Instance ?:synchronized(this) {
                 Room.databaseBuilder(context, ApaPunAdaDatabase::class.java, "apapunada_database")
-//                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration()
                     .build().also { Instance = it }
             }
         }

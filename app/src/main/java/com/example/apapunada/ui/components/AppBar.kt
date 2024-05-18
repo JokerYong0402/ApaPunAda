@@ -1,5 +1,6 @@
 package com.example.apapunada.ui.components
 
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,9 +20,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.rounded.List
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material.icons.rounded.List
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.ShoppingCart
@@ -78,6 +79,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.apapunada.R
 import com.example.apapunada.StaffScreen
+import com.example.apapunada.StartScreen
+import com.example.apapunada.UserScreen
 import com.example.apapunada.data.dataclass.Order
 import com.example.apapunada.data.dataclass.User
 import com.example.apapunada.viewmodel.AuthViewModel
@@ -133,7 +136,8 @@ fun MyTopAppBar(
                         onClick = {
                             authViewModel.logout()
                             Toast.makeText(context, "Logged out", Toast.LENGTH_SHORT).show()
-                            navController.navigate("Introduction")
+                            val deepLink = Uri.parse("android-app://androidx.navigation/Introduction")
+                            navController.navigate(deepLink)
                         }
                     )
                 }
@@ -173,22 +177,22 @@ fun MyBottomNavBar(
                     tint = if (selectedBar == 1) primaryColor else Color.DarkGray
                 )
             },
-            actions = { navController.navigate("home") }
+            actions = { navController.navigate(UserScreen.Home.name) }
         ),
         Item(
             title = { Text(text = "Wait-list")},
-            icon = { Icon(Icons.Rounded.List, contentDescription = "Wait-list") },
-            actions = { navController.navigate("waitlist") }
+            icon = { Icon(Icons.AutoMirrored.Rounded.List, contentDescription = "Wait-list") },
+            actions = { navController.navigate(UserScreen.Waitlist.name) }
         ),
         Item(
             title = { Text(text = "Order")},
             icon = { Icon(Icons.Rounded.ShoppingCart, contentDescription = "Order") },
-            actions = { navController.navigate("order") }
+            actions = { navController.navigate(UserScreen.Order.name) }
         ),
         Item(
             title = { Text(text = "Rewards")},
             icon = { Icon(Icons.Rounded.Favorite, contentDescription = "Rewards") },
-            actions = { navController.navigate("rewards") }
+            actions = { navController.navigate(UserScreen.Rewards.name) }
         ),
         Item(
             title = {
@@ -204,7 +208,7 @@ fun MyBottomNavBar(
                     tint = if (selectedBar == 5) primaryColor else Color.DarkGray
                 )
             },
-            actions = { navController.navigate("more") }
+            actions = { navController.navigate(UserScreen.More.name) }
         ),
     )
     
@@ -334,30 +338,19 @@ fun MyBottomButton(
     }
 }
 
-//@Composable
-//fun StaffTopAppBar(
-//    modifier: Modifier = Modifier,
-//    coroutineScope: CoroutineScope = rememberCoroutineScope()
-//) {
-//    val configuration = LocalConfiguration.current
-//    when (configuration.orientation) {
-//        Configuration.ORIENTATION_LANDSCAPE -> {
-//            StaffAppBarLandscape()
-//        }
-//        else -> {
-//            StaffAppBarPortrait()
-//        }
-//    }
-//}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StaffAppBarPortrait(
+fun StaffAppBar(
     currentScreen: StaffScreen,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
+    user: User,
+    navController: NavHostController,
+    authViewModel: AuthViewModel
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+    var expanded by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     CenterAlignedTopAppBar(
         title = {
@@ -392,47 +385,33 @@ fun StaffAppBarPortrait(
                 contentDescription = "staff",
                 modifier = Modifier
                     .size(45.dp)
+                    .clip(CircleShape)
+                    .clickable { expanded = true }
             )
-        },
-        scrollBehavior = scrollBehavior,
-        modifier = Modifier
-            .padding(dimensionResource(R.dimen.padding_small))
-            .clip(RoundedCornerShape(16.dp))
-            .shadow(10.dp)
-    )
-}
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun StaffAppBarLandscape(
-    modifier: Modifier = Modifier
-) {
-    val appName = stringResource(R.string.app_name)
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+            if (expanded) {
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(user.username) },
+                        onClick = {},
+                        enabled = false
+                    )
 
-    CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = colorResource(R.color.primary_200),
-            titleContentColor = Color.Black,
-        ),
-        title = {
-            Text(
-                text = appName,
-                fontWeight = FontWeight.Bold,
-                fontSize = 24.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.width(250.dp)
-            )
-        },
-        actions = {
-            Image(
-                painter = painterResource(R.drawable.profile_image),
-                contentDescription = "staff",
-                modifier = Modifier
-                    .size(45.dp)
-            )
+                    HorizontalDivider()
+
+                    DropdownMenuItem(
+                        text = { Text("Logout") },
+                        onClick = {
+                            authViewModel.logout()
+                            Toast.makeText(context, "Logged out", Toast.LENGTH_SHORT).show()
+                            navController.navigate(StartScreen.Introduction.name)
+                        }
+                    )
+                }
+            }
         },
         scrollBehavior = scrollBehavior,
         modifier = Modifier
@@ -515,7 +494,7 @@ fun MyAlertDialog(
 @Composable
 fun CommonUiPortraitPreview() {
     Scaffold(
-        topBar = { StaffAppBarLandscape() },
+//        topBar = { StaffAppBar(currentScreen = StaffScreen.Dashboard) },
         bottomBar = { MyBottomNavBar(1, rememberNavController()) }
     ) { innerPadding ->
         Column(
@@ -530,7 +509,7 @@ fun CommonUiPortraitPreview() {
 @Composable
 fun CommonUiLandscapePreview() {
     Scaffold(
-        topBar = { StaffAppBarLandscape() },
+//        topBar = { StaffAppBar(currentScreen = StaffScreen.Dashboard) },
         bottomBar = {  }
     ) { innerPadding ->
         Column(

@@ -12,7 +12,7 @@ import com.example.apapunada.R
 enum class MenuNav(@StringRes val title: Int){
     Menu(R.string.menu),
     FoodList(R.string.food_list),
-    FoodDetail(R.string.food_detail),
+    FoodDetail(R.string.food_details),
     OrderMenu(R.string.order_menu)
 }
 

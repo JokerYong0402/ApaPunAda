@@ -220,9 +220,9 @@ class OrderViewModel(
         }
     }
 
-    fun calculateDetailsNumber(): Int {
+    fun calculateDetailsNumber(orderDetailsList: List<OrderDetails>): Int {
         var count = 0
-        for (detail in _orderDetailsListState.value.orderDetails) {
+        for (detail in orderDetailsList) {
             count += 1
         }
         return count

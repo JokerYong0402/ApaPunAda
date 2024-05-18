@@ -89,11 +89,16 @@ import com.example.apapunada.viewmodel.NutritionFactsState
 @Composable
 fun StaffMenuScreen(
     viewModel: MenuItemViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    ) {
+) {
     val menuListState = viewModel.menuListState.collectAsState(initial = MenuListState())
     var menus: List<MenuItem> = listOf()
+    var menuType by remember { mutableStateOf("All") }
 
-    //viewModel.loadAllMenuItem()
+    if (menuType == "All") {
+        viewModel.loadAllMenuItem()
+    } else {
+        viewModel.loadMenuItemByCuisine(menuType)
+    }
 
     if (menuListState.value.isLoading) {
         IndeterminateCircularIndicator("Loading menu...")
@@ -274,10 +279,8 @@ fun StaffMenuScreen(
             verticalAlignment = Alignment.CenterVertically
 
         ){
-            //CuisineButtonAll()
-
             ElevatedButton(
-                onClick = { viewModel.loadAllMenuItem() },
+                onClick = { menuType = "All" },
                 colors = ButtonDefaults.buttonColors(
                     colorResource(R.color.white)
                 ),
@@ -302,7 +305,7 @@ fun StaffMenuScreen(
 
             dishCuisine.forEach{ cuisine ->
                 ElevatedButton(
-                    onClick = { viewModel.loadMenuItemByCuisine(cuisine) },
+                    onClick = { menuType = cuisine },
                     colors = ButtonDefaults.buttonColors(
                         colorResource(R.color.white)
                     ),
@@ -371,7 +374,7 @@ fun StaffMenuScreen(
                             .height(110.dp)
                     ) {
                         Text(
-                            text = menu.menuItemID.toString(),
+                            text = (i+1).toString(),
                             fontSize = 22.sp,
                             modifier = Modifier
                                 .width(headerList[0].second)
@@ -631,7 +634,7 @@ fun AddDishDialog(
     val menuStatus = listOf("Active","Disabled","Deleted")
 
 
-    androidx.compose.ui.window.Dialog(onDismissRequest = { onDismissRequest() }) {
+    Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
             elevation = CardDefaults.cardElevation(15.dp),
             modifier = Modifier
@@ -1014,7 +1017,7 @@ fun EditDishDialog(
         uri?.let { imageUri.value = it.toString() }
     }
 
-    androidx.compose.ui.window.Dialog(onDismissRequest = { onDismissRequest() }) {
+    Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
             elevation = CardDefaults.cardElevation(15.dp),
             modifier = Modifier

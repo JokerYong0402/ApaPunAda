@@ -21,6 +21,6 @@ data class Feedback(
     val star: Int = 5,
     val category: String = "",
     @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
-    val images: List<ByteArray> = listOf(ByteArray(10)),
+    val images: ByteArray = ByteArray(10),
     val comments: String = ""
 )

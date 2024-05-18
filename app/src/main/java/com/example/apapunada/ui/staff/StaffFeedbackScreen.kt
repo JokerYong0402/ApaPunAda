@@ -5,9 +5,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,8 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -32,7 +28,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -42,31 +37,25 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.apapunada.R
 import com.example.apapunada.data.dataclass.Feedback
 import com.example.apapunada.data.dataclass.User
 import com.example.apapunada.ui.AppViewModelProvider
-import com.example.apapunada.ui.components.DisplayImagesFromByteArray
 import com.example.apapunada.ui.components.DropDownMenu
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.SearchBar
-import com.example.apapunada.ui.components.uriToByteArray
 import com.example.apapunada.viewmodel.FeedbackListState
-import com.example.apapunada.viewmodel.FeedbackState
 import com.example.apapunada.viewmodel.FeedbackViewModel
 import com.example.apapunada.viewmodel.UserState
 import com.example.apapunada.viewmodel.UserViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun StaffFeedbackScreen(
-    viewModel: FeedbackViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: FeedbackViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    userViewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val feedbackListState = viewModel.feedbackListState.collectAsState(initial = FeedbackListState())
     var feedbacks: List<Feedback> = listOf()
@@ -161,21 +150,14 @@ fun StaffFeedbackScreen(
             }
 
             items(feedbacks.size) { i ->
-                //TODO
                 val feedback = feedbacks[i]
-//                userViewModel.loadUserByUserId(feedback.userID)
-//                val userState = userViewModel.userState.collectAsState(initial = UserState())
-//                var user = userState.value.user
-                val user = callUser(userID = feedback.userID)
-//                val user = callUser(feedback.userID)
-                Log.i("UserMain","$user")
-                Log.i("UserSecond","$feedback.userID")
-                Log.i("UserThird","${callUser(userID = feedback.userID)}")
-                //var user: User
 
-//                do {
-//                    user = userState.value.user
-//                } while (user.userID != feedback.userID)
+                userViewModel.loadUserByUserId(feedback.userID)
+                var user: User
+
+                do {
+                    user = userViewModel.userState.value.user
+                } while (user.userID != feedback.userID)
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

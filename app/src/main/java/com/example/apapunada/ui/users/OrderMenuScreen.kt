@@ -89,7 +89,7 @@ fun OrderMenuScreen(
     // load orderDetails to get number and calculate subtotal
     orderViewModel.loadOrderDetailsByOrderId(orderID)
     val orderDetailsList = orderViewModel.orderDetailsListState.value.orderDetails
-    var detailsNumber = orderViewModel.calculateDetailsNumber()
+    var detailsNumber = orderViewModel.calculateDetailsNumber(orderDetailsList)
 
     // load menu to list
     val menuListState = menuViewModel.menuListState.collectAsState(initial = MenuListState())
@@ -159,7 +159,7 @@ fun OrderMenuScreen(
                 detailCount = detailsNumber,
                 amount = orderViewModel.calculateOrderSubtotal(orderDetailsList),
                 onClick = {
-                    detailsNumber = orderViewModel.calculateDetailsNumber()
+                    detailsNumber = orderViewModel.calculateDetailsNumber(orderDetailsList)
                     if (detailsNumber > 0) {
                         val latestOrder = Order(
                             orderID = currentOrder.orderID,
@@ -195,7 +195,7 @@ fun OrderMenuScreen(
                         tabs.forEach { tab ->
                             Tab(
                                 selected = true,
-                                onClick = { 
+                                onClick = {
                                     coroutineScope.launch {
                                               scrollState.animateScrollTo(300)
                                               /*TODO*/
