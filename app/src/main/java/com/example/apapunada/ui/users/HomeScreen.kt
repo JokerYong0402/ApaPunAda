@@ -27,12 +27,18 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -51,6 +57,10 @@ import com.example.apapunada.ui.components.MyTopAppBar
 import com.example.apapunada.ui.components.SetPortraitOrientationOnly
 import com.example.apapunada.viewmodel.AuthViewModel
 import com.example.apapunada.viewmodel.MenuItemViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun HomeScreen(
@@ -61,12 +71,36 @@ fun HomeScreen(
 ) {
     SetPortraitOrientationOnly()
 
+    val density = LocalDensity.current
     val primaryColor = colorResource(R.color.primary)
 
     menuItemViewModel.loadAllMenuItem()
     val topFoods: List<MenuItem> = menuItemViewModel.menuListState.value.menuItemList
 
-    var imgPager = 1
+    var imgPager by remember { mutableStateOf(1) }
+
+    val imageRes = when(imgPager){
+        1 -> R.drawable.intro1
+        2 -> R.drawable.intro2
+        else -> R.drawable.intro3
+    }
+
+    LaunchedEffect(Unit) {
+        launch {
+            while (true) {
+                delay(3000)
+                if (imgPager < 3) {
+                    withContext(Dispatchers.Main) {
+                        imgPager += 1
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        imgPager = 1
+                    }
+                }
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -96,8 +130,9 @@ fun HomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
+
                     Image(
-                        painter = painterResource(R.drawable.intro1),
+                        painter = painterResource(imageRes),
                         contentDescription = " ",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -119,7 +154,9 @@ fun HomeScreen(
                                     modifier = Modifier
                                         .size(20.dp)
                                         .padding(0.dp)
-                                        .clip(CircleShape),
+                                        .clip(CircleShape)
+                                        .clickable { imgPager = i }
+                                    ,
                                     onDraw = {
                                         drawCircle(
                                             color = primaryColor,
@@ -136,7 +173,9 @@ fun HomeScreen(
                                     modifier = Modifier
                                         .size(20.dp)
                                         .padding(0.dp)
-                                        .clip(CircleShape),
+                                        .clip(CircleShape)
+                                        .clickable { imgPager = i }
+                                    ,
                                     onDraw = {
                                         drawCircle(
                                             color = primaryColor,

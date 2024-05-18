@@ -222,8 +222,8 @@ class OrderViewModel(
 
     fun calculateDetailsNumber(orderDetailsList: List<OrderDetails>): Int {
         var count = 0
-        if (orderDetailsList.isNotEmpty()) {
-            for (detail in orderDetailsList) {
+        for (detail in orderDetailsList) {
+            if (detail.orderDetailsID != 0) {
                 count += 1
             }
         }

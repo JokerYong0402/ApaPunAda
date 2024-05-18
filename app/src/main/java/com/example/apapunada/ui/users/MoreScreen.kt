@@ -41,7 +41,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.apapunada.MoreScreen
 import com.example.apapunada.R
-import com.example.apapunada.data.dataclass.User
 import com.example.apapunada.ui.components.MyBottomNavBar
 import com.example.apapunada.ui.components.MyTopAppBar
 import com.example.apapunada.viewmodel.AuthViewModel
@@ -54,11 +53,11 @@ fun MoreScreen(
 ) {
 
     val primaryColor = colorResource(R.color.primary)
-    val point = 100
+    val currentUser = authViewModel.userState.value.user
 
     Scaffold(
         topBar = {
-            MyTopAppBar(User(), navController, authViewModel) // TODO
+            MyTopAppBar(authViewModel.userState.value.user, navController, authViewModel)
         },
         bottomBar = { MyBottomNavBar(5, navController) }
     ) { innerPadding ->
@@ -86,7 +85,7 @@ fun MoreScreen(
                                 spotColor = primaryColor,
                             )
                             .clip(RoundedCornerShape(10.dp))
-                            .clickable { navController.navigate("UserProfile") } //TODO user profile
+                            .clickable { navController.navigate("UserProfile") }
                     ) {
                         // Profile pic, username, points
                         Column(
@@ -96,7 +95,7 @@ fun MoreScreen(
                         ) {
                             Row {
                                 Image(
-                                    painter = painterResource(R.drawable.profile_image),
+                                    painter = painterResource(R.drawable.profile_image), //TODO user profile
                                     contentDescription = "profile pic",
                                     modifier = Modifier
                                         .size(100.dp)
@@ -111,7 +110,7 @@ fun MoreScreen(
                                         .padding(dimensionResource(R.dimen.padding_small))
                                 ) {
                                     Text(
-                                        text = "User",
+                                        text = currentUser.username,
                                         fontSize = 24.sp,
                                         fontWeight = FontWeight.Bold,
                                         overflow = TextOverflow.Ellipsis,
@@ -122,7 +121,7 @@ fun MoreScreen(
                                     Spacer(modifier = Modifier.height(5.dp))
 
                                     Text(
-                                        text = "Points $point",
+                                        text = "Points ${currentUser.point}",
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Normal,
                                         overflow = TextOverflow.Ellipsis,

@@ -26,8 +26,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,11 +48,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
 import com.example.apapunada.data.dataclass.Order
+import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.formattedString
 import com.example.apapunada.ui.components.getEnumList
 import com.example.apapunada.viewmodel.OrderStatus
 import com.example.apapunada.viewmodel.OrderViewModel
 import com.example.apapunada.viewmodel.PaymentStatus
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,7 +76,35 @@ fun OrderPaymentScreen(
     )
 
     val (selectedMethod, onOptionSelected) = remember { mutableStateOf(paymentMethod[0]) }
-    
+
+    var transaction by remember { mutableStateOf(false) }
+    if (transaction) {
+        IndeterminateCircularIndicator("Processing Transaction...")
+    }
+
+    var pay by remember { mutableStateOf(false) }
+    if (pay) {
+        transaction = true
+        val latestOrder = Order(
+            orderID = currentOrder.orderID,
+            userID = currentOrder.userID,
+            method = currentOrder.method,
+            amount = total,
+            dateTime = System.currentTimeMillis(),
+            paymentStatus = getEnumList(PaymentStatus::class.java)[0],
+            orderStatus = getEnumList(OrderStatus::class.java)[1]
+        )
+        orderViewModel.updateOrderState(latestOrder)
+        orderViewModel.updateOrder()
+        LaunchedEffect(Unit) {
+            launch {
+                delay(5000)
+                transaction = false
+                onPayButtonClicked(selectedMethod.first)
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
@@ -108,20 +142,7 @@ fun OrderPaymentScreen(
             ) {
                 Spacer(modifier = Modifier.height(15.dp))
                 Button(
-                    onClick = {
-                        val latestOrder = Order(
-                            orderID = currentOrder.orderID,
-                            userID = currentOrder.userID,
-                            method = currentOrder.method,
-                            amount = total,
-                            dateTime = System.currentTimeMillis(),
-                            paymentStatus = getEnumList(PaymentStatus::class.java)[0],
-                            orderStatus = getEnumList(OrderStatus::class.java)[1]
-                        )
-                        orderViewModel.updateOrderState(latestOrder)
-                        orderViewModel.updateOrder()
-                        onPayButtonClicked(selectedMethod.first)
-                    },
+                    onClick = { pay = true },
                     shape = RoundedCornerShape(10.dp),
                     modifier = Modifier
                         .padding(dimensionResource(R.dimen.padding_medium), 8.dp)

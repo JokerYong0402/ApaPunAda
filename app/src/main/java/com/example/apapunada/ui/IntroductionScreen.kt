@@ -4,7 +4,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -217,18 +216,14 @@ fun IntroductionScreen(
                 .height(50.dp)
         ) {
 
-            //TODO move to home here swipe only
+
             for (i in 1..3) {
                 if (imgPager == i) {
                     Canvas(
                         modifier = Modifier
                             .size(50.dp)
                             .padding(10.dp)
-                            .clip(CircleShape)
-                            .clickable {
-                                onPagerClick(i)
-                                imgPager = i
-                                       },
+                            .clip(CircleShape),
                         onDraw = {
                             drawCircle(color = primaryColor, radius = this.size.minDimension / 3.5f)
                             drawCircle(color = primaryColor, radius = this.size.minDimension / 4.5f)
@@ -239,11 +234,7 @@ fun IntroductionScreen(
                         modifier = Modifier
                             .size(50.dp)
                             .padding(10.dp)
-                            .clip(CircleShape)
-                            .clickable {
-                                onPagerClick(i)
-                                imgPager = i
-                                       },
+                            .clip(CircleShape),
                         onDraw = {
                             drawCircle(color = primaryColor, radius = this.size.minDimension / 3.5f)
                             drawCircle(color = Color.White, radius = this.size.minDimension / 4.5f)

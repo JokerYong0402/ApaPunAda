@@ -263,7 +263,8 @@ fun ApaPunAdaApp(
                     OrderCheckoutScreen(
                         onBackButtonClicked = { navController.navigate(OrderScreen.Cart.name) },
                         onPayButtonClicked = { navController.navigate(OrderScreen.Payment.name) },
-                        orderViewModel = orderViewModel
+                        orderViewModel = orderViewModel,
+                        authViewModel = authViewModel
                     )
                 }
 
