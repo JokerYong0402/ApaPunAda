@@ -16,7 +16,7 @@ import androidx.room.PrimaryKey
 data class Order(
     @PrimaryKey(autoGenerate = true)
     val orderID: Int = 0,
-    val userID: Int = 0, //fk
+    val userID: Int = 0,
     val method: String = "",
     val amount: Double = 0.0,
     val dateTime: Long = System.currentTimeMillis(),

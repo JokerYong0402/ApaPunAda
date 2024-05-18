@@ -64,16 +64,7 @@ fun StaffFeedbackScreen(
     viewModel.loadAllFeedbacks()
 
     if (feedbackListState.value.isLoading) {
-        Box( modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Gray.copy(alpha = 0.5f))
-            .clickable { /* no action */ }
-            .zIndex(2f)
-            ,
-            contentAlignment = Alignment.Center
-        ) {
-            IndeterminateCircularIndicator()
-        }
+        IndeterminateCircularIndicator("Loading Feedback...")
     } else {
         if (feedbackListState.value.errorMessage.isNotEmpty()) {
             Text(text = "Error loading feedbacks: ${feedbackListState.value.errorMessage}")

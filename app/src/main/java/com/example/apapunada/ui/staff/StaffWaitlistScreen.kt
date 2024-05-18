@@ -4,9 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -42,7 +40,6 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
 import com.example.apapunada.data.dataclass.Waitlist
@@ -68,16 +65,7 @@ fun StaffWaitlistScreen(
     viewModel.loadAllWaitlists()
 
     if (waitlistListState.value.isLoading) {
-        Box( modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Gray.copy(alpha = 0.5f))
-            .clickable { /* no action */ }
-            .zIndex(2f)
-            ,
-            contentAlignment = Alignment.Center
-        ) {
-            IndeterminateCircularIndicator()
-        }
+        IndeterminateCircularIndicator("Loading waitlist...")
     } else {
         if (waitlistListState.value.errorMessage.isNotEmpty()) {
             Text(text = "Error loading users: ${waitlistListState.value.errorMessage}")

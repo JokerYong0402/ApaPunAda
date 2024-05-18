@@ -31,5 +31,5 @@ data class OrderDetails(
     val remark: String = "",
     val option: String = "",
     val total: Double = 0.0,
-//    val status: String = ""
+    val status: String = ""
 )

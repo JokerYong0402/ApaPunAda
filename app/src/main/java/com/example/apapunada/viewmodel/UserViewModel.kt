@@ -38,6 +38,11 @@ enum class UserStatus(name: String) {
     Deleted("Deleted"),
 }
 
+enum class UserRole(name: String) {
+    User("User"),
+    Staff("Staff")
+}
+
 class UserViewModel(private val userRepository: UserRepository): ViewModel() {
 
     private val _userState = MutableStateFlow(UserState())

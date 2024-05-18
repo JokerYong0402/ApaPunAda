@@ -1,5 +1,6 @@
 package com.example.apapunada.data.dataclass
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
@@ -19,7 +20,7 @@ data class Feedback(
     val userID: Int = 0,
     val star: Int = 5,
     val category: String = "",
-    val images: String = "",
-//    val images: List<ByteArray> = listOf(ByteArray(10)), TODO
+    @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
+    val images: List<ByteArray> = listOf(ByteArray(10)),
     val comments: String = ""
 )

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.apapunada.ApaPunAdaApplication
+import com.example.apapunada.viewmodel.AuthViewModel
 import com.example.apapunada.viewmodel.FeedbackViewModel
 import com.example.apapunada.viewmodel.MenuItemViewModel
 import com.example.apapunada.viewmodel.OrderViewModel
@@ -14,6 +15,10 @@ import com.example.apapunada.viewmodel.WaitlistViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
+
+        initializer {
+            AuthViewModel(apaPunAdaApplication().container.userRepository)
+        }
 
         initializer {
             FeedbackViewModel(apaPunAdaApplication().container.feedbackRepository)

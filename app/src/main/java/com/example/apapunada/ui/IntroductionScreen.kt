@@ -48,7 +48,7 @@ fun IntroductionPager(
     initialPage: Int = 0,
     onPagerChange: (Int) -> Unit = {},
     onLoginButtonClicked: () -> Unit,
-    onSignUpButtonClicked: () -> Unit = {}
+    onSignUpButtonClicked: () -> Unit
 ) {
     val pagerState = rememberPagerState(initialPage) {
         3
@@ -60,7 +60,7 @@ fun IntroductionPager(
             onPagerClick = onPagerChange,
             onLoginButtonClicked = onLoginButtonClicked,
             onSignUpButtonClicked = onSignUpButtonClicked
-            )
+        )
     }
 }
 
@@ -70,7 +70,7 @@ fun IntroductionScreen(
     selectedPage: Int,
     onPagerClick: (Int) -> Unit,
     onLoginButtonClicked: () -> Unit,
-    onSignUpButtonClicked: () -> Unit = {}
+    onSignUpButtonClicked: () -> Unit
 ){
     val primaryColor = colorResource(R.color.primary)
     var imgPager by remember { mutableStateOf(selectedPage) }
@@ -216,6 +216,8 @@ fun IntroductionScreen(
                 .fillMaxWidth()
                 .height(50.dp)
         ) {
+
+            //TODO move to home here swipe only
             for (i in 1..3) {
                 if (imgPager == i) {
                     Canvas(

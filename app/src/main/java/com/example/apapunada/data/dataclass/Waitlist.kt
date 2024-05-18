@@ -19,5 +19,5 @@ data class Waitlist(
     val userID: Int = 0,
     val size: Int = 1,
     val datetime: Long = System.currentTimeMillis(),
-    val status: String = "" // enum
+    val status: String = ""
 )

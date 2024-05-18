@@ -11,7 +11,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -72,7 +71,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.apapunada.R
@@ -100,16 +98,7 @@ fun StaffMenuScreen(
     viewModel.loadAllMenuItem()
 
     if (menuListState.value.isLoading) {
-        Box( modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Gray.copy(alpha = 0.5f))
-            .clickable { /* no action */ }
-            .zIndex(2f)
-            ,
-            contentAlignment = Alignment.Center
-        ) {
-            IndeterminateCircularIndicator()
-        }
+        IndeterminateCircularIndicator("Loading menu...")
     } else {
         if (menuListState.value.errorMessage.isNotEmpty()) {
             Text(text = "Error loading menus: ${menuListState.value.errorMessage}")

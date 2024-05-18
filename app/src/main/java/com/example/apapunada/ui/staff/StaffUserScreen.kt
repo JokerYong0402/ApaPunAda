@@ -68,7 +68,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.apapunada.R
@@ -97,17 +96,7 @@ fun StaffUserScreen(
     viewModel.loadAllUsers()
 
     if (userListState.value.isLoading) {
-        Box(
-            modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Gray.copy(alpha = 0.5f))
-            .clickable { /* no action */ }
-            .zIndex(2f)
-            ,
-            contentAlignment = Alignment.Center
-        ) {
-            IndeterminateCircularIndicator()
-        }
+        IndeterminateCircularIndicator("Loading user...")
     } else {
         if (userListState.value.errorMessage.isNotEmpty()) {
             Text(text = "Error loading users: ${userListState.value.errorMessage}")
@@ -776,31 +765,6 @@ fun DialogOfUserDetail(
         }
     }
 }
-
-//@Composable
-//private fun reloadUserList(viewModel: UserViewModel): UserListState {
-//    viewModel.loadAllUsers()
-//    return viewModel.userListState
-//}
-//
-//@Composable
-//private fun getUserByUserId(viewModel: UserViewModel, id: Int): User {
-//    var userState: UserState = UserState()
-//    var isLoading by remember { mutableStateOf(true) }
-//    LaunchedEffect(Unit) {
-//        viewModel.loadUserByUserId(id)
-//        delay(5000)
-//        userState = viewModel.userState
-//        Log.i("User", "getUserByUserId: $userState")
-//        isLoading = false
-//    }
-//
-//    if(isLoading) {
-//        IndeterminateCircularIndicator()
-//    }
-//
-//    return userState.user
-//}
 
 @Preview(showBackground = true, device = Devices.TABLET)
 @Composable

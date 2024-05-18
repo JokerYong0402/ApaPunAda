@@ -1,11 +1,14 @@
 package com.example.apapunada.ui.components
 
-import androidx.annotation.DrawableRes
+import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,9 +18,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material.icons.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.rounded.List
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.MoreVert
@@ -30,10 +33,12 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -44,13 +49,18 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -63,21 +73,27 @@ import androidx.compose.ui.tooling.preview.Devices.TABLET
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.apapunada.R
 import com.example.apapunada.StaffScreen
 import com.example.apapunada.data.dataclass.Order
+import com.example.apapunada.data.dataclass.User
+import com.example.apapunada.viewmodel.AuthViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyTopAppBar(
-    profileName: String, 
-    @DrawableRes img: Int
+    user: User,
+    navController: NavHostController,
+    authViewModel: AuthViewModel
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+    var expanded by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     TopAppBar(
         title = {
@@ -89,13 +105,39 @@ fun MyTopAppBar(
         },
         actions = {
             Image(
-                painter = painterResource(img),
+                painter = painterResource(R.drawable.staricon), // TODO
                 contentDescription = "Profile Image",
                 modifier = Modifier
                     .size(45.dp)
                     .clip(CircleShape)
-                    .clickable { /* TODO */ }
+                    .clickable {
+                        expanded = true
+                    }
             )
+
+            if (expanded) {
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(user.username) },
+                        onClick = {},
+                        enabled = false
+                    )
+
+                    HorizontalDivider()
+
+                    DropdownMenuItem(
+                        text = { Text("Logout") },
+                        onClick = {
+                            authViewModel.logout()
+                            Toast.makeText(context, "Logged out", Toast.LENGTH_SHORT).show()
+                            navController.navigate("Introduction")
+                        }
+                    )
+                }
+            }
         },
         scrollBehavior = scrollBehavior,
         modifier = Modifier.fillMaxWidth()
@@ -173,9 +215,8 @@ fun MyBottomNavBar(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxSize(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
 
             navItems.forEachIndexed { _, item ->
@@ -220,7 +261,7 @@ fun MyTopTitleBar(
                     onClick = onBackButtonClicked
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.KeyboardArrowLeft,
+                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
                         contentDescription = "Back",
                         modifier = Modifier.fillMaxSize()
                     )
@@ -402,12 +443,30 @@ fun StaffAppBarLandscape(
 }
 
 @Composable
-fun IndeterminateCircularIndicator() {
-    CircularProgressIndicator(
-        modifier = Modifier.width(64.dp),
-        color = MaterialTheme.colorScheme.secondary,
-        trackColor = MaterialTheme.colorScheme.surfaceVariant,
-    )
+fun IndeterminateCircularIndicator(title: String = "") {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.LightGray.copy(alpha = 0.1f))
+            .zIndex(2f),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.width(64.dp),
+                color = colorResource(R.color.primary),
+                trackColor = colorResource(R.color.primary_200),
+                strokeWidth = 5.dp
+            )
+            Spacer(modifier = Modifier.height(50.dp))
+            Text(text = title)
+        }
+    }
+
 }
 
 @Composable
@@ -456,13 +515,13 @@ fun MyAlertDialog(
 @Composable
 fun CommonUiPortraitPreview() {
     Scaffold(
-        topBar = { StaffAppBarPortrait(StaffScreen.Dashboard) },
-        bottomBar = { }
+        topBar = { StaffAppBarLandscape() },
+        bottomBar = { MyBottomNavBar(1, rememberNavController()) }
     ) { innerPadding ->
         Column(
             modifier = Modifier.padding(innerPadding)
         ) {
-            IndeterminateCircularIndicator()
+
         }
     }
 }
@@ -477,7 +536,6 @@ fun CommonUiLandscapePreview() {
         Column(
             modifier = Modifier.padding(innerPadding)
         ) {
-
         }
     }
 }

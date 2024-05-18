@@ -3,7 +3,6 @@ package com.example.apapunada
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import com.example.apapunada.ui.staff.StaffFeedbackScreen
 import com.example.apapunada.ui.theme.ApaPunAdaTheme
 
 class MainActivity : ComponentActivity() {
@@ -12,14 +11,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             ApaPunAdaTheme {
 //                OrderNavHost(navController = rememberNavController())
-                StaffFeedbackScreen()
 //                StaffUI()
-//                ApaPunAdaApp()
-
+                ApaPunAdaApp()
             }
         }
     }
 }
+
 
 //@Composable
 //fun ApaPunAda() {
