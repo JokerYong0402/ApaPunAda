@@ -2,7 +2,11 @@
 
 package com.example.apapunada.ui.users
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,6 +26,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -41,6 +46,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,7 +56,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -63,103 +72,88 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.apapunada.R
 import com.example.apapunada.ui.components.PopupWindowDialog
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun FeedbackPager(initialPage: Int = 0) {
-    FeedbackScreen(
-        onSubmit = {}
-    )
-}
+import java.io.InputStream
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.apapunada.data.PrepopulateData
+import com.example.apapunada.data.dataclass.Feedback
+import com.example.apapunada.ui.AppViewModelProvider
+import com.example.apapunada.ui.components.DisplayImagesFromByteArray
+import com.example.apapunada.ui.components.IndeterminateCircularIndicator
+import com.example.apapunada.ui.components.PopupWindowAlert
+import com.example.apapunada.ui.components.uriToByteArray
+import com.example.apapunada.viewmodel.FeedbackListState
+import com.example.apapunada.viewmodel.FeedbackViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedbackScreen(
     onSubmit: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: FeedbackViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    //TODO hardcode user
+    var user = PrepopulateData.users[0]
 
-    var textInput by remember { mutableStateOf("") }
+    var feedbackListState = viewModel.feedbackListState.collectAsState(initial = FeedbackListState())
+    var feedbacks: List<Feedback> = listOf()
+
+    viewModel.loadAllFeedbacks()
+
+    if (feedbackListState.value.isLoading) {
+        Box( modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Gray.copy(alpha = 0.5f))
+            .clickable { /* no action */ }
+            .zIndex(2f)
+            ,
+            contentAlignment = Alignment.Center
+        ) {
+            IndeterminateCircularIndicator()
+        }
+    } else {
+        if (feedbackListState.value.errorMessage.isNotEmpty()) {
+            Text(text = "Error loading users: ${feedbackListState.value.errorMessage}")
+            Log.i("User", "StaffUserScreen: ${feedbackListState.value.errorMessage}")
+        } else {
+            feedbacks = feedbackListState.value.feedbackList
+        }
+    }
 
     val options1 = listOf(
         "Packaging",
         "Menu",
         "Delivery",
     )
-
     val options2 = listOf(
         "App",
         "Environment",
         "Other"
     )
 
-    var selectedOption by remember {
-        mutableStateOf("")
-    }
-    val onSelectionChange = { text: String ->
-        selectedOption = text
-    }
-
+    //color
     val primaryColor = colorResource(R.color.primary)
     val primary100Color = colorResource(id = R.color.primary_100)
 
-    var result by remember { mutableStateOf(1) }
+    //data
+    var selectedOption by remember { mutableStateOf("") }
+    val onSelectionChange = { text: String ->
+        selectedOption = text
+    }
+    var textInput by remember { mutableStateOf("") }
+    var star by remember { mutableStateOf(1) }
 
-    var callPopupWindowDialog by remember { mutableStateOf(false) }
-
-    if (callPopupWindowDialog) {
-        PopupWindowDialog(
-            onDismissRequest = { callPopupWindowDialog = false },
-            onConfirmation = { onSubmit() },
-            dialogTitle = stringResource(id = R.string.feedback_9),
-            confirmMessage = "Submit",
-            containerColor = primaryColor
-        )
-    }
-
-    var imageResource1 = when (result) {
-        1 -> R.drawable.feedback1
-        2 -> R.drawable.feedback1
-        3 -> R.drawable.feedback1
-        4 -> R.drawable.feedback1
-        else -> R.drawable.feedback1
-    }
-    var imageResource2 = when (result) {
-        1 -> R.drawable.feedback2
-        2 -> R.drawable.feedback1
-        3 -> R.drawable.feedback1
-        4 -> R.drawable.feedback1
-        else -> R.drawable.feedback1
-    }
-    var imageResource3 = when (result) {
-        1 -> R.drawable.feedback2
-        2 -> R.drawable.feedback2
-        3 -> R.drawable.feedback1
-        4 -> R.drawable.feedback1
-        else -> R.drawable.feedback1
-    }
-    var imageResource4 = when (result) {
-        1 -> R.drawable.feedback2
-        2 -> R.drawable.feedback2
-        3 -> R.drawable.feedback2
-        4 -> R.drawable.feedback1
-        else -> R.drawable.feedback1
-    }
-    var imageResource5 = when (result) {
-        1 -> R.drawable.feedback2
-        2 -> R.drawable.feedback2
-        3 -> R.drawable.feedback2
-        4 -> R.drawable.feedback2
-        else -> R.drawable.feedback1
-    }
+    //context
+    val context = LocalContext.current
 
     //upload image
     var selectedImageUris by remember {
-        mutableStateOf<List<Uri?>>(emptyList())
+        mutableStateOf<List<Uri>>(emptyList())
     }
-
     val multiplePhotosPickerLauncher = rememberLauncherForActivityResult(
-
         contract = ActivityResultContracts.PickMultipleVisualMedia(
             maxItems = 3
         ),
@@ -168,11 +162,114 @@ fun FeedbackScreen(
         }
     )
 
+    //popup checking
+    var callPopupWindowDialog by remember { mutableStateOf(false) }
+    var callPopupWindowAlert by remember { mutableStateOf(false) }
+
+    if (callPopupWindowDialog) {
+        val byteArrays: MutableList<ByteArray?> = mutableListOf()
+        PopupWindowDialog(
+            onDismissRequest = { callPopupWindowDialog = false },
+            onConfirmation = {
+                for (selectedImageUri in selectedImageUris) {
+                    byteArrays.add(uriToByteArray(context, selectedImageUri))
+                }
+                viewModel.updateFeedbackState(
+                    Feedback(
+                        //TODO
+                        userID = 1,
+                        star = star,
+                        category = selectedOption,
+                        images = selectedImageUris.toString(),//TODO
+                        //images = byteArrays,
+                        comments = textInput
+                    )
+                )
+                viewModel.saveFeedback()
+                //TODO navigation
+                onSubmit()
+            },
+            dialogTitle = stringResource(id = R.string.feedback_9),
+            confirmMessage = "Submit",
+            containerColor = primaryColor
+        )
+    }
+    if (callPopupWindowAlert) {
+        PopupWindowAlert(
+            onDismissRequest = { callPopupWindowAlert = false },
+            onConfirmation = {
+                callPopupWindowAlert = false
+            },
+            title = {
+                Text(
+                    text = stringResource(id = R.string.feedback_10),
+                    modifier = Modifier
+                        .padding(
+                            start = 10.dp,
+                            end = 10.dp,
+                            bottom = 15.dp
+                        ),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 22.sp,
+                )
+            },
+            text = {
+                   Text(
+                       text = stringResource(id = R.string.feedback_11),
+                       modifier = Modifier
+                           .padding(horizontal = 10.dp)
+                   )
+            },
+            buttonModifier = Modifier
+                .padding(start = 5.dp)
+                .size(width = 75.dp, height = 35.dp),
+            buttonText = "Dismiss",
+            buttonColor = ButtonDefaults.buttonColors(
+                containerColor = Color.Red,
+                contentColor = Color.White
+            )
+        )
+    }
+    //star images
+    var imageResource1 = when (star) {
+        1 -> R.drawable.feedback1
+        2 -> R.drawable.feedback1
+        3 -> R.drawable.feedback1
+        4 -> R.drawable.feedback1
+        else -> R.drawable.feedback1
+    }
+    var imageResource2 = when (star) {
+        1 -> R.drawable.feedback2
+        2 -> R.drawable.feedback1
+        3 -> R.drawable.feedback1
+        4 -> R.drawable.feedback1
+        else -> R.drawable.feedback1
+    }
+    var imageResource3 = when (star) {
+        1 -> R.drawable.feedback2
+        2 -> R.drawable.feedback2
+        3 -> R.drawable.feedback1
+        4 -> R.drawable.feedback1
+        else -> R.drawable.feedback1
+    }
+    var imageResource4 = when (star) {
+        1 -> R.drawable.feedback2
+        2 -> R.drawable.feedback2
+        3 -> R.drawable.feedback2
+        4 -> R.drawable.feedback1
+        else -> R.drawable.feedback1
+    }
+    var imageResource5 = when (star) {
+        1 -> R.drawable.feedback2
+        2 -> R.drawable.feedback2
+        3 -> R.drawable.feedback2
+        4 -> R.drawable.feedback2
+        else -> R.drawable.feedback1
+    }
     //surface is to make it scrollable
     Surface(modifier = Modifier
         .fillMaxSize()
         .verticalScroll(rememberScrollState())) {
-
         Column(
             modifier = modifier
                 .fillMaxSize(),
@@ -190,13 +287,11 @@ fun FeedbackScreen(
                             .padding(
                                 top = 8.dp,
                                 bottom = 8.dp
-                            ) // Example padding for vertical centering
+                            )
                     ) {
                         Text(text = stringResource(R.string.feedback))
                     }
-
                 },
-
                 navigationIcon = {
                     IconButton(onClick = {}) {
                         Icon(
@@ -206,7 +301,6 @@ fun FeedbackScreen(
                     }
                 }
             )
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -218,14 +312,12 @@ fun FeedbackScreen(
                     fontSize = 25.sp,
                     color = colorResource(R.color.primary),
                 )
-
                 Text(
                     text = stringResource(R.string.feedback_2),
                     fontSize = 16.sp,
                     color = colorResource(R.color.black)
                 )
             }
-
             Row(
                 horizontalArrangement = Arrangement.Center,
                 modifier = modifier
@@ -241,7 +333,7 @@ fun FeedbackScreen(
                         )
                         .clickable(
                             onClick = {
-                                result = 1
+                                star = 1
                             }
                         )
                 )
@@ -255,7 +347,7 @@ fun FeedbackScreen(
                         )
                         .clickable(
                             onClick = {
-                                result = 2
+                                star = 2
                             }
                         )
                 )
@@ -269,7 +361,7 @@ fun FeedbackScreen(
                         )
                         .clickable(
                             onClick = {
-                                result = 3
+                                star = 3
                             }
                         )
                 )
@@ -283,7 +375,7 @@ fun FeedbackScreen(
                         )
                         .clickable(
                             onClick = {
-                                result = 4
+                                star = 4
                             }
                         )
                 )
@@ -297,18 +389,16 @@ fun FeedbackScreen(
                         )
                         .clickable(
                             onClick = {
-                                result = 5
+                                star = 5
                             }
                         )
                 )
             }
-
             Divider(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 25.dp, bottom = 40.dp)
             )
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -452,16 +542,16 @@ fun FeedbackScreen(
                     )
                     LazyRow {
                         items(selectedImageUris){selectedImageUri->
-                            AsyncImage(
+                            DisplayImagesFromByteArray(
+                                byteArray = uriToByteArray(context = context, selectedImageUri),
                                 modifier = Modifier
                                     .size(
-                                        width = 85.dp,
-                                        height = 70.dp
+                                        width = 82.dp,
+                                        height = 67.dp
                                     )
-                                    .padding(start = 10.dp)
+                                    .padding(start = 10.dp, top = 2.dp)
                                     .border(BorderStroke(1.dp, colorResource(id = R.color.primary))),
-                                model = selectedImageUri,
-                                contentDescription = null,
+                                contentDescription = "Image",
                                 contentScale = ContentScale.FillBounds
                             )
                         }
@@ -499,12 +589,15 @@ fun FeedbackScreen(
                         .widthIn(min = 300.dp)
                         .align(Alignment.CenterHorizontally),
                     onClick = {
-                        callPopupWindowDialog = true
+                        if (selectedOption == ""){
+                            callPopupWindowAlert = true
+                        } else {
+                            callPopupWindowDialog = true
+                        }
                     }
                 ) {
                     Text(text = "Submit")
                 }
-
             }
         }
     }
@@ -550,7 +643,7 @@ fun EditTextField(
                     size = 12.dp,
                 )
             )
-            ,
+        ,
         placeholder = { Text(
             text = stringResource(R.string.feedback_6),
             fontSize = 12.sp,
@@ -566,62 +659,6 @@ fun EditTextField(
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
     )
 }
-
-//@Composable
-//fun uploadImage() {
-//    var imageUri by remember { mutableStateOf<Uri?>(null) }
-//    val context = LocalContext.current
-//    val bitmap = remember { mutableStateOf<Bitmap?>(null) }
-//
-//    val laucher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()){uri: Uri? ->
-//        imageUri = uri
-//    }
-//
-//   Row (
-//        modifier = Modifier
-//            .fillMaxSize()
-//    ) {
-//       Image(
-//           painter = painterResource(id = R.drawable.feedback3),
-//           contentDescription = "1",
-//           modifier = Modifier
-//               .size(
-//                   width = 100.dp,
-//                   height = 70.dp
-//               )
-//               .clickable(
-//                   onClick = {
-//                       laucher.launch("image/*")
-//                   }
-//               )
-//               .padding(start = 30.dp)
-//       )
-//
-//        imageUri?.let {
-//            if (Build.VERSION.SDK_INT < 28){
-//                bitmap.value = MediaStore.Images
-//                    .Media.getBitmap(context.contentResolver, it)
-//            } else {
-//                val source = ImageDecoder.createSource(context.contentResolver, it)
-//                bitmap.value = ImageDecoder.decodeBitmap(source)
-//            }
-//
-//            bitmap.value?.let { btm ->
-//                Image(
-//                    bitmap = btm.asImageBitmap(),
-//                    contentDescription = null,
-//                    modifier = Modifier
-//                        .size(
-//                            width = 85.dp,
-//                            height = 70.dp
-//                        )
-//                        .padding(start = 10.dp)
-//                        .border(BorderStroke(1.dp, colorResource(id = R.color.primary)))
-//                )
-//            }
-//        }
-//    }
-//}
 
 @Preview(showBackground = true)
 @Composable

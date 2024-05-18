@@ -25,6 +25,8 @@
     <string name="feedback_7">Thanks for your feedback!</string>
     <string name="feedback_8">We appreciate your feedback—it fuels our improvement process.</string>
     <string name="feedback_9">Are you sure you want to submit the feedback form?</string>
+    <string name="feedback_10">"Cannot submit emtpy feedback form!"</string>
+    <string name="feedback_11">"Kindly choose the category to avoid empty feedback form. Thank you!"</string>
     <string name="waitlist">Waitlist</string>
     <string name="waitlist_1">Welcome, Ali</string>
     <string name="waitlist_2">Size : </string>
@@ -39,6 +41,8 @@
     <string name="waitlist_11">Oh no! Your reservation is expired!</string>
     <string name="waitlist_12">Your reservation had expired since you did not register in the counter within 5 minutes. Kindly register in the counter within 5 minutes for the next reservation. Thank you and sorry for any inconveniences caused.</string>
     <string name="waitlist_13">Your table is ready, Ali!</string>
+    <string name="waitlist_14">Are you sure you want to accept this waitlist?</string>
+    <string name="waitlist_15">Are you sure you want to cancel this waitlist?</string>
     <string name="feedback_success">Feedback Success</string>
     <string name="home">Home</string>
     <!--    <string name="feedback_button_1">Packaging</string>-->

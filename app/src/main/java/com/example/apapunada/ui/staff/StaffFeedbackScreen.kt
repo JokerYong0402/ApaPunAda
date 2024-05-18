@@ -18,10 +18,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
@@ -43,21 +47,27 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.apapunada.R
 import com.example.apapunada.data.dataclass.Feedback
+import com.example.apapunada.data.dataclass.User
 import com.example.apapunada.ui.AppViewModelProvider
+import com.example.apapunada.ui.components.DisplayImagesFromByteArray
 import com.example.apapunada.ui.components.DropDownMenu
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.SearchBar
+import com.example.apapunada.ui.components.uriToByteArray
 import com.example.apapunada.viewmodel.FeedbackListState
 import com.example.apapunada.viewmodel.FeedbackState
 import com.example.apapunada.viewmodel.FeedbackViewModel
+import com.example.apapunada.viewmodel.UserState
+import com.example.apapunada.viewmodel.UserViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun StaffFeedbackScreen(
     viewModel: FeedbackViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-
-    var feedbackState = viewModel.feedbackState.collectAsState(initial = FeedbackState())
     val feedbackListState = viewModel.feedbackListState.collectAsState(initial = FeedbackListState())
     var feedbacks: List<Feedback> = listOf()
 
@@ -74,6 +84,10 @@ fun StaffFeedbackScreen(
         }
     }
 
+    var selectField by remember { mutableStateOf("Field") }
+    val context = LocalContext.current
+    var textInput by remember { mutableStateOf("") }
+
     val headerList = listOf(
         // (Header name, Column width)
         Pair("  Id.", 80.dp),
@@ -84,10 +98,9 @@ fun StaffFeedbackScreen(
         Pair("Comments", 350.dp)
     )
 
+    //TODO delete
     var image = "content://media/picker/0/com.android.providers.media.photopicker/media/100000042,https://www.sidechef.com/recipe/bf2ae123-0553-4605-a564-e790d69d29fb.jpg?d=1408x1120,https://images.deliveryhero.io/image/foodpanda/recipes/chicken-chop-recipe-1.jpg"
     var images = image.split(",")
-
-    var textInput by remember { mutableStateOf("") }
 
     val fieldList = listOf(
         "Party",
@@ -99,18 +112,25 @@ fun StaffFeedbackScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = dimensionResource(R.dimen.padding_large))
+            .padding(vertical = 10.dp, horizontal = dimensionResource(R.dimen.padding_large))
     ) {
         Row {
-            DropDownMenu(itemList = fieldList)
+            selectField = DropDownMenu(itemList = fieldList)
             Spacer(modifier = Modifier.size(10.dp))
             SearchBar(
                 value = textInput,
                 onValueChange = { textInput = it },
                 modifier = Modifier
             )
+            if (selectField == "Category" && textInput != "") {
+                viewModel.loadFeedbacksByCategory("%" + textInput + "%")
+            } else if (selectField == "Star" && textInput != "") {
+                viewModel.loadFeedbacksByStar(textInput.toInt())
+            } else if (selectField == "Comments" && textInput != ""){
+                viewModel.loadFeedbacksByComment("%" + textInput + "%")
+            }
         }
-        Spacer(modifier = Modifier.size(5.dp))
+        Spacer(modifier = Modifier.size(10.dp))
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -141,7 +161,21 @@ fun StaffFeedbackScreen(
             }
 
             items(feedbacks.size) { i ->
+                //TODO
                 val feedback = feedbacks[i]
+//                userViewModel.loadUserByUserId(feedback.userID)
+//                val userState = userViewModel.userState.collectAsState(initial = UserState())
+//                var user = userState.value.user
+                val user = callUser(userID = feedback.userID)
+//                val user = callUser(feedback.userID)
+                Log.i("UserMain","$user")
+                Log.i("UserSecond","$feedback.userID")
+                Log.i("UserThird","${callUser(userID = feedback.userID)}")
+                //var user: User
+
+//                do {
+//                    user = userState.value.user
+//                } while (user.userID != feedback.userID)
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -149,7 +183,6 @@ fun StaffFeedbackScreen(
                         .fillMaxWidth()
                         .height(120.dp)
                 ) {
-
                     Text(
                         text = (i+1).toString(),
                         fontSize = 22.sp,
@@ -157,21 +190,18 @@ fun StaffFeedbackScreen(
                             .width(headerList[0].second)
                             .padding(start = 20.dp)
                     )
-
                     Text(
-                        text = feedback.userID.toString(),
+                        text = user.username,
                         fontSize = 22.sp,
                         modifier = Modifier
                             .width(headerList[1].second)
                     )
-
                     Text(
                         text = feedback.star.toString(),
                         fontSize = 22.sp,
                         modifier = Modifier
                             .width(headerList[2].second)
                     )
-
                     Text(
                         text = feedback.category,
                         fontSize = 22.sp,
@@ -179,6 +209,31 @@ fun StaffFeedbackScreen(
                             .width(headerList[3].second)
                     )
 
+//                    LazyRow (
+//                        modifier = Modifier
+//                            .width(headerList[4].second)
+//                    ) {
+//                        items(feedback.images){selectedImageUri->
+//                            DisplayImagesFromByteArray(
+//                                byteArray = uriToByteArray(context = context, selectedImageUri),
+//                                modifier = Modifier
+//                                    .size(
+//                                        width = 85.dp,
+//                                        height = 70.dp
+//                                    )
+//                                    .padding(end = 10.dp)
+//                                    .border(
+//                                        BorderStroke(
+//                                            1.dp,
+//                                            colorResource(id = R.color.primary)
+//                                        )
+//                                    ),
+//                                contentDescription = "Image",
+//                                contentScale = ContentScale.FillBounds
+//                            )
+//                        }
+//                    }
+                    //TODO delete below and uncomment above
                     Row(
                         modifier = Modifier
                             .width(headerList[4].second)
@@ -220,7 +275,58 @@ fun StaffFeedbackScreen(
     }
 }
 
+//TODO callUser
+//@Composable
+//fun callUser(
+//    userID: Int,
+//    userViewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory)
+//) :User {
+//    userViewModel.loadUserByUserId(userID)
+//    var user: User
+//
+//    do {
+//        user = userViewModel.userState.value.user
+//    } while (user.userID != userID)
+//
+//    return user
+//}
 
+@Composable
+fun callUser(
+    userID: Int,
+    userViewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory)
+) : User {
+//    val userState = userViewModel.userState.collectAsState(initial = UserState())
+//    var user by remember { mutableStateOf(User()) }
+//    userViewModel.loadUserByUserId(userID)
+//    LaunchedEffect(Unit) {
+//        launch {
+//            delay(0)
+//            user = userState.value.user
+//        }
+//    }
+    val userState by userViewModel.userState.collectAsState(initial = UserState())
+
+    // Trigger loading the user data
+    LaunchedEffect(userID) {
+        userViewModel.loadUserByUserId(userID)
+    }
+
+    // Observe user state
+    var user by remember { mutableStateOf(User()) }
+    LaunchedEffect(userState) {
+            user = userState.user
+
+    }
+    Log.i("User","${userState.user}")
+
+    return user
+}
+//    do {
+//
+//        user = userState.value.user
+//
+//    } while (user.userID != userID)
 
 @Composable
 @Preview(showBackground = true, device = Devices.TABLET)

@@ -5,6 +5,9 @@ import android.app.DatePickerDialog
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.pm.ActivityInfo
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
@@ -19,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,6 +43,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -48,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
 import com.example.apapunada.data.dataclass.User
+import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -67,6 +75,9 @@ fun formattedDate(millis: Long, option: String = ""): String {
         }
         "time" -> {
             SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+        }
+        "mins" -> {
+            SimpleDateFormat("mm", Locale.getDefault())
         }
         else -> {
             SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
@@ -179,7 +190,7 @@ fun PopupWindowDialog(
 @Composable
 fun DropDownMenu(
     itemList: List<String>
-) {
+): String {
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
     var selectedField by remember { mutableStateOf("Field") }
@@ -248,6 +259,7 @@ fun DropDownMenu(
             }
         }
     }
+    return selectedField
 }
 
 @Composable
@@ -292,6 +304,67 @@ fun SearchBar(
     )
 }
 
+fun uriToByteArray(context: Context, uri: Uri): ByteArray? {
+    return try {
+        val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
+        inputStream?.readBytes()
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+@Composable
+fun DisplayImagesFromByteArray(
+    byteArray: ByteArray?,
+    modifier: Modifier,
+    contentDescription: String,
+    contentScale: ContentScale
+) {
+    byteArray?.let {
+        val bitmap: Bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+        val imageBitmap: ImageBitmap = bitmap.asImageBitmap()
+
+        Image(
+            bitmap = imageBitmap,
+            contentDescription = contentDescription,
+            modifier = modifier,
+            contentScale = contentScale
+        )
+    }
+}
+
+@Composable
+fun PopupWindowAlert(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    title: @Composable () -> Unit,
+    text: @Composable () -> Unit,
+    buttonModifier: Modifier,
+    buttonColor: ButtonColors,
+    buttonText: String
+){
+    AlertDialog(
+        containerColor = Color.White,
+        shape = RoundedCornerShape(5.dp),
+        title = title,
+        text = text,
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                modifier = buttonModifier,
+                shape = RoundedCornerShape(5.dp),
+                colors = buttonColor,
+                onClick = {
+                    onConfirmation()
+                }
+            ) {
+                Text(buttonText)
+            }
+        },
+    )
 fun convertDateToLong(dateString: String): Long {
     val format = SimpleDateFormat("dd-MM-yyyy") // Specify the date format
     format.timeZone = TimeZone.getTimeZone("UTC")
