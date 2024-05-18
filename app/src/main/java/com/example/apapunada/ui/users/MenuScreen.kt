@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -116,35 +115,7 @@ fun MenuScreen(
             Column(
                 modifier = Modifier.padding(innerPadding)
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                        //.height(60.dp)
-                        .padding(horizontal = 10.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
 
-                    ) {
-                    Image(
-                        painter = painterResource(R.drawable.searchicon),
-                        contentDescription = "Search Icon",
-                        modifier = Modifier
-                            .padding(start = 15.dp)
-                            //.fillMaxSize()
-                            .size(
-                                width = 30.dp,
-                                height = 30.dp
-                            ),
-                        alignment = Alignment.Center
-                    )
-                    MenuScreenSearchBar(
-                        value = textInput,
-                        onValueChange = { textInput = it },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

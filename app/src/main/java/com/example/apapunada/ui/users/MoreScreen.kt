@@ -231,5 +231,6 @@ fun MoreScreen(
 @Preview(showBackground = true)
 @Composable
 fun MoreScreenPreview() {
-    MoreScreen(navController = rememberNavController())
+    MoreScreen(navController = rememberNavController(),
+    )
 }

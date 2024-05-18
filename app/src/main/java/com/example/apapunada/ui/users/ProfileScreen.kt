@@ -51,7 +51,8 @@ fun ProfileScreen(
     viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory),
     onEdit: () -> Unit,
     onDelete: () -> Unit,
-    onLogin: () -> Unit
+    onLogin: () -> Unit,
+    onBackButtonClicked: () -> Unit
 ) {
     val userState = viewModel.userState.collectAsState(initial = UserState())
     viewModel.loadUserByUserId(3)
@@ -59,7 +60,8 @@ fun ProfileScreen(
     val user = userState.value.user
 
     Scaffold(
-        topBar = { MyTopTitleBar(title = stringResource(R.string.profile)) },
+        topBar = { MyTopTitleBar(title = stringResource(R.string.profile), onBackButtonClicked = onBackButtonClicked
+            ) },
         //bottomBar = { MyBottomNavBar() }
     ) { innerPadding ->
         Surface(modifier = Modifier
@@ -435,6 +437,7 @@ fun ProfileScreen(
 @Composable
 fun ProfileScreenPreview() {
     ProfileScreen(
-        onDelete = {}, onLogin = {}, onEdit = {}
+        onDelete = {}, onLogin = {}, onEdit = {}, onBackButtonClicked = {}
+
     )
 }

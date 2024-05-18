@@ -11,6 +11,8 @@ interface MenuItemRepository {
 
     fun getMenuMenuItemsByCuisineStream(cuisine: String): Flow<List<MenuItem>>
 
+    fun getUsersStream(name: String) : Flow<List<MenuItem>>
+
     suspend fun deleteMenuItem(menuItem: MenuItem)
 
     suspend fun updateMenuItem(menuItem: MenuItem)

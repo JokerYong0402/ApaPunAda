@@ -34,9 +34,9 @@ fun MenuNav(
                     navController.navigate("FoodDetail")},
             )
         }
-        composable(route = "FoodList"){
+        composable(MenuNav.FoodList.name){
             FoodListScreen(
-                onBackButtonClicked = {navController.navigate(MenuNav.Menu.name)},
+                onBackButtonClicked = {navController.navigateUp()},
                 menuType = menutype,
                 onDish = {
                     menuId = it
@@ -47,7 +47,7 @@ fun MenuNav(
         }
         composable(route = "FoodDetail"){
             FoodDetailScreen(
-                onBackButtonClicked = {navController.navigate(MenuNav.FoodList.name)},
+                onBackButtonClicked = {navController.navigateUp()},
                 onOrder = { navController.navigate("OrderMenu") },
                 currentDishId =  menuId
 

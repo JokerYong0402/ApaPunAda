@@ -118,6 +118,18 @@ class MenuItemViewModel(
             }
     }
 
+    fun loadMenuItemByName(name: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            menuItemRepository.getUsersStream(name)
+                .map { MenuListState(isLoading = false, menuItemList = it) }
+                .onStart { emit(MenuListState(isLoading = true)) }
+                .catch {
+                    emit(MenuListState(errorMessage = it.message.toString()))
+                }
+                .collect { _menuListState.value = it }
+            }
+        }
+
     fun loadFoodDetailsByMenuItemId(id: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             foodDetailsRepository.getFoodDetailsByMenuItemIdStream(id)
@@ -296,4 +308,8 @@ class MenuItemViewModel(
             }
         }
     }
+
+
+
+
 }

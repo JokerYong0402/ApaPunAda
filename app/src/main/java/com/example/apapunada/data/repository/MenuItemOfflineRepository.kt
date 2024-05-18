@@ -17,5 +17,6 @@ class MenuItemOfflineRepository(private val menuItemDao: MenuItemDao): MenuItemR
 
     override suspend fun insertMenuItem(menuItem: MenuItem) = menuItemDao.insertMenuItem(menuItem)
 
+    override fun getUsersStream(name: String): Flow<List<MenuItem>> = menuItemDao.getMenuItemsByName(name)
 }
 
