@@ -51,7 +51,9 @@ import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.MyTopTitleBar
 import com.example.apapunada.ui.components.formattedString
+import com.example.apapunada.ui.components.getEnumList
 import com.example.apapunada.viewmodel.MenuItemViewModel
+import com.example.apapunada.viewmodel.OrderDetailStatus
 import com.example.apapunada.viewmodel.OrderDetailsListState
 import com.example.apapunada.viewmodel.OrderViewModel
 
@@ -263,7 +265,7 @@ fun OrderCartScreen(
                                             remark = orderDetail.remark,
                                             option = orderDetail.option,
                                             total = orderDetail.total,
-//                                         TODO   status = getEnumList(OrderDetailStatus::class.java)[1]
+                                            status = getEnumList(OrderDetailStatus::class.java)[1]
                                         )
 
                                         orderViewModel.updateOrderDetailState(latestOrderDetail)

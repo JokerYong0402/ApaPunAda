@@ -37,9 +37,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import androidx.navigation.navigation
 import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.IntroductionPager
 import com.example.apapunada.ui.LoginScreen
@@ -51,13 +54,32 @@ import com.example.apapunada.ui.staff.StaffMenuScreen
 import com.example.apapunada.ui.staff.StaffOrderScreen
 import com.example.apapunada.ui.staff.StaffUserScreen
 import com.example.apapunada.ui.staff.StaffWaitlistScreen
+import com.example.apapunada.ui.users.AboutUsScreen
+import com.example.apapunada.ui.users.DeleteProfileScreen
+import com.example.apapunada.ui.users.EditProfileScreen
+import com.example.apapunada.ui.users.FeedbackScreen
+import com.example.apapunada.ui.users.FeedbackSuccessScreen
+import com.example.apapunada.ui.users.FoodDetailScreen
+import com.example.apapunada.ui.users.FoodListScreen
 import com.example.apapunada.ui.users.HomeScreen
+import com.example.apapunada.ui.users.MenuScreen
 import com.example.apapunada.ui.users.MoreScreen
-import com.example.apapunada.ui.users.OrderNav
-import com.example.apapunada.ui.users.RewardsScreenNavigation
+import com.example.apapunada.ui.users.OrderCartScreen
+import com.example.apapunada.ui.users.OrderCheckoutScreen
+import com.example.apapunada.ui.users.OrderCustomizeScreen
+import com.example.apapunada.ui.users.OrderFailedScreen
+import com.example.apapunada.ui.users.OrderMenuScreen
+import com.example.apapunada.ui.users.OrderOptionScreen
+import com.example.apapunada.ui.users.OrderPaymentScreen
+import com.example.apapunada.ui.users.OrderSuccessScreen
+import com.example.apapunada.ui.users.ProfileScreen
+import com.example.apapunada.ui.users.RewardsScreen
 import com.example.apapunada.ui.users.SignUpScreen
+import com.example.apapunada.ui.users.VoucherDetails
+import com.example.apapunada.ui.users.VoucherRedeem
 import com.example.apapunada.ui.users.WaitlistScreen
 import com.example.apapunada.viewmodel.AuthViewModel
+import com.example.apapunada.viewmodel.OrderViewModel
 import com.example.apapunada.viewmodel.UserRole
 import kotlinx.coroutines.launch
 
@@ -87,15 +109,58 @@ enum class StaffScreen(@StringRes val title: Int, @DrawableRes val icon: Int) {
     FeedbackMgmt(R.string.feedback_mgmt, R.drawable.editprofilepicicon)
 }
 
+enum class OrderScreen(@StringRes val routeResId: Int) {
+    Option(R.string.order_option),
+    Menu(R.string.order_menu),
+    Customization(R.string.order_customize),
+    Cart(R.string.order_cart),
+    Checkout(R.string.order_checkout),
+    Payment(R.string.order_payment),
+    Success(R.string.order_success),
+    Failed(R.string.order_failed),
+}
+enum class MoreScreen(@StringRes val title: Int) {
+    More(R.string.more),
+    Profile(R.string.profile),
+    Menu(R.string.menu),
+    Feedback(R.string.feedback),
+    AboutUs(R.string.about_us),
+    OrderHistory(R.string.history),
+    Faq(R.string.faq),
+    Tnc(R.string.tnc)
+}
+
+enum class ProfileNav(@StringRes val title: Int){
+    Profile(R.string.profile),
+    EditProfile(R.string.edit_profile),
+    DeleteProfile(R.string.delete_profile)
+}
+
+enum class FeedbackNav(@StringRes val title: Int){
+    Feedback(R.string.feedback),
+    FeedbackSuccess(R.string.feedback_success),
+}
+
+enum class MenuNav(@StringRes val title: Int){
+    Menu(R.string.menu),
+    FoodList(R.string.food_list),
+    FoodDetail(R.string.food_details)
+}
+
 @Composable
 fun ApaPunAdaApp(
     navController: NavHostController = rememberNavController()
 ) {
     val authViewModel: AuthViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val orderViewModel: OrderViewModel = viewModel(factory = AppViewModelProvider.Factory)
 
     NavHost(
-        navController = navController, startDestination = StartScreen.Introduction.name
+        navController = navController,
+        startDestination = StartScreen.Introduction.name,
+        route = "Start"
     ) {
+
+        // Start: Introduction
         composable(StartScreen.Introduction.name) {
             IntroductionPager(
                 onLoginButtonClicked = { navController.navigate(StartScreen.Login.name) },
@@ -103,6 +168,7 @@ fun ApaPunAdaApp(
             )
         }
 
+        // Start: Login
         composable(StartScreen.Login.name) {
             LoginScreen(
                 onBackButtonClicked = { navController.navigateUp() },
@@ -112,6 +178,7 @@ fun ApaPunAdaApp(
             )
         }
 
+        // Start: Sign Up
         composable(StartScreen.SignUp.name) {
             SignUpScreen(
                 onBackButtonClicked = { navController.navigateUp() },
@@ -119,56 +186,305 @@ fun ApaPunAdaApp(
             )
         }
 
+        // Start: To identify where user or staff
         composable(StartScreen.Identify.name) {
             if (authViewModel.userState.value.user.role == getEnumList(UserRole::class.java)[1]) {
                 navController.navigate(StartScreen.Staff.name)
             } else {
-                navController.navigate(StartScreen.User.name)
+                navController.navigate("UserLoggedIn")
             }
         }
 
-        composable(StartScreen.User.name) {
-            UserNavigation(authViewModel = authViewModel)
+
+        // User: Home
+        navigation(
+            startDestination = UserScreen.Home.name,
+            route = "UserLoggedIn"
+        ) {
+            composable(UserScreen.Home.name) {
+                HomeScreen(
+                    navController = navController,
+                    authViewModel = authViewModel
+                )
+            }
+
+            // User: Waitlist
+            composable(UserScreen.Waitlist.name) {
+                WaitlistScreen(
+                    onBackButtonClicked = { navController.navigate("UserLoggedIn") }
+                )
+            }
+
+
+
+            // User: Order
+            navigation(
+                startDestination = OrderScreen.Option.name,
+                route = "Ordering"
+            ) {
+                composable(OrderScreen.Option.name) {
+                    OrderOptionScreen(
+                        onBackButtonClicked = { navController.navigate("UserLoggedIn") },
+                        onNextButtonClicked = { navController.navigate(OrderScreen.Menu.name) },
+                        viewModel = orderViewModel
+                    )
+                }
+
+                var menuItemID: Int = 0
+                composable(OrderScreen.Menu.name) {
+                    OrderMenuScreen(
+                        onBackButtonClicked = { navController.navigate(OrderScreen.Option.name) },
+                        onAddButtonClicked = {
+                            menuItemID = it
+                            navController.navigate(OrderScreen.Customization.name)
+                        },
+                        onCheckoutButtonClicked = { navController.navigate(OrderScreen.Cart.name) },
+                        orderViewModel = orderViewModel
+                    )
+                }
+
+                composable(OrderScreen.Customization.name) {
+                    OrderCustomizeScreen(
+                        orderViewModel = orderViewModel,
+                        menuItemID = menuItemID,
+                        onButtonClicked = { navController.navigate(OrderScreen.Menu.name) },
+                    )
+                }
+
+                composable(OrderScreen.Cart.name) {
+                    OrderCartScreen(
+                        onBackButtonClicked = { navController.navigate(OrderScreen.Menu.name) },
+                        onCheckoutClicked = { navController.navigate(OrderScreen.Checkout.name) },
+                        orderViewModel = orderViewModel
+                    )
+                }
+
+                composable(OrderScreen.Checkout.name) {
+                    OrderCheckoutScreen(
+                        onBackButtonClicked = { navController.navigate(OrderScreen.Cart.name) },
+                        onPayButtonClicked = { navController.navigate(OrderScreen.Payment.name) },
+                        orderViewModel = orderViewModel
+                    )
+                }
+
+                var paymentMethod: String = ""
+                composable(OrderScreen.Payment.name) {
+                    OrderPaymentScreen(
+                        onPayButtonClicked = {
+                            paymentMethod = it
+                            navController.navigate(OrderScreen.Success.name)
+                        },
+                        onCancelButtonClicked = {
+                            paymentMethod = it
+                            navController.navigate(OrderScreen.Failed.name)
+                        },
+                        orderViewModel = orderViewModel
+                    )
+                }
+
+                composable(OrderScreen.Success.name) {
+                    OrderSuccessScreen(
+                        onBackToHomeClicked = { navController.navigate("UserLoggedIn") },
+                        onOrderDetailsClicked = { navController.navigate(MoreScreen.OrderHistory.name)}, // to history
+                        paymentMethod = paymentMethod,
+                        orderViewModel = orderViewModel,
+                    )
+                }
+
+                composable(OrderScreen.Failed.name) {
+                    OrderFailedScreen(
+                        onBackToHomeClicked = { navController.navigate("UserLoggedIn")  },
+                        onTryAgainClicked = { navController.navigate(OrderScreen.Payment.name) },
+                        paymentMethod = paymentMethod,
+                        orderViewModel = orderViewModel,
+                    )
+                }
+            }
+
+
+
+            // User: Rewards
+            navigation(
+                startDestination = "RewardsScreen",
+                route = "Rewarding"
+            ) {
+
+                composable("RewardsScreen") {
+                    RewardsScreen(onBackButtonClicked = { navController.navigateUp() },
+                        onRedeem = { drawableId, voucherRM -> navController.navigate("VoucherRedeem/$drawableId/$voucherRM") },
+                        onDetails = { drawableId, voucherRM -> navController.navigate("VoucherDetails/$drawableId/$voucherRM") },
+                        userId = 6)
+                }
+
+                composable(
+                    route = "VoucherRedeem/{drawableId}/{voucherRM}",
+                    arguments = listOf(
+                        navArgument("drawableId") { type = NavType.IntType },
+                        navArgument("voucherRM") { type = NavType.StringType }
+                    )
+                ) {
+                        backStackEntry ->
+                    val drawableId: Int = backStackEntry.arguments?.getInt("drawableId") ?: 0
+                    val voucherRM: String = backStackEntry.arguments?.getString("voucherRM") ?: ""
+                    VoucherRedeem(
+                        onBackButtonClicked = {navController.navigateUp()},
+                        onDetails = { drawableId, voucherRM -> navController.navigate("VoucherDetails/$drawableId/$voucherRM") },
+                        painterResource(drawableId),
+                        voucherRM = voucherRM,
+                        userId = 6
+                    )
+                }
+
+                composable(
+                    route = "VoucherDetails/{drawableId}/{voucherRM}",
+                    arguments = listOf(
+                        navArgument("drawableId") { type = NavType.IntType },
+                        navArgument("voucherRM") { type = NavType.StringType }
+                    )
+                ) {
+                        backStackEntry ->
+                    val drawableId: Int = backStackEntry.arguments?.getInt("drawableId") ?: 0
+                    val voucherRM: String = backStackEntry.arguments?.getString("voucherRM") ?: ""
+                    VoucherDetails(
+                        painterResource(drawableId),
+                        voucherRM = voucherRM,
+                        navController = navController
+                    )
+                }
+            }
+
+            // User: More
+            navigation(
+                startDestination = MoreScreen.More.name,
+                route = "UserMore"
+            ) {
+
+                composable(MoreScreen.More.name) {
+                    MoreScreen(navController = navController, authViewModel = authViewModel)
+                }
+
+
+
+                // More: Profile
+                navigation(
+                    startDestination = ProfileNav.Profile.name,
+                    route = "UserProfile"
+                ){
+                    composable(ProfileNav.Profile.name){
+                        ProfileScreen(
+                            onEdit = { navController.navigate(ProfileNav.EditProfile.name)},
+                            onDelete = { navController.navigate(ProfileNav.DeleteProfile.name)},
+                            onLogin = { navController.navigate("Start")},
+                            onBackClicked = { navController.popBackStack() }
+                        )
+
+                    }
+                    composable(ProfileNav.EditProfile.name){
+                        EditProfileScreen(
+                            onBackButtonClicked = { navController.popBackStack() },
+                            onProfile = { navController.popBackStack() }
+                        )
+                    }
+                    composable(ProfileNav.DeleteProfile.name){
+                        DeleteProfileScreen(
+                            onBackButtonClicked = { navController.popBackStack() },
+                            onLogin = { navController.navigate("Start") }
+                        )
+                    }
+
+                }
+
+
+                // More: Menu
+                navigation(
+                    startDestination = MoreScreen.Menu.name,
+                    route = "UserMenu"
+                ) {
+                    var menuType: String = ""
+                    var menuId: Int = 0
+                    composable(MenuNav.Menu.name) {
+                        MenuScreen(
+                            onBackClicked = { navController.navigate("UserMore") },
+                            onMenuTypeClick = {
+                                menuType = it
+                                navController.navigate(MenuNav.FoodList.name)
+                            },
+                            onDish = {
+                                menuId = it
+                                navController.navigate(MenuNav.FoodDetail.name)
+                            },
+                        )
+                    }
+                    composable(MenuNav.FoodList.name) {
+                        FoodListScreen(
+                            onBackButtonClicked = { navController.navigate("UserMenu") },
+                            menuType = menuType,
+                            onDish = {
+                                menuId = it
+                                navController.navigate(MenuNav.FoodDetail.name)
+                            }
+                        )
+
+                    }
+                    composable(MenuNav.FoodDetail.name) {
+                        FoodDetailScreen(
+                            onBackButtonClicked = { navController.navigateUp() },
+                            onOrder = { navController.navigate(UserScreen.Order.name) },
+                            currentDishId = menuId
+                        )
+                    }
+                }
+
+                // More: Feedback
+                navigation(
+                    startDestination = FeedbackNav.Feedback.name,
+                    route = "UserFeedback"
+                ) {
+                    composable(FeedbackNav.Feedback.name){
+                        FeedbackScreen(
+                            onSubmit = { navController.navigate(FeedbackNav.FeedbackSuccess.name)},
+                            onBackClicked = { navController.navigate("UserMore") }
+                        )
+                    }
+
+                    composable(FeedbackNav.FeedbackSuccess.name) {
+                        FeedbackSuccessScreen(
+                            onClick = { navController.navigate(UserScreen.Home.name)}
+                        )
+                    }
+                }
+
+                // More: About Us
+                composable(MoreScreen.AboutUs.name) {
+                    AboutUsScreen(
+                        onBackClicked = { navController.navigateUp() },
+                        onFeedbackClicked = { navController.navigate("UserFeedback") },
+                        onOrderClicked = { navController.navigate("Ordering") }
+                    )
+                }
+
+                // More: Order History
+                composable(MoreScreen.OrderHistory.name) {
+                    MoreScreen(navController = navController, authViewModel = authViewModel)
+                }
+
+                // More: Faq
+                composable(MoreScreen.Faq.name) {
+                    MoreScreen(navController = navController, authViewModel = authViewModel)
+                }
+
+                // More: Tnc
+                composable(MoreScreen.Tnc.name) {
+                    MoreScreen(navController = navController, authViewModel = authViewModel)
+                }
+            }
         }
+
+
+
 
         composable(StartScreen.Staff.name) {
             StaffUI(authViewModel = authViewModel)
-        }
-    }
-}
-
-@Composable
-fun UserNavigation(
-    navController: NavHostController = rememberNavController(),
-    authViewModel: AuthViewModel
-) {
-    NavHost(
-        navController = navController,
-        startDestination = UserScreen.Home.name,
-    ) {
-        composable(UserScreen.Home.name) {
-            HomeScreen(
-                navController = navController,
-                authViewModel = authViewModel
-            )
-        }
-
-        composable(UserScreen.Waitlist.name) {
-            WaitlistScreen(
-                onBackButtonClicked = { navController.navigateUp() }
-            )
-        }
-
-        composable(UserScreen.Order.name) {
-            OrderNav()
-        }
-
-        composable(UserScreen.Rewards.name) {
-            RewardsScreenNavigation()
-        }
-
-        composable(UserScreen.More.name) {
-            MoreScreen(navController = navController) // navigate another
         }
     }
 }
@@ -218,9 +534,7 @@ fun StaffUI(
                                 coroutineScope.launch {
                                     drawerState.close()
                                 }
-                                navController.navigate(screen.name) {
-                                    popUpTo(0)
-                                }
+                                navController.navigate(screen.name)
                             },
                             colors = NavigationDrawerItemDefaults.colors(
 //                                colorResource(R.color.primary)

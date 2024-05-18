@@ -1,6 +1,5 @@
 package com.example.apapunada.ui.users
 
-import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -28,7 +27,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,13 +46,11 @@ import androidx.navigation.NavHostController
 import com.example.apapunada.R
 import com.example.apapunada.data.dataclass.MenuItem
 import com.example.apapunada.ui.AppViewModelProvider
-import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.MyBottomNavBar
 import com.example.apapunada.ui.components.MyTopAppBar
 import com.example.apapunada.ui.components.SetPortraitOrientationOnly
 import com.example.apapunada.viewmodel.AuthViewModel
 import com.example.apapunada.viewmodel.MenuItemViewModel
-import com.example.apapunada.viewmodel.MenuListState
 
 @Composable
 fun HomeScreen(
@@ -65,23 +61,11 @@ fun HomeScreen(
 ) {
     SetPortraitOrientationOnly()
 
-    val menuListState = menuItemViewModel.menuListState.collectAsState(initial = MenuListState())
-    var topFoods: List<MenuItem> = listOf()
-
-    menuItemViewModel.loadAllMenuItem() // TODO load only active
-
-    if (menuListState.value.isLoading) {
-        IndeterminateCircularIndicator("Loading...")
-    } else {
-        if (menuListState.value.errorMessage.isNotEmpty()) {
-            Text(text = "Error loading menus: ${menuListState.value.errorMessage}")
-            Log.i("Menu", "StaffMenuScreen: ${menuListState.value.errorMessage}")
-        } else {
-            topFoods = menuListState.value.menuItemList
-        }
-    }
-
     val primaryColor = colorResource(R.color.primary)
+
+    menuItemViewModel.loadAllMenuItem()
+    val topFoods: List<MenuItem> = menuItemViewModel.menuListState.value.menuItemList
+
     var imgPager = 1
 
     Scaffold(

@@ -90,6 +90,7 @@ fun OrderMenuScreen(
     orderViewModel.loadOrderDetailsByOrderId(orderID)
     val orderDetailsList = orderViewModel.orderDetailsListState.value.orderDetails
     var detailsNumber = orderViewModel.calculateDetailsNumber(orderDetailsList)
+    var detailsAmount = orderViewModel.calculateOrderSubtotal(orderDetailsList)
 
     // load menu to list
     val menuListState = menuViewModel.menuListState.collectAsState(initial = MenuListState())
@@ -157,7 +158,7 @@ fun OrderMenuScreen(
                 content = "Checkout",
                 order = currentOrder,
                 detailCount = detailsNumber,
-                amount = orderViewModel.calculateOrderSubtotal(orderDetailsList),
+                amount = detailsAmount,
                 onClick = {
                     detailsNumber = orderViewModel.calculateDetailsNumber(orderDetailsList)
                     if (detailsNumber > 0) {

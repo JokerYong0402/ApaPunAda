@@ -67,10 +67,11 @@ import com.example.apapunada.viewmodel.MenuListState
 @Composable
 fun MenuScreen(
     viewModel: MenuItemViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    onBackClicked: () -> Unit,
     onMenuTypeClick: (String) -> Unit,
     onDish: (Int) -> Unit,
-    ) {
-    var menuItemState = viewModel.menuItemState.collectAsState(initial = MenuItemState())
+) {
+
     val menuListState = viewModel.menuListState.collectAsState(initial = MenuListState())
     var menus: List<MenuItem> = listOf()
 
@@ -104,7 +105,7 @@ fun MenuScreen(
     }
 
     Scaffold(
-        topBar = { MyTopTitleBar(title = stringResource(R.string.menu)) },
+        topBar = { MyTopTitleBar(title = stringResource(R.string.menu), onBackClicked) },
         //bottomBar = { MyBottomNavBar() }
     ) { innerPadding ->
         Surface(

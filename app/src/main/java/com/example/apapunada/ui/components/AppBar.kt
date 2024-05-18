@@ -1,6 +1,6 @@
 package com.example.apapunada.ui.components
 
-import android.net.Uri
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -77,9 +77,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.apapunada.MainActivity
 import com.example.apapunada.R
 import com.example.apapunada.StaffScreen
-import com.example.apapunada.StartScreen
 import com.example.apapunada.UserScreen
 import com.example.apapunada.data.dataclass.Order
 import com.example.apapunada.data.dataclass.User
@@ -136,8 +136,9 @@ fun MyTopAppBar(
                         onClick = {
                             authViewModel.logout()
                             Toast.makeText(context, "Logged out", Toast.LENGTH_SHORT).show()
-                            val deepLink = Uri.parse("android-app://androidx.navigation/Introduction")
-                            navController.navigate(deepLink)
+                            navController.navigate("Start") { // Navigate back to the Start route
+                                popUpTo(navController.graph.startDestinationId)
+                            }
                         }
                     )
                 }
@@ -187,12 +188,12 @@ fun MyBottomNavBar(
         Item(
             title = { Text(text = "Order")},
             icon = { Icon(Icons.Rounded.ShoppingCart, contentDescription = "Order") },
-            actions = { navController.navigate(UserScreen.Order.name) }
+            actions = { navController.navigate("Ordering") }
         ),
         Item(
             title = { Text(text = "Rewards")},
             icon = { Icon(Icons.Rounded.Favorite, contentDescription = "Rewards") },
-            actions = { navController.navigate(UserScreen.Rewards.name) }
+            actions = { navController.navigate("Rewarding") }
         ),
         Item(
             title = {
@@ -407,7 +408,9 @@ fun StaffAppBar(
                         onClick = {
                             authViewModel.logout()
                             Toast.makeText(context, "Logged out", Toast.LENGTH_SHORT).show()
-                            navController.navigate(StartScreen.Introduction.name)
+                            val intent = Intent(context, MainActivity::class.java)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP) // Clear back stack
+                            context.startActivity(intent)
                         }
                     )
                 }

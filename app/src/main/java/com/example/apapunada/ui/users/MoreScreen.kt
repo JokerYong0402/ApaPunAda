@@ -1,5 +1,6 @@
 package com.example.apapunada.ui.users
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,14 +39,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
+import com.example.apapunada.MoreScreen
 import com.example.apapunada.R
+import com.example.apapunada.data.dataclass.User
 import com.example.apapunada.ui.components.MyBottomNavBar
+import com.example.apapunada.ui.components.MyTopAppBar
+import com.example.apapunada.viewmodel.AuthViewModel
 
 @Composable
 fun MoreScreen(
     modifier: Modifier = Modifier,
-    navController: NavHostController
+    navController: NavHostController,
+    authViewModel: AuthViewModel,
 ) {
 
     val primaryColor = colorResource(R.color.primary)
@@ -53,7 +58,7 @@ fun MoreScreen(
 
     Scaffold(
         topBar = {
-//            MyTopAppBar(User(), navController) // TODO
+            MyTopAppBar(User(), navController, authViewModel) // TODO
         },
         bottomBar = { MyBottomNavBar(5, navController) }
     ) { innerPadding ->
@@ -81,7 +86,7 @@ fun MoreScreen(
                                 spotColor = primaryColor,
                             )
                             .clip(RoundedCornerShape(10.dp))
-                            .clickable { /*TODO*/ }
+                            .clickable { navController.navigate("UserProfile") } //TODO user profile
                     ) {
                         // Profile pic, username, points
                         Column(
@@ -107,7 +112,7 @@ fun MoreScreen(
                                 ) {
                                     Text(
                                         text = "User",
-                                        fontSize = 20.sp,
+                                        fontSize = 24.sp,
                                         fontWeight = FontWeight.Bold,
                                         overflow = TextOverflow.Ellipsis,
                                         maxLines = 1,
@@ -144,6 +149,7 @@ fun MoreScreen(
                                 Text(
                                     text = "My Profile",
                                     fontSize = 20.sp,
+                                    fontWeight = FontWeight.SemiBold,
                                     modifier = Modifier
                                         .size(300.dp)
                                         .padding(2.dp)
@@ -195,31 +201,61 @@ fun MoreScreen(
                         verticalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxHeight()
                     ) {
-                        for (i in 1..4) {
-                            Row(
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(90.dp)
-                            ) {
-                                for (j in 1..2) {
-                                    Card(
-                                        colors = CardDefaults.cardColors(
-                                            containerColor = Color.White
-                                        ),
-                                        modifier = Modifier
-                                            .size(170.dp, 80.dp)
-                                            .shadow(
-                                                elevation = 5.dp,
-                                                spotColor = primaryColor,
-                                            )
-                                            .clip(RoundedCornerShape(10.dp))
-                                            .clickable { }
-                                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(90.dp)
+                        ) {
+                            MoreCard(
+                                title = "Menu",
+                                id = R.drawable.menuicon,
+                                onClicked = { navController.navigate("UserMenu") }
+                            )
 
-                                    }
-                                }
-                            }
+                            MoreCard(
+                                title = "Feedback",
+                                id = R.drawable.feedbackicon,
+                                onClicked = { navController.navigate(MoreScreen.Feedback.name) }
+                            )
+                        }
+
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(90.dp)
+                        ) {
+                            MoreCard(
+                                title = "About Us",
+                                id = R.drawable.aboutusicon,
+                                onClicked = { navController.navigate(MoreScreen.AboutUs.name) }
+                            )
+
+                            MoreCard(
+                                title = "Order History",
+                                id = R.drawable.historyicon,
+                                onClicked = { navController.navigate("") }
+                            )
+                        }
+
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(90.dp)
+                        ) {
+                            MoreCard(
+                                title = "Faq",
+                                id = R.drawable.faqicon,
+                                onClicked = { navController.navigate("") }
+                            )
+
+                            MoreCard(
+                                title = "T&C",
+                                id = R.drawable.tncicon,
+                                onClicked = { navController.navigate("") }
+                            )
                         }
                     }
                 }
@@ -228,8 +264,63 @@ fun MoreScreen(
     }
 }
 
+@Composable
+fun MoreCard(
+    title: String,
+    @DrawableRes id: Int,
+    onClicked: () -> Unit
+) {
+    val primaryColor = colorResource(R.color.primary)
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        ),
+        modifier = Modifier
+            .size(170.dp, 82.dp)
+            .shadow(
+                elevation = 5.dp,
+                spotColor = primaryColor,
+            )
+            .clip(RoundedCornerShape(10.dp))
+            .clickable { onClicked() },
+    ) {
+        Row(
+            modifier = Modifier.padding(10.dp)
+        ) {
+            Column {
+                Image(
+                    painter = painterResource(id),
+                    contentDescription = title,
+                    modifier = Modifier.size(40.dp, 40.dp)
+                )
+
+                Spacer(modifier = Modifier.height(3.dp))
+
+                Text(
+                    text = title,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.Bottom,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                    contentDescription = "Arrow",
+                    tint = primaryColor,
+                    modifier = Modifier.size(30.dp, 30.dp)
+                )
+            }
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun MoreScreenPreview() {
-    MoreScreen(navController = rememberNavController())
+//    MoreScreen(navController = rememberNavController())
 }
