@@ -1,6 +1,5 @@
 package com.example.apapunada.ui.users
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -31,7 +30,6 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,10 +49,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
-import com.example.apapunada.data.dataclass.MenuItem
 import com.example.apapunada.data.dataclass.Order
 import com.example.apapunada.ui.AppViewModelProvider
-import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.MyAlertDialog
 import com.example.apapunada.ui.components.MyBottomButton
 import com.example.apapunada.ui.components.MyTopTitleBar
@@ -62,7 +58,6 @@ import com.example.apapunada.ui.components.formattedString
 import com.example.apapunada.ui.components.getEnumList
 import com.example.apapunada.viewmodel.Cuisine
 import com.example.apapunada.viewmodel.MenuItemViewModel
-import com.example.apapunada.viewmodel.MenuListState
 import com.example.apapunada.viewmodel.OrderViewModel
 import kotlinx.coroutines.launch
 
@@ -90,23 +85,10 @@ fun OrderMenuScreen(
     orderViewModel.loadOrderDetailsByOrderId(orderID)
     val orderDetailsList = orderViewModel.orderDetailsListState.value.orderDetails
     var detailsNumber = orderViewModel.calculateDetailsNumber(orderDetailsList)
-
-    // load menu to list
-    val menuListState = menuViewModel.menuListState.collectAsState(initial = MenuListState())
-    var orderMenu: List<MenuItem> = listOf()
+    val detailsAmount = orderViewModel.calculateOrderSubtotal(orderDetailsList)
 
     menuViewModel.loadAllMenuItem() // TODO load only active
-
-    if (menuListState.value.isLoading) {
-        IndeterminateCircularIndicator("Loading menu...")
-    } else {
-        if (menuListState.value.errorMessage.isNotEmpty()) {
-            Text(text = "Error loading menus: ${menuListState.value.errorMessage}")
-            Log.i("Menu", "StaffMenuScreen: ${menuListState.value.errorMessage}")
-        } else {
-            orderMenu = menuListState.value.menuItemList
-        }
-    }
+    val orderMenu = menuViewModel.menuListState.value.menuItemList
 
     var back by remember { mutableStateOf(false) }
     if (back) {
@@ -157,7 +139,7 @@ fun OrderMenuScreen(
                 content = "Checkout",
                 order = currentOrder,
                 detailCount = detailsNumber,
-                amount = orderViewModel.calculateOrderSubtotal(orderDetailsList),
+                amount = detailsAmount,
                 onClick = {
                     detailsNumber = orderViewModel.calculateDetailsNumber(orderDetailsList)
                     if (detailsNumber > 0) {

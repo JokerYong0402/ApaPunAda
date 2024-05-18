@@ -82,4 +82,9 @@
 
     <string name="food_list">Food List</string>
     <string name="food_details">Food Details</string>
+
+    <string name="about_us">About Us</string>
+    <string name="history">history</string>
+    <string name="faq">Faq</string>
+    <string name="tnc">T&amp;C</string>
 </resources>

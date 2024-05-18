@@ -34,7 +34,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -51,7 +50,8 @@ fun ProfileScreen(
     viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory),
     onEdit: () -> Unit,
     onDelete: () -> Unit,
-    onLogin: () -> Unit
+    onLogin: () -> Unit,
+    onBackClicked: () -> Unit,
 ) {
     val userState = viewModel.userState.collectAsState(initial = UserState())
     viewModel.loadUserByUserId(3)
@@ -59,7 +59,7 @@ fun ProfileScreen(
     val user = userState.value.user
 
     Scaffold(
-        topBar = { MyTopTitleBar(title = stringResource(R.string.profile)) },
+        topBar = { MyTopTitleBar(title = stringResource(R.string.profile), onBackClicked) },
         //bottomBar = { MyBottomNavBar() }
     ) { innerPadding ->
         Surface(modifier = Modifier
@@ -431,10 +431,10 @@ fun ProfileScreen(
 
 
 
-@Preview(showBackground = true)
-@Composable
-fun ProfileScreenPreview() {
-    ProfileScreen(
-        onDelete = {}, onLogin = {}, onEdit = {}
-    )
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun ProfileScreenPreview() {
+//    ProfileScreen(
+//        onDelete = {}, onLogin = {}, BonEdit = {}
+//    )
+//}

@@ -17,21 +17,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.apapunada.R
 import com.example.apapunada.ui.components.MyTopTitleBar
 
 @Composable
 fun VoucherDetails(
     image: Painter,
-    voucherRM: String
+    voucherRM: String,
+    navController: NavHostController
 ) {
     Scaffold(
-        topBar = { MyTopTitleBar(title = "Voucher Details") }
+        topBar = { MyTopTitleBar(
+            title = "Voucher Details",
+            onBackButtonClicked = { navController.navigateUp() }
+        ) }
     ) { innerPadding ->
         Column(
             modifier = Modifier.padding(innerPadding).fillMaxSize()
@@ -77,7 +81,7 @@ fun VoucherDetails(
                     )
                     Text(
                         modifier = Modifier.padding(top = 15.dp),
-                        text = "1. This Voucher is not exchangeable or replaceable for cash.",
+                        text = "1. This voucher is not exchangeable or replaceable for cash.",
                         fontSize = 16.sp,
                     )
                     Text(
@@ -88,7 +92,7 @@ fun VoucherDetails(
                     )
                 }
                 Button(
-                    onClick = { /* TODO */ },
+                    onClick = { navController.navigate("Ordering") },
                     colors = ButtonDefaults.buttonColors(colorResource(R.color.primary)),
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier
@@ -96,7 +100,7 @@ fun VoucherDetails(
                         .align(Alignment.BottomCenter)
                         .padding(bottom = 16.dp)
                 ) {
-                    Text(text = "Apply This Voucher")
+                    Text(text = "Apply This Voucher In Order")
                 }
             }
         }
@@ -106,5 +110,5 @@ fun VoucherDetails(
 @Preview(showBackground = true)
 @Composable
 fun VoucherDetailsPreview() {
-    VoucherDetails(image = painterResource(R.drawable.voucher_details_rm1), voucherRM = "RM1")
+//    VoucherDetails(image = painterResource(R.drawable.voucher_details_rm1), voucherRM = "RM1")
 }

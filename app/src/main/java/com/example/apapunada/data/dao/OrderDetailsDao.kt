@@ -26,9 +26,9 @@ interface OrderDetailsDao {
     @Query("SELECT * FROM `orderDetails` WHERE orderDetailsID = :id")
     fun getOrderDetailsByOrderDetailsId(id: Int): Flow<OrderDetails>
 
-    @Query("SELECT * FROM `orderDetails` WHERE orderID = :id AND status = 'active'")
+    @Query("SELECT * FROM `orderDetails` WHERE orderID = :id AND status = 'Active'")
     fun getOrderDetailsByOrderId(id: Int): Flow<List<OrderDetails>>
 
-    @Query("SELECT * FROM `orderDetails` WHERE menuItemID = :id AND status = 'active'")
+    @Query("SELECT * FROM `orderDetails` WHERE menuItemID = :id AND status = 'Active'")
     fun getOrderDetailsByMenuItemId(id: Int): Flow<List<OrderDetails>>
 }

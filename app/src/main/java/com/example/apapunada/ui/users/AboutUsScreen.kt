@@ -36,7 +36,11 @@ import com.example.apapunada.R
 import com.example.apapunada.ui.components.MyTopTitleBar
 
 @Composable
-fun AboutUsScreen() {
+fun AboutUsScreen(
+    onBackClicked: () -> Unit,
+    onFeedbackClicked: () -> Unit,
+    onOrderClicked: () -> Unit,
+) {
     val text = buildAnnotatedString {
         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
             append(stringResource(id = R.string.app_name))
@@ -49,7 +53,7 @@ fun AboutUsScreen() {
     }
     val scrollState = rememberScrollState()
     Scaffold(
-        topBar = { MyTopTitleBar(title = "About Us") }
+        topBar = { MyTopTitleBar(title = "About Us", onBackClicked ) }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -203,8 +207,7 @@ fun AboutUsScreen() {
                             fontWeight = FontWeight.Bold
                         )
                         Button(
-                            //Go to feedback page
-                            onClick =  {  } ,
+                            onClick =  onFeedbackClicked ,
                             colors = ButtonDefaults.buttonColors(),
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier
@@ -223,8 +226,7 @@ fun AboutUsScreen() {
                             fontWeight = FontWeight.Bold
                         )
                         Button(
-                            //Go to Order page
-                            onClick =  {  } ,
+                            onClick =  onOrderClicked ,
                             colors = ButtonDefaults.buttonColors(),
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier
@@ -244,5 +246,5 @@ fun AboutUsScreen() {
 @Preview(showBackground = true)
 @Composable
 fun AboutUsScreenPreview() {
-    AboutUsScreen()
+//    AboutUsScreen()
 }

@@ -25,6 +25,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,9 +52,13 @@ import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.MyTopTitleBar
 import com.example.apapunada.ui.components.formattedString
+import com.example.apapunada.ui.components.getEnumList
 import com.example.apapunada.viewmodel.MenuItemViewModel
+import com.example.apapunada.viewmodel.OrderDetailStatus
 import com.example.apapunada.viewmodel.OrderDetailsListState
 import com.example.apapunada.viewmodel.OrderViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun OrderCartScreen(
@@ -77,6 +82,32 @@ fun OrderCartScreen(
     var isLoading by remember { mutableStateOf(true) }
     if (isLoading) {
         IndeterminateCircularIndicator("Loading cart...")
+    }
+
+    var isUpdating by remember { mutableStateOf(false) }
+    if (isUpdating) {
+        LaunchedEffect(Unit) {
+            launch {
+                delay(500)
+
+                val orderDetail = orderViewModel.orderDetailState.value.orderDetails
+
+                val latestOrderDetail = OrderDetails(
+                    orderDetailsID = orderDetail.orderDetailsID,
+                    orderID = orderDetail.orderID,
+                    menuItemID = orderDetail.menuItemID,
+                    quantity = orderDetail.quantity,
+                    remark = orderDetail.remark,
+                    option = orderDetail.option,
+                    total = orderDetail.total,
+                    status = getEnumList(OrderDetailStatus::class.java)[1]
+                )
+
+                orderViewModel.updateOrderDetailState(latestOrderDetail)
+                orderViewModel.updateDetails()
+                isUpdating = false
+            }
+        }
     }
 
     val primaryColor = R.color.primary
@@ -137,6 +168,7 @@ fun OrderCartScreen(
                                 orderViewModel.updateOrder()
                                 onCheckoutClicked()
                             },
+                            enabled = subtotal != 0.0,
                             shape = RoundedCornerShape(10.dp),
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -252,22 +284,7 @@ fun OrderCartScreen(
                                         orderViewModel.loadOrderDetailsByOrderDetailsId(
                                             detail.orderDetailsID
                                         )
-                                        val orderDetail =
-                                            orderViewModel.orderDetailState.value.orderDetails
-
-                                        val latestOrderDetail = OrderDetails(
-                                            orderDetailsID = orderDetail.orderDetailsID,
-                                            orderID = orderDetail.orderID,
-                                            menuItemID = orderDetail.menuItemID,
-                                            quantity = orderDetail.quantity,
-                                            remark = orderDetail.remark,
-                                            option = orderDetail.option,
-                                            total = orderDetail.total,
-//                                         TODO   status = getEnumList(OrderDetailStatus::class.java)[1]
-                                        )
-
-                                        orderViewModel.updateOrderDetailState(latestOrderDetail)
-                                        orderViewModel.updateDetails()
+                                        isUpdating = true
                                     }
                                 ) {
                                     Icon(

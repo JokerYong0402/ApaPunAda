@@ -49,6 +49,7 @@ import com.example.apapunada.R
 import com.example.apapunada.data.PrepopulateData
 import com.example.apapunada.data.dataclass.MenuItem
 import com.example.apapunada.data.dataclass.Order
+import com.example.apapunada.data.dataclass.User
 import com.example.apapunada.data.dataclass.Voucher
 import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
@@ -57,8 +58,10 @@ import com.example.apapunada.ui.components.MyBottomButton
 import com.example.apapunada.ui.components.MyTopTitleBar
 import com.example.apapunada.ui.components.formattedDate
 import com.example.apapunada.ui.components.formattedString
+import com.example.apapunada.viewmodel.AuthViewModel
 import com.example.apapunada.viewmodel.MenuItemViewModel
 import com.example.apapunada.viewmodel.OrderViewModel
+import com.example.apapunada.viewmodel.UserViewModel
 import com.example.apapunada.viewmodel.VoucherListState
 import com.example.apapunada.viewmodel.VoucherViewModel
 import kotlin.math.floor
@@ -69,8 +72,10 @@ fun OrderCheckoutScreen(
     onBackButtonClicked: () -> Unit,
     onPayButtonClicked: () -> Unit,
     orderViewModel: OrderViewModel,
+    authViewModel: AuthViewModel,
     menuItemViewModel: MenuItemViewModel = viewModel(factory = AppViewModelProvider.Factory),
     voucherViewModel: VoucherViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    userViewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
 
     val currentOrder = orderViewModel.orderState.value.order
@@ -146,7 +151,7 @@ fun OrderCheckoutScreen(
 
     total = subtotal + fees.second - discount
 
-    val points by remember { mutableStateOf(floor(total)) }
+    val points by remember { mutableStateOf(floor(total).toInt()) }
 
     val datetime = System.currentTimeMillis()
 
@@ -173,24 +178,41 @@ fun OrderCheckoutScreen(
 
                 val usedPoints = when (voucherCode) {
                     "VOUCHERRM1" -> {
-                        1.0
+                        100
                     }
 
                     "VOUCHERRM3" -> {
-                        3.0
+                        300
                     }
 
                     "VOUCHERRM10" -> {
-                        10.0
+                        1000
                     }
 
                     else -> {
-                        0.0
+                        0
                     }
                 }
-                // TODO userViewModel current - used + points
-                // updateState
-                // update
+
+                val currentUser = authViewModel.userState.value.user
+                userViewModel.loadUserByUserId(currentUser.userID)
+                val latestPoints = currentUser.point - usedPoints + points
+                userViewModel.updateUserState(
+                    User(
+                        userID = currentUser.userID,
+                        username = currentUser.username,
+                        email = currentUser.email,
+                        password = currentUser.password,
+                        phoneNo = currentUser.phoneNo,
+                        gender = currentUser.gender,
+                        dob = currentUser.dob,
+                        image = currentUser.image,
+                        role = currentUser.role,
+                        point = latestPoints,
+                        status = currentUser.status,
+                    )
+                )
+                userViewModel.updateUser()
 
                 onPayButtonClicked()
             },
@@ -526,7 +548,7 @@ fun OrderCheckoutScreen(
                                     fontSize = 20.sp
                                 )
                                 Text(
-                                    text = "($points Points Earned)",
+                                    text = "(${points.toInt()} Points Earned)",
                                     fontWeight = FontWeight.Light,
                                     fontSize = 13.sp
                                 )
