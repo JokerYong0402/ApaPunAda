@@ -68,22 +68,26 @@ fun EditProfileScreen(
     onProfile: () -> Unit,
     onBackButtonClicked: () -> Unit
     ) {
-    var userState = viewModel.userState.collectAsState(initial = UserState())
+
+    //var userState = viewModel.userState.collectAsState(initial = UserState())
     viewModel.loadUserByUserId(3)
 
-    var user = userState.value.user
+//    LaunchedEffect(Unit) {
+//        viewModel.loadUserByUserId(3)
+//    }
+
+    var user = viewModel.userState.value.user
 
     //Log.i("Profile", "EditProfileScreen: " + user)
     val imageUrl = rememberSaveable{mutableStateOf("")}
     var editedname by remember { mutableStateOf("") }
     var editedgender by remember { mutableStateOf("") }
-    var editeddob by remember { mutableLongStateOf(user.dob) }
+    var editeddob by remember { mutableStateOf("") }
     var editedemail by remember { mutableStateOf("") }
     var editedpassword by remember { mutableStateOf("") }
     var editedphonenum by remember { mutableStateOf("") }
 
     var openAlertDialog by remember { mutableStateOf(false) }
-    val maxCharPhoneNum = 12
 
     val context = LocalContext.current
 
@@ -91,14 +95,14 @@ fun EditProfileScreen(
     val options = listOf("Male","Female")
     var changeGender by remember { mutableStateOf("") }
 
-    if (user != null){
-        editedname = user.username
-        editedgender = user.gender
-        editeddob = user.dob
-        editedemail = user.email
-        editedpassword = user.password
-        editedphonenum = user.phoneNo
-    }
+        if (user != null) {
+            editedname = user.username
+            editedgender = user.gender
+            editeddob = user.dob.toString()
+            editedemail = user.email
+            editedpassword = user.password
+            editedphonenum = user.phoneNo
+        }
 
     Scaffold(
         topBar = { MyTopTitleBar(title = stringResource(R.string.edit_profile), onBackButtonClicked = onBackButtonClicked) },
@@ -189,6 +193,7 @@ fun EditProfileScreen(
                                 readOnly = true,
                                 value = editedgender,
                                 onValueChange = { editedgender = it },
+                                shape = RoundedCornerShape(15.dp),
                                 label = { Text(text = "Gender") },
                                 trailingIcon = {
                                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedChangeGender)
@@ -238,7 +243,7 @@ fun EditProfileScreen(
                         horizontalAlignment = Alignment.Start,
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
-                         editeddob = MyDatePickerDialog(context, user)
+                         editeddob = MyDatePickerDialog(context, user).toString()
 
                     }
                 }
@@ -274,16 +279,9 @@ fun EditProfileScreen(
                             textlabel = "Email Address",
                             onValueChange = {
                                 editedemail = it
-                                isValidEmail(editedemail)
                             },
                             modifier = Modifier
                         )
-                        if (!isValidEmail(editedemail)) {
-                            Text(
-                                text = "Please enter a valid email address",
-                                modifier = Modifier.padding(start = 16.dp)
-                            )
-                        }
                     }
                 }
 
@@ -351,7 +349,7 @@ fun EditProfileScreen(
                         EditTextFieldProfile(
                             value = editedphonenum,
                             textlabel = "Phone Number",
-                            onValueChange = { if(it.length <= maxCharPhoneNum) editedphonenum = it },
+                            onValueChange = { editedphonenum = it },
                             modifier = Modifier
                         )
                     }
@@ -367,7 +365,7 @@ fun EditProfileScreen(
                             password = editedpassword,
                             phoneNo = editedphonenum,
                             gender = editedgender,
-                            dob = editeddob,
+                            dob = editeddob.toLong(),
                             role = user.role,
                             point = user.point,
                             status = user.status
@@ -376,7 +374,7 @@ fun EditProfileScreen(
 
                         viewModel.updateUser()
                         Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
-
+                        onProfile()
                         openAlertDialog = true
 
                               },
@@ -464,6 +462,7 @@ fun EditTextFieldProfile(
         value = value,
         singleLine = true,
         onValueChange = onValueChange,
+        shape = RoundedCornerShape(15.dp) ,
         modifier = modifier
             .height(120.dp)
             .width(300.dp),
@@ -473,10 +472,7 @@ fun EditTextFieldProfile(
         )
 }
 
-fun isValidEmail(email: String): Boolean {
-    val emailRegex = Regex("^\\S+@\\S+\\.\\S+\$")
-    return emailRegex.matches(email)
-}
+
 
 //@Preview(showBackground = true)
 //@Composable

@@ -46,6 +46,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -76,6 +77,7 @@ import com.example.apapunada.data.dataclass.MenuItem
 import com.example.apapunada.data.dataclass.NutritionFacts
 import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
+import com.example.apapunada.ui.components.SearchBar
 import com.example.apapunada.ui.components.formattedString
 import com.example.apapunada.ui.components.getEnumList
 import com.example.apapunada.viewmodel.Cuisine
@@ -85,7 +87,7 @@ import com.example.apapunada.viewmodel.MenuItemViewModel
 import com.example.apapunada.viewmodel.MenuListState
 import com.example.apapunada.viewmodel.NutritionFactsState
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun StaffMenuScreen(
     viewModel: MenuItemViewModel = viewModel(factory = AppViewModelProvider.Factory),
@@ -93,12 +95,6 @@ fun StaffMenuScreen(
     val menuListState = viewModel.menuListState.collectAsState(initial = MenuListState())
     var menus: List<MenuItem> = listOf()
     var menuType by remember { mutableStateOf("All") }
-
-    if (menuType == "All") {
-        viewModel.loadAllMenuItem()
-    } else {
-        viewModel.loadMenuItemByCuisine(menuType)
-    }
 
     if (menuListState.value.isLoading) {
         IndeterminateCircularIndicator("Loading menu...")
@@ -119,12 +115,12 @@ fun StaffMenuScreen(
         Pair("  No.", 90.dp),
         Pair("Picture", 180.dp),
         Pair("Food Name", 250.dp),
-        Pair("Cuisine",180.dp),
+        Pair("Cuisine", 180.dp),
         Pair("Amount(RM)", 180.dp),
         Pair("Status", 160.dp),
         Pair("Action", 180.dp),
 
-    )
+        )
     var openAddDishDialog by remember { mutableStateOf(false) }
     var openEditDishDialog by remember { mutableStateOf(false) }
     var openStatusDishDialog by remember { mutableStateOf(false) }
@@ -133,11 +129,11 @@ fun StaffMenuScreen(
     var search by remember { mutableStateOf("") }
 
     var currentMenu by remember { mutableStateOf(MenuItem()) }
-    var addmenu by remember {mutableStateOf(MenuItem())}
+    val addMenu by remember { mutableStateOf(MenuItem()) }
 
-    var nutritionFacts: NutritionFacts = NutritionFacts()
-    var foodDetails: FoodDetails = FoodDetails()
-    var currentMenuItemId by remember { mutableStateOf(0) }
+    var nutritionFacts = NutritionFacts()
+    var foodDetails = FoodDetails()
+    var currentMenuItemId by remember { mutableIntStateOf(0) }
 
     if (openAddDishDialog) {
         AddDishDialog(
@@ -151,8 +147,9 @@ fun StaffMenuScreen(
                 viewModel.saveFoodDetails()
                 viewModel.saveNutritionFacts()
 
-                openAddDishDialog = false },
-            menu = addmenu,
+                openAddDishDialog = false
+            },
+            menu = addMenu,
             foodDetails = foodDetails,
             nutritionFacts = nutritionFacts
         )
@@ -160,11 +157,13 @@ fun StaffMenuScreen(
 
     if (openEditDishDialog) {
         viewModel.loadFoodDetailsByMenuItemId(currentMenuItemId)
-        val foodDetailsState = viewModel.foodDetailsState.collectAsState(initial = FoodDetailsState())
+        val foodDetailsState =
+            viewModel.foodDetailsState.collectAsState(initial = FoodDetailsState())
         foodDetails = foodDetailsState.value.foodDetails
 
         viewModel.loadNutritionFactsByFoodDetailsId(foodDetails.foodDetailsID)
-        val nutritionFactsState = viewModel.nutritionFactsState.collectAsState(initial = NutritionFactsState())
+        val nutritionFactsState =
+            viewModel.nutritionFactsState.collectAsState(initial = NutritionFactsState())
         nutritionFacts = nutritionFactsState.value.nutritionFacts
         EditDishDialog(
             onDismissRequest = { openEditDishDialog = false },
@@ -176,11 +175,12 @@ fun StaffMenuScreen(
                 viewModel.updateMenuItem()
                 viewModel.updateFoodDetails()
                 viewModel.updateNutritionFacts()
-                openEditDishDialog = false },
+                openEditDishDialog = false
+            },
             menu = currentMenu,
             foodDetails = foodDetails,
             nutritionFacts = nutritionFacts
-            )
+        )
     }
 
     if (openStatusDishDialog) {
@@ -191,12 +191,12 @@ fun StaffMenuScreen(
             menu = currentMenu,
 
             onDismissRequest = { openStatusDishDialog = false },
-            onConfirmation = {
-                changedMenuItemStatus ->
+            onConfirmation = { changedMenuItemStatus ->
                 viewModel.updateMenuItemState(changedMenuItemStatus)
 
                 viewModel.updateMenuItem()
-                openStatusDishDialog = false },
+                openStatusDishDialog = false
+            },
 
             )
     }
@@ -204,11 +204,13 @@ fun StaffMenuScreen(
 
     if (openDishDetailDialog) {
         viewModel.loadFoodDetailsByMenuItemId(currentMenuItemId)
-        val foodDetailsState = viewModel.foodDetailsState.collectAsState(initial = FoodDetailsState())
+        val foodDetailsState =
+            viewModel.foodDetailsState.collectAsState(initial = FoodDetailsState())
         foodDetails = foodDetailsState.value.foodDetails
 
         viewModel.loadNutritionFactsByFoodDetailsId(foodDetails.foodDetailsID)
-        val nutritionFactsState = viewModel.nutritionFactsState.collectAsState(initial = NutritionFactsState())
+        val nutritionFactsState =
+            viewModel.nutritionFactsState.collectAsState(initial = NutritionFactsState())
         nutritionFacts = nutritionFactsState.value.nutritionFacts
 
         DishDetailDialog(
@@ -217,13 +219,27 @@ fun StaffMenuScreen(
             foodDetails = foodDetails,
             nutritionFacts = nutritionFacts,
             labelList = headerList
-            )
+        )
     }
 
-    var expandedSearchCuisine by remember { mutableStateOf(false) }
-    var selectedSearchCuisine by remember { mutableStateOf("") }
-    val searchCuisine = listOf("Western","Japanese","Korean","Malaysian","Thai","Beverages")
-    var searchCuisineDropdown by remember { mutableStateOf("") }
+    var launchAll by remember { mutableStateOf(false) }
+    var launchMenuItem by remember { mutableStateOf(false) }
+    var isSearching by remember { mutableStateOf(false) }
+
+    if(isSearching){
+        if (launchMenuItem) {
+            viewModel.loadMenuItemByName(search)
+            launchMenuItem = false
+        }
+    }
+    else {
+        if (menuType == "All") {
+            viewModel.loadAllMenuItem()
+        } else {
+            viewModel.loadMenuItemByCuisine(menuType)
+        }
+    }
+
 
     Column(
         modifier = Modifier
@@ -234,15 +250,24 @@ fun StaffMenuScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .height(80.dp)
                 .horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.Start,
+            horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
-        ){
+        ) {
 
-            MenuSearchBar(
+            SearchBar(
                 value = search,
-                onValueChange = { search = it },
-                modifier = Modifier
+                onValueChange = {
+                    search = it
+                    if(search.isNotEmpty()){
+                        isSearching = true
+                    }
+                    else{
+                        isSearching = false
+                    } },
+
+                modifier = Modifier.padding(start = 20.dp)
             )
             Column(
                 horizontalAlignment = Alignment.End,
@@ -275,10 +300,10 @@ fun StaffMenuScreen(
                 .fillMaxWidth()
                 .padding(top = 20.dp)
                 .horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.Start,
+            horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
 
-        ){
+        ) {
             ElevatedButton(
                 onClick = { menuType = "All" },
                 colors = ButtonDefaults.buttonColors(
@@ -303,7 +328,7 @@ fun StaffMenuScreen(
                 )
             }
 
-            dishCuisine.forEach{ cuisine ->
+            dishCuisine.forEach { cuisine ->
                 ElevatedButton(
                     onClick = { menuType = cuisine },
                     colors = ButtonDefaults.buttonColors(
@@ -362,180 +387,245 @@ fun StaffMenuScreen(
                         }
                     }
                 }
-
-                items(menus.size) { i ->
-                    val menu = menus[i]
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .padding(vertical = 10.dp)
-                            .fillMaxWidth()
-                            .height(110.dp)
-                    ) {
-                        Text(
-                            text = (i+1).toString(),
-                            fontSize = 22.sp,
-                            modifier = Modifier
-                                .width(headerList[0].second)
-                                .padding(start = 10.dp)
-                        )
-                        Image(
-                            painter = painterResource(R.drawable.steakpic), // TODO
-                            contentDescription = "",
-                            modifier = Modifier
-                                //.padding(12.dp)
-                                .width(headerList[1].second)
-                                .fillMaxSize()
-                                .size(
-                                    width = 50.dp,
-                                    height = 50.dp
-                                ),
-                            contentScale = ContentScale.Fit,
-                            alignment = Alignment.CenterStart
-                        )
-
-                        Text(
-                            text = menu.itemName,
-                            fontSize = 22.sp,
-                            modifier = Modifier
-                                .width(headerList[2].second)
-                        )
-
-                        Row {
-                            Text(
-                                text = menu.cuisine,
-                                fontSize = 22.sp,
-                                modifier = Modifier
-                                    .width(headerList[3].second)
-                            )
-                        }
-
-                        Text(
-                            text = "RM " + formattedString(menu.price),
-                            fontSize = 22.sp,
-                            modifier = Modifier
-                                .width(headerList[4].second)
-                        )
-
-                        Text(
-                            text = menu.status,
-                            fontSize = 22.sp,
-                            modifier = Modifier
-                                .width(headerList[5].second)
-                                .padding(end = 50.dp)
-                        )
+                if (search == "") {
+                    launchAll = true
+                    items(menus.size) { i ->
+                        val menu = menus[i]
 
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Start,
                             modifier = Modifier
-                                .width(headerList[6].second)
-                                .padding(end = 50.dp)
+                                .padding(vertical = 10.dp)
+                                .fillMaxWidth()
+                                .height(110.dp)
                         ) {
-                            IconButton(
-                                onClick = {
-                                    currentMenu = getMenu(i, menus)
-                                    currentMenuItemId = menu.menuItemID
-                                    openEditDishDialog = true
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Create,
-                                    contentDescription = "Edit button",
-                                    modifier = Modifier.size(30.dp)
+                            Text(
+                                text = (i + 1).toString(),
+                                fontSize = 22.sp,
+                                modifier = Modifier
+                                    .width(headerList[0].second)
+                                    .padding(start = 10.dp)
+                            )
+                            Image(
+                                painter = painterResource(R.drawable.steakpic), // TODO
+                                contentDescription = "",
+                                modifier = Modifier
+                                    //.padding(12.dp)
+                                    .width(headerList[1].second)
+                                    .fillMaxSize()
+                                    .size(
+                                        width = 50.dp,
+                                        height = 50.dp
+                                    ),
+                                contentScale = ContentScale.Fit,
+                                alignment = Alignment.CenterStart
+                            )
+
+                            Text(
+                                text = menu.itemName,
+                                fontSize = 22.sp,
+                                modifier = Modifier
+                                    .width(headerList[2].second)
+                            )
+
+                            Row {
+                                Text(
+                                    text = menu.cuisine,
+                                    fontSize = 22.sp,
+                                    modifier = Modifier
+                                        .width(headerList[3].second)
                                 )
                             }
 
-                            IconButton(
-                                onClick = {
-                                    currentMenu = getMenu(i, menus)
-                                    openStatusDishDialog = true
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Settings,
-                                    contentDescription = "Change Status button",
-                                    modifier = Modifier.size(30.dp)
-                                )
-                            }
+                            Text(
+                                text = "RM " + formattedString(menu.price),
+                                fontSize = 22.sp,
+                                modifier = Modifier
+                                    .width(headerList[4].second)
+                            )
 
-                            IconButton(
-                                onClick = {
-                                    currentMenu = getMenu(i, menus)
-                                    currentMenuItemId = menu.menuItemID
-                                    openDishDetailDialog = true
-                                }
+                            Text(
+                                text = menu.status,
+                                fontSize = 22.sp,
+                                modifier = Modifier
+                                    .width(headerList[5].second)
+                                    .padding(end = 50.dp)
+                            )
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Start,
+                                modifier = Modifier
+                                    .width(headerList[6].second)
+                                    .padding(end = 50.dp)
                             ) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Email,
-                                    contentDescription = "Detail button",
-                                    modifier = Modifier.size(30.dp)
+                                IconButton(
+                                    onClick = {
+                                        currentMenu = getMenu(i, menus)
+                                        currentMenuItemId = menu.menuItemID
+                                        openEditDishDialog = true
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Create,
+                                        contentDescription = "Edit button",
+                                        modifier = Modifier.size(30.dp)
+                                    )
+                                }
+
+                                IconButton(
+                                    onClick = {
+                                        currentMenu = getMenu(i, menus)
+                                        openStatusDishDialog = true
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Settings,
+                                        contentDescription = "Change Status button",
+                                        modifier = Modifier.size(30.dp)
+                                    )
+                                }
+
+                                IconButton(
+                                    onClick = {
+                                        currentMenu = getMenu(i, menus)
+                                        currentMenuItemId = menu.menuItemID
+                                        openDishDetailDialog = true
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Email,
+                                        contentDescription = "Detail button",
+                                        modifier = Modifier.size(30.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    launchMenuItem = true
+                    if (menuListState.value.menuItemList.isNotEmpty()) {
+                        items(menuListState.value.menuItemList.size) { i ->
+                            val menu = menus[i]
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .padding(vertical = 10.dp)
+                                    .fillMaxWidth()
+                                    .height(110.dp)
+                            ) {
+                                Text(
+                                    text = (i + 1).toString(),
+                                    fontSize = 22.sp,
+                                    modifier = Modifier
+                                        .width(headerList[0].second)
+                                        .padding(start = 10.dp)
                                 )
+                                Image(
+                                    painter = painterResource(R.drawable.steakpic), // TODO
+                                    contentDescription = "",
+                                    modifier = Modifier
+                                        //.padding(12.dp)
+                                        .width(headerList[1].second)
+                                        .fillMaxSize()
+                                        .size(
+                                            width = 50.dp,
+                                            height = 50.dp
+                                        ),
+                                    contentScale = ContentScale.Fit,
+                                    alignment = Alignment.CenterStart
+                                )
+
+                                Text(
+                                    text = menu.itemName,
+                                    fontSize = 22.sp,
+                                    modifier = Modifier
+                                        .width(headerList[2].second)
+                                )
+
+                                Row {
+                                    Text(
+                                        text = menu.cuisine,
+                                        fontSize = 22.sp,
+                                        modifier = Modifier
+                                            .width(headerList[3].second)
+                                    )
+                                }
+
+                                Text(
+                                    text = "RM " + formattedString(menu.price),
+                                    fontSize = 22.sp,
+                                    modifier = Modifier
+                                        .width(headerList[4].second)
+                                )
+
+                                Text(
+                                    text = menu.status,
+                                    fontSize = 22.sp,
+                                    modifier = Modifier
+                                        .width(headerList[5].second)
+                                        .padding(end = 50.dp)
+                                )
+
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Start,
+                                    modifier = Modifier
+                                        .width(headerList[6].second)
+                                        .padding(end = 50.dp)
+                                ) {
+                                    IconButton(
+                                        onClick = {
+                                            currentMenu = getMenu(i, menus)
+                                            currentMenuItemId = menu.menuItemID
+                                            openEditDishDialog = true
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Rounded.Create,
+                                            contentDescription = "Edit button",
+                                            modifier = Modifier.size(30.dp)
+                                        )
+                                    }
+
+                                    IconButton(
+                                        onClick = {
+                                            currentMenu = getMenu(i, menus)
+                                            openStatusDishDialog = true
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Rounded.Settings,
+                                            contentDescription = "Change Status button",
+                                            modifier = Modifier.size(30.dp)
+                                        )
+                                    }
+
+                                    IconButton(
+                                        onClick = {
+                                            currentMenu = getMenu(i, menus)
+                                            currentMenuItemId = menu.menuItemID
+                                            openDishDetailDialog = true
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Rounded.Email,
+                                            contentDescription = "Detail button",
+                                            modifier = Modifier.size(30.dp)
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
+
         }
-
     }
+
 }
-
-
-
-@Composable
-fun MenuSearchBar(
-    value: String,
-    onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier
-){
-    var searchDish by remember { mutableStateOf("") }
-
-    OutlinedTextField(
-        value = searchDish,
-        singleLine = true,
-        onValueChange = { searchDish = it},
-        leadingIcon = {
-            Image(
-            painterResource(R.drawable.searchicon),
-            contentDescription = "Gender Icon",
-            modifier = Modifier
-                .padding(start = 10.dp)
-                .size(
-                    width = 35.dp,
-                    height = 35.dp
-                )
-        )},
-        placeholder = {
-            Text(
-                text = "Search",
-                fontSize = 17.sp,
-                color = colorResource(id = R.color.black),
-                modifier = modifier
-                //.padding(bottom = 100.dp)
-            ) },
-        modifier = Modifier
-            .padding(end = 10.dp)
-            .background(color = Color.Transparent)
-            .height(50.dp)
-            .width(300.dp)
-//            .clip(
-//                shape = RoundedCornerShape(
-//                    size = 10.dp,
-//                ),
-//            )
-//            .border(
-//                BorderStroke(width = 2.dp, colorResource(id = R.color.black)),
-//                shape = RoundedCornerShape(
-//                    size = 10.dp,
-//                )
-//            )
-        ,
-
-    )
-}
-
 
 @Composable
 fun UploadAddDishImage(){
@@ -567,35 +657,6 @@ fun UploadAddDishImage(){
     }
 }
 
-//@Composable
-//fun CuisineButtonAll(){
-//    ElevatedButton(
-//        onClick = { viewModel.loadAllMenuItem() },
-//        colors = ButtonDefaults.buttonColors(
-//            colorResource(R.color.white)
-//        ),
-//        shape = RoundedCornerShape(10.dp),
-//        modifier = Modifier
-//            .width(170.dp)
-//            .height(55.dp)
-//            .padding(horizontal = 16.dp)
-//            .shadow(5.dp, shape = RoundedCornerShape(10.dp))
-//    ) {
-//        Text(
-//            text = "All",
-//            fontSize = 18.sp,
-//            textAlign = TextAlign.Center,
-//            color = Color.Black,
-//            fontWeight = FontWeight.Bold,
-//            overflow = TextOverflow.Ellipsis,
-//            modifier = Modifier
-//                .fillMaxWidth()
-//        )
-//    }
-//}
-
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddDishDialog(
@@ -619,7 +680,6 @@ fun AddDishDialog(
     var newDishFats by remember { mutableStateOf("") }
     var newDishSalt by remember { mutableStateOf("") }
     var newDishSugar by remember { mutableStateOf("") }
-
 
 
     var isUploadImage by remember { mutableStateOf(false) }
@@ -1512,9 +1572,6 @@ fun DishDetailDialog(
     labelList: List<Pair<String, Dp>>
 
 ) {
-    Log.i("dishdetaildialogf", "DishDetailDialog: $foodDetails$nutritionFacts")
-    Log.i("dishdetaildialogn", "DishDetailDialog: $nutritionFacts")
-
     val image = menu.image
     val name = menu.itemName
     val price = menu.price
