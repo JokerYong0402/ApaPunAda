@@ -56,7 +56,6 @@ import com.example.apapunada.ui.staff.StaffUserScreen
 import com.example.apapunada.ui.staff.StaffWaitlistScreen
 import com.example.apapunada.ui.users.AboutUsScreen
 import com.example.apapunada.ui.users.DeleteProfileScreen
-import com.example.apapunada.ui.users.EditProfileScreen
 import com.example.apapunada.ui.users.FeedbackScreen
 import com.example.apapunada.ui.users.FeedbackSuccessScreen
 import com.example.apapunada.ui.users.FoodDetailScreen
@@ -72,6 +71,7 @@ import com.example.apapunada.ui.users.OrderMenuScreen
 import com.example.apapunada.ui.users.OrderOptionScreen
 import com.example.apapunada.ui.users.OrderPaymentScreen
 import com.example.apapunada.ui.users.OrderSuccessScreen
+import com.example.apapunada.ui.users.ProfileEditScreen
 import com.example.apapunada.ui.users.ProfileScreen
 import com.example.apapunada.ui.users.RewardsScreen
 import com.example.apapunada.ui.users.SignUpScreen
@@ -211,7 +211,8 @@ fun ApaPunAdaApp(
             // User: Waitlist
             composable(UserScreen.Waitlist.name) {
                 WaitlistScreen(
-                    onBackButtonClicked = { navController.navigate("UserLoggedIn") }
+                    onBackButtonClicked = { navController.navigate("UserLoggedIn") },
+                    authViewModel = authViewModel
                 )
             }
 
@@ -376,14 +377,16 @@ fun ApaPunAdaApp(
                             onEdit = { navController.navigate(ProfileNav.EditProfile.name)},
                             onDelete = { navController.navigate(ProfileNav.DeleteProfile.name)},
                             onLogin = { navController.navigate("Start")},
-                            onBackClicked = { navController.popBackStack() }
+                            onBackClicked = { navController.popBackStack() },
+                            authViewModel = authViewModel
                         )
 
                     }
                     composable(ProfileNav.EditProfile.name){
-                        EditProfileScreen(
+                        ProfileEditScreen(
                             onBackButtonClicked = { navController.popBackStack() },
-                            onProfile = { navController.popBackStack() }
+                            onProfile = { navController.popBackStack() },
+                            authViewModel = authViewModel
                         )
                     }
                     composable(ProfileNav.DeleteProfile.name){

@@ -41,6 +41,7 @@ import com.example.apapunada.R
 import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.MyTopTitleBar
 import com.example.apapunada.ui.components.formattedDate
+import com.example.apapunada.viewmodel.AuthViewModel
 import com.example.apapunada.viewmodel.UserState
 import com.example.apapunada.viewmodel.UserViewModel
 
@@ -48,13 +49,14 @@ import com.example.apapunada.viewmodel.UserViewModel
 @Composable
 fun ProfileScreen(
     viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    authViewModel: AuthViewModel,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
     onLogin: () -> Unit,
     onBackClicked: () -> Unit,
 ) {
     val userState = viewModel.userState.collectAsState(initial = UserState())
-    viewModel.loadUserByUserId(3)
+    viewModel.loadUserByUserId(authViewModel.userState.value.user.userID)
 
     val user = userState.value.user
 
@@ -204,8 +206,7 @@ fun ProfileScreen(
                         Text(
                             text = user.gender,
                             fontSize = 16.sp,
-
-                            )
+                        )
                     }
                 }
 

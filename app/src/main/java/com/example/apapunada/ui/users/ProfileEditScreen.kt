@@ -1,6 +1,7 @@
 package com.example.apapunada.ui.users
 
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -10,6 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,9 +36,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -58,51 +58,35 @@ import com.example.apapunada.data.dataclass.User
 import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.MyDatePickerDialog
 import com.example.apapunada.ui.components.MyTopTitleBar
-import com.example.apapunada.viewmodel.UserState
+import com.example.apapunada.viewmodel.AuthViewModel
 import com.example.apapunada.viewmodel.UserViewModel
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun EditProfileScreen(
+fun ProfileEditScreen(
     viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    authViewModel: AuthViewModel,
     onProfile: () -> Unit,
     onBackButtonClicked: () -> Unit
     ) {
 
-    //var userState = viewModel.userState.collectAsState(initial = UserState())
-    viewModel.loadUserByUserId(3)
+    val user = authViewModel.userState.value.user
 
-//    LaunchedEffect(Unit) {
-//        viewModel.loadUserByUserId(3)
-//    }
-
-    var user = viewModel.userState.value.user
-
-    //Log.i("Profile", "EditProfileScreen: " + user)
     val imageUrl = rememberSaveable{mutableStateOf("")}
-    var editedname by remember { mutableStateOf("") }
-    var editedgender by remember { mutableStateOf("") }
-    var editeddob by remember { mutableStateOf("") }
-    var editedemail by remember { mutableStateOf("") }
-    var editedpassword by remember { mutableStateOf("") }
-    var editedphonenum by remember { mutableStateOf("") }
+    var editedname by remember { mutableStateOf(user.username) }
+    var editedgender by remember { mutableStateOf(user.gender) }
+    var editeddob by remember { mutableStateOf(user.dob) }
+    var editedemail by remember { mutableStateOf(user.email) }
+    var editedpassword by remember { mutableStateOf(user.password) }
+    var editedphonenum by remember { mutableStateOf(user.phoneNo) }
 
     var openAlertDialog by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
 
     var expandedChangeGender by remember { mutableStateOf(false) }
-    val options = listOf("Male","Female")
+    val options = listOf("Male", "Female")
     var changeGender by remember { mutableStateOf("") }
-
-        if (user != null) {
-            editedname = user.username
-            editedgender = user.gender
-            editeddob = user.dob.toString()
-            editedemail = user.email
-            editedpassword = user.password
-            editedphonenum = user.phoneNo
-        }
 
     Scaffold(
         topBar = { MyTopTitleBar(title = stringResource(R.string.edit_profile), onBackButtonClicked = onBackButtonClicked) },
@@ -198,7 +182,10 @@ fun EditProfileScreen(
                                 trailingIcon = {
                                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedChangeGender)
                                 },
-                                colors = OutlinedTextFieldDefaults.colors(),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = colorResource(R.color.primary),
+                                    unfocusedBorderColor = colorResource(R.color.primary),
+                                ),
                                 modifier = Modifier
                                     .menuAnchor()
                                     .fillMaxWidth()
@@ -243,8 +230,10 @@ fun EditProfileScreen(
                         horizontalAlignment = Alignment.Start,
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
-                         editeddob = MyDatePickerDialog(context, user).toString()
 
+                        Log.i("User", "ProfileEditScreen1: $editeddob")
+                         editeddob = MyDatePickerDialog(context, user)
+                        Log.i("User", "ProfileEditScreen2: $editeddob")
                     }
                 }
 
@@ -383,7 +372,7 @@ fun EditProfileScreen(
                     ),
                     shape = RoundedCornerShape(50.dp),
                     modifier = Modifier
-                        .width(300.dp)
+                        .width(350.dp)
                         .height(65.dp)
                         .padding(horizontal = 10.dp, vertical = 10.dp)
                         .align(Alignment.CenterHorizontally)
@@ -394,6 +383,8 @@ fun EditProfileScreen(
                         fontSize = 18.sp
                     )
                 }
+
+                Spacer(modifier = Modifier.height(30.dp))
 
             }
 
@@ -462,7 +453,11 @@ fun EditTextFieldProfile(
         value = value,
         singleLine = true,
         onValueChange = onValueChange,
-        shape = RoundedCornerShape(15.dp) ,
+        shape = RoundedCornerShape(15.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = colorResource(R.color.primary),
+            unfocusedBorderColor = colorResource(R.color.primary),
+        ),
         modifier = modifier
             .height(120.dp)
             .width(300.dp),
@@ -476,8 +471,8 @@ fun EditTextFieldProfile(
 
 //@Preview(showBackground = true)
 //@Composable
-//fun EditProfileScreenPreview() {
-//    EditProfileScreen(
+//fun ProfileEditScreenPreview() {
+//    ProfileEditScreen(
 //        onProfile = {}
 //    )
 //}
