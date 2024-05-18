@@ -76,6 +76,7 @@ class MenuItemViewModel(
     private val _nutritionFactsState = MutableStateFlow(NutritionFactsState())
     val nutritionFactsState: StateFlow<NutritionFactsState> = _nutritionFactsState.asStateFlow()
 
+
     fun loadAllMenuItem() {
         viewModelScope.launch(Dispatchers.IO) {
             menuItemRepository.getAllMenuItemsStream()
@@ -102,6 +103,19 @@ class MenuItemViewModel(
                 }
                 .collect { _menuItemState.value = it }
         }
+    }
+
+    fun loadMenuItemByCuisine(cuisine: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            menuItemRepository.getMenuMenuItemsByCuisineStream(cuisine)
+                .map { MenuListState(isLoading = false, menuItemList = it) }
+                .onStart { emit(MenuListState(isLoading = true)) }
+                .catch {
+                    emit(MenuListState(errorMessage = it.message.toString()))
+                    Log.i("MenuItem", "loadMenuItemByCuisine: " + it.message.toString())
+                }
+                .collect { _menuListState.value = it }
+            }
     }
 
     fun loadFoodDetailsByMenuItemId(id: Int) {
@@ -133,20 +147,22 @@ class MenuItemViewModel(
 
     private fun validateMenuItemInput(): Boolean {
         return with(_menuItemState.value.menuItem) {
-            cuisine.isNotBlank() && price.isNaN() // TODO
+            cuisine.isNotBlank() // TODO
         }
     }
 
     private fun validateFoodDetailsInput(): Boolean {
-        return with(_foodDetailsState.value.foodDetails) {
-            servingSize.isNaN() // TODO
-        }
+//        return with(_foodDetailsState.value.foodDetails) {
+//            servingSize.isNaN() // TODO
+//        }
+        return true
     }
 
     private fun validateNutritionFactsInput(): Boolean {
-        return with(_nutritionFactsState.value.nutritionFacts) {
-            carbohydrates.isNaN() // TODO
-        }
+//        return with(_nutritionFactsState.value.nutritionFacts) {
+//            carbohydrates.isNaN() // TODO
+//        }
+        return true
     }
 
     fun updateMenuItemState(menuItem: MenuItem) {
@@ -181,6 +197,7 @@ class MenuItemViewModel(
 
     fun updateMenuItem() {
         viewModelScope.launch(Dispatchers.IO) {
+            Log.i("updateMenu", "updateMenuItem: " + validateMenuItemInput())
             if (validateMenuItemInput()) {
                 try {
                     menuItemRepository.updateMenuItem(menuItemState.value.menuItem)

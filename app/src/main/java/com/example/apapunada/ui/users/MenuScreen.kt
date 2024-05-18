@@ -1,5 +1,6 @@
 package com.example.apapunada.ui.users
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -7,6 +8,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,7 +32,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,18 +51,57 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
-import com.example.apapunada.data.MenuSample
-import com.example.apapunada.model.Menu
+import com.example.apapunada.data.dataclass.MenuItem
+import com.example.apapunada.ui.AppViewModelProvider
+import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.MyTopTitleBar
+import com.example.apapunada.viewmodel.MenuItemState
+import com.example.apapunada.viewmodel.MenuItemViewModel
+import com.example.apapunada.viewmodel.MenuListState
 
 @Composable
-fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
+fun MenuScreen(
+    viewModel: MenuItemViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    onMenuTypeClick: (String) -> Unit,
+    onDish: (Int) -> Unit,
+    ) {
+    var menuItemState = viewModel.menuItemState.collectAsState(initial = MenuItemState())
+    val menuListState = viewModel.menuListState.collectAsState(initial = MenuListState())
+    var menus: List<MenuItem> = listOf()
+
+    var currentDishId by remember { mutableIntStateOf(0) }
+    //var currentMenu by remember { mutableStateOf(MenuItem()) }
+
+    //viewModel.loadMenuItemByMenuItemId(currentDishId)
+
+    viewModel.loadAllMenuItem()
 
     var textInput by remember { mutableStateOf("") }
+
+    if (menuListState.value.isLoading) {
+        Box( modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Gray.copy(alpha = 0.5f))
+            .clickable { /* no action */ }
+            .zIndex(2f)
+            ,
+            contentAlignment = Alignment.Center
+        ) {
+            IndeterminateCircularIndicator()
+        }
+    } else {
+        if (menuListState.value.errorMessage.isNotEmpty()) {
+            Text(text = "Error loading menus: ${menuListState.value.errorMessage}")
+            Log.i("Menu", "StaffMenuScreen: ${menuListState.value.errorMessage}")
+        } else {
+            menus = menuListState.value.menuItemList
+        }
+    }
 
     Scaffold(
         topBar = { MyTopTitleBar(title = stringResource(R.string.menu)) },
@@ -73,26 +116,12 @@ fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
             Column(
                 modifier = Modifier.padding(innerPadding)
             ) {
-                // content of page add here
-                /*Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                        .padding(horizontal = 5.dp, vertical = 5.dp),
-                    horizontalAlignment = Alignment.Start,
-                    verticalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Text(
-                        text = "Apa Pun Ada Menu",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }*/
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth().fillMaxHeight()
+                        .fillMaxWidth()
+                        .fillMaxHeight()
                         //.height(60.dp)
-                        .padding(horizontal = 10.dp, vertical  = 8.dp),
+                        .padding(horizontal = 10.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
 
@@ -114,7 +143,6 @@ fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
                         onValueChange = { textInput = it },
                         modifier = Modifier
                             .fillMaxWidth()
-                            //.height(60.dp)
                     )
                 }
                 Row(
@@ -127,7 +155,7 @@ fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
 
                     ) {
                     ElevatedButton(
-                        onClick = { /*TODO*/ },
+                        onClick = { onMenuTypeClick("Western") },
                         colors = ButtonDefaults.buttonColors(
                             colorResource(R.color.white)
                         ),
@@ -149,7 +177,7 @@ fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
                         )
                     }
                     ElevatedButton(
-                        onClick = { /*TODO*/ },
+                        onClick = { onMenuTypeClick("Korean") },
                         colors = ButtonDefaults.buttonColors(
                             colorResource(R.color.white)
                         ),
@@ -171,7 +199,7 @@ fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
                         )
                     }
                     ElevatedButton(
-                        onClick = { /*TODO*/ },
+                        onClick = { onMenuTypeClick("Malaysian") },
                         colors = ButtonDefaults.buttonColors(
                             colorResource(R.color.white)
                         ),
@@ -203,7 +231,7 @@ fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
 
                     ) {
                     ElevatedButton(
-                        onClick = { /*TODO*/ },
+                        onClick = { onMenuTypeClick("Japanese") },
                         colors = ButtonDefaults.buttonColors(
                             colorResource(R.color.white)
                         ),
@@ -225,7 +253,7 @@ fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
                         )
                     }
                     ElevatedButton(
-                        onClick = { /*TODO*/ },
+                        onClick = { onMenuTypeClick("Thai") },
                         colors = ButtonDefaults.buttonColors(
                             colorResource(R.color.white)
                         ),
@@ -247,7 +275,7 @@ fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
                         )
                     }
                     ElevatedButton(
-                        onClick = { /*TODO*/ },
+                        onClick = { onMenuTypeClick("Beverage") },
                         colors = ButtonDefaults.buttonColors(
                             colorResource(R.color.white)
                         ),
@@ -287,7 +315,7 @@ fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
                         )
                     Spacer(modifier = Modifier.width(130.dp))
                     TextButton(
-                        onClick = {},
+                        onClick = {onMenuTypeClick("Popular")},
                         modifier = Modifier.fillMaxSize()
 
                     ) {
@@ -313,16 +341,19 @@ fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
 
                     ) {
                     menus.forEach { menu ->
-                        if (menu.rating >= 3.0) {
+                        if (menu.rating >= 4.5) {
                             Card(
                                 colors = CardDefaults.cardColors(
                                     containerColor = Color.White
                                 ),
                                 modifier = Modifier
-                                    .clickable { /*TODO*/ }
+                                    .clickable {
+                                        currentDishId = menu.menuItemID
+                                        onDish(currentDishId)
+                                    }
                                     .size(
-                                        160.dp,
-                                        180.dp
+                                        180.dp,
+                                        190.dp
                                     )
                                     .padding(horizontal = 8.dp)
                                     .shadow(
@@ -336,23 +367,23 @@ fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
                                         .fillMaxSize()
                                 ) {
                                     Image(
-                                        painter = painterResource(menu.image),
+                                        painter = painterResource(R.drawable.staricon),
                                         contentDescription = "Beef Burger",
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
                                             .height(120.dp)
                                             .fillMaxWidth()
-                                            //.fillMaxSize()
                                             .clip(RoundedCornerShape(20.dp, 20.dp))
                                     )
                                     Text(
-                                        text = menu.name,
-                                        fontSize = 17.sp,
+                                        text = menu.itemName,
+                                        fontSize = 14.sp,
                                         textAlign = TextAlign.Start
                                     )
                                     Row(
-                                        //modifier = Modifier
-                                        verticalAlignment = Alignment.CenterVertically
+                                        modifier = Modifier,
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.Center
                                     ) {
                                         Image(
                                             painter = painterResource(R.drawable.staricon),
@@ -396,20 +427,20 @@ fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
 
                         )
                     Spacer(modifier = Modifier.width(130.dp))
-                    TextButton(
-                        onClick = {},
-                        modifier = Modifier
-                            .fillMaxSize(),
-                    ) {
-                        Text(
-                            text = "View all--",
-                            color = colorResource(R.color.primary),
-                            fontSize = 15.sp,
-                            textAlign = TextAlign.End
-
-                        )
-
-                    }
+//                    TextButton(
+//                        onClick = {},
+//                        modifier = Modifier
+//                            .fillMaxSize(),
+//                    ) {
+//                        Text(
+//                            text = "View all--",
+//                            color = colorResource(R.color.primary),
+//                            fontSize = 15.sp,
+//                            textAlign = TextAlign.End
+//
+//                        )
+//
+//                    }
                 }
 
                 Row( //Recommended dishes pic
@@ -423,13 +454,16 @@ fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
 
                     ) {
                     menus.forEach { menu ->
-                        if (menu.rating >= 3.0) {
+                        if (menu.rating >= 4.5) {
                             Card(
                                 colors = CardDefaults.cardColors(
                                     containerColor = Color.White
                                 ),
                                 modifier = Modifier
-                                    .clickable{/*TODO*/}
+                                    .clickable {
+                                        currentDishId = menu.menuItemID
+                                        onDish(currentDishId)
+                                    }
                                     .size(
                                         250.dp,
                                         200.dp
@@ -446,7 +480,7 @@ fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
                                         .fillMaxSize()
                                 ) {
                                     Image(
-                                        painter = painterResource(menu.image),
+                                        painter = painterResource(R.drawable.staricon),
                                         contentDescription = "Beef Burger",
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
@@ -456,7 +490,7 @@ fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
                                             .clip(RoundedCornerShape(20.dp, 20.dp))
                                     )
                                     Text(
-                                        text = menu.name,
+                                        text = menu.itemName,
                                         fontSize = 17.sp,
                                         textAlign = TextAlign.Start
                                     )
@@ -506,7 +540,7 @@ fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
                         )
                     Spacer(modifier = Modifier.width(240.dp))
                     TextButton(
-                        onClick = {},
+                        onClick = {onMenuTypeClick("All")},
                         modifier = Modifier.fillMaxSize()
 
                     ) {
@@ -537,10 +571,12 @@ fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
                                     containerColor = Color.White
                                 ),
                                 modifier = Modifier
-                                    .clickable { /*TODO*/ }
+                                    .clickable {
+                                        currentDishId = menu.menuItemID
+                                        onDish(currentDishId) }
                                     .size(
-                                        160.dp,
-                                        180.dp
+                                        180.dp,
+                                        190.dp
                                     )
                                     .padding(horizontal = 8.dp)
                                     .shadow(
@@ -554,8 +590,8 @@ fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
                                         .fillMaxSize()
                                 ) {
                                     Image(
-                                        painter = painterResource(menu.image),
-                                        contentDescription = menu.name,
+                                        painter = painterResource(R.drawable.staricon),
+                                        contentDescription = menu.itemName,
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
                                             .height(120.dp)
@@ -563,13 +599,14 @@ fun MenuScreen( menus: List<Menu> = MenuSample.Menus) {
                                             .clip(RoundedCornerShape(20.dp, 20.dp))
                                     )
                                     Text(
-                                        text = menu.name,
-                                        fontSize = 17.sp,
+                                        text = menu.itemName,
+                                        fontSize = 14.sp,
                                         textAlign = TextAlign.Start
                                     )
                                     Row(
                                         //modifier = Modifier
-                                        verticalAlignment = Alignment.CenterVertically
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.Center
                                     ) {
                                         Image(
                                             painter = painterResource(R.drawable.staricon),
@@ -615,12 +652,12 @@ fun MenuScreenSearchBar(
         onValueChange = onValueChange,
         singleLine = true,
         modifier = modifier
-            .padding(start = 5.dp,top = 10.dp, bottom = 10.dp, end = 20.dp)
+            .padding(start = 5.dp, top = 10.dp, bottom = 10.dp, end = 20.dp)
             .height(50.dp)
             .clip(
                 shape = RoundedCornerShape(
                     size = 20.dp,
-                    ),
+                ),
             )
             .background(color = Color.White)
             .border(
@@ -639,17 +676,21 @@ fun MenuScreenSearchBar(
                     .fillMaxSize()
             )
         },
-        //Design for the text that user type in
-        /*textStyle = TextStyle(
-            fontSize = 12.sp,
-            color = colorResource(id = R.color.black)
-        ),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)*/
     )
 }
 
-@Preview(showBackground = true)
-@Composable
-fun MenuScreenPreview() {
-    MenuScreen(MenuSample.Menus)
+private fun getMenu(
+    index: Int,
+    menus: List<MenuItem>
+): MenuItem {
+    return menus[index] // TODO
 }
+
+//@Preview(showBackground = true)
+//@Composable
+//fun MenuScreenPreview() {
+//    MenuScreen(
+//
+//        onDish = {},
+//        )
+//}

@@ -24,4 +24,8 @@ interface MenuItemDao {
 
     @Query("SELECT * FROM `menuItem` WHERE menuItemID = :id")
     fun getMenuItemByMenuItemId(id: Int): Flow<MenuItem>
+
+    @Query("SELECT * FROM menuItem WHERE cuisine = :cuisine")
+    fun getMenuItemsByCuisine(cuisine: String): Flow<List<MenuItem>>
+
 }

@@ -23,9 +23,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,35 +38,52 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
+import com.example.apapunada.data.dataclass.User
+import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.MyTopTitleBar
+import com.example.apapunada.viewmodel.UserState
+import com.example.apapunada.viewmodel.UserViewModel
 
 @Composable
 fun DeleteProfileScreen(
-    onLogin: () -> Unit
-
+    viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    onLogin: () -> Unit,
+    onBackButtonClicked: () -> Unit
 ) {
     var textInputDelete by remember { mutableStateOf("") }
     var openAlertDialog by remember { mutableStateOf(false) }
     val dltAble by remember { mutableStateOf(true) }
 
+    val userState = viewModel.userState.collectAsState(initial = UserState())
+    viewModel.loadUserByUserId(3)
+
+    var user = userState.value.user
+
+    val currentUser by remember { mutableStateOf(User()) }
 
     if(openAlertDialog) {
         DeleteProfileAlertDialog(
             onDismissRequest = { openAlertDialog = false },
-            onConfirmation = {
+            onConfirmation = { deleteUser ->
+                viewModel.updateUserState(deleteUser)
+
+                viewModel.updateUser()
+
                 openAlertDialog = false
             },
             dialogTitle = "Confirmation",
             dialogText = "Are you sure want to delete this account?",
+            onLogin = onLogin,
+            user = user
         )
     }
 
     Scaffold(
-        topBar = { MyTopTitleBar(title = stringResource(R.string.delete_profile)) },
+        topBar = { MyTopTitleBar(title = stringResource(R.string.delete_profile),onBackButtonClicked = onBackButtonClicked) },
         //bottomBar = { MyBottomNavBar() }
     ) { innerPadding ->
         Surface(
@@ -80,7 +99,7 @@ fun DeleteProfileScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(dimensionResource(R.dimen.padding_large))
-                        .height(180.dp),
+                        .height(230.dp),
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.Top
                 ){
@@ -101,7 +120,7 @@ fun DeleteProfileScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 35.dp, vertical = 0.dp)
-                        .height(160.dp),
+                        .height(270.dp),
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.Top
                 ){
@@ -119,7 +138,7 @@ fun DeleteProfileScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(dimensionResource(R.dimen.padding_large))
-                        .height(40.dp),
+                        .height(50.dp),
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.Top
                 ){
@@ -147,7 +166,11 @@ fun DeleteProfileScreen(
                     )
                 }
                 Button(
-                    onClick = { openAlertDialog = true },
+                    onClick = {
+
+
+                        openAlertDialog = true
+                              },
                     enabled = dltAble,
                     colors = ButtonDefaults.buttonColors(
                         colorResource(R.color.primary)
@@ -184,7 +207,7 @@ fun DeleteAcctComment(
         modifier = modifier
             .padding(dimensionResource(R.dimen.padding_medium))
             .background(color = Color.White)
-            .height(150.dp)
+            .height(160.dp)
             .fillMaxWidth()
             .clip(
                 shape = RoundedCornerShape(
@@ -204,27 +227,29 @@ fun DeleteAcctComment(
                 fontSize = 14.sp,
                 color = colorResource(id = R.color.black),
                 modifier = modifier
-                .padding(bottom = 70.dp)
+                .padding(bottom = 60.dp)
             )
         },
 
-        //Design for the text that user type in
-        //textStyle = TextStyle(
-        //    fontSize = 14.sp,
-        //    color = colorResource(id = R.color.black)
-        //),
-        //keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
     )
 }
 
 
 @Composable
 fun DeleteProfileAlertDialog(
+    //viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory),
     onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit,
+    onConfirmation: (User) -> Unit,
+    user: User,
     dialogTitle: String,
     dialogText: String,
+    onLogin: () -> Unit
 ) {
+    //var userState = viewModel.userState.collectAsState(initial = UserState())
+    //var user = userState.value.user
+    val imageUrl = rememberSaveable{mutableStateOf(user.image)}
+    val deletedStatus = "Deleted"
+
     val context = LocalContext.current
     AlertDialog(
         title = {
@@ -239,8 +264,23 @@ fun DeleteProfileAlertDialog(
         confirmButton = {
             TextButton(
                 onClick = {
+                    val deleteUser = User(
+                        image = imageUrl.value,
+                        userID = user.userID,
+                        username = user.username,
+                        email = user.email,
+                        password = user.password,
+                        phoneNo = user.phoneNo,
+                        gender = user.gender,
+                        dob = user.dob,
+                        role = user.role,
+                        point = user.point,
+                        status = "Deleted"
+                    )
+
                     Toast.makeText(context, "Deleted Successfully",Toast.LENGTH_SHORT).show()
-                    onConfirmation()
+                    onConfirmation(deleteUser)
+                    onLogin()
                 }
             ) {
                 Text("Confirm")
@@ -259,11 +299,10 @@ fun DeleteProfileAlertDialog(
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun DeleteProfileScreenPreview() {
-    DeleteProfileScreen(
-        onLogin = {}
-
-    )
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun DeleteProfileScreenPreview() {
+//    DeleteProfileScreen(
+//    onLogin = {}
+//    )
+//}

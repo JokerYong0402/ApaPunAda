@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,19 +37,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
-import com.example.apapunada.data.UserSample
-import com.example.apapunada.model.User
+import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.MyTopTitleBar
+import com.example.apapunada.ui.components.formattedDate
+import com.example.apapunada.viewmodel.UserState
+import com.example.apapunada.viewmodel.UserViewModel
 
 
 @Composable
 fun ProfileScreen(
-    person: User = UserSample.Users[0],
+    viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory),
     onEdit: () -> Unit,
     onDelete: () -> Unit,
     onLogin: () -> Unit
 ) {
+    val userState = viewModel.userState.collectAsState(initial = UserState())
+    viewModel.loadUserByUserId(3)
+
+    val user = userState.value.user
+
     Scaffold(
         topBar = { MyTopTitleBar(title = stringResource(R.string.profile)) },
         //bottomBar = { MyBottomNavBar() }
@@ -95,14 +104,14 @@ fun ProfileScreen(
                         //verticalArrangement = Arrangement.SpaceAround
                     ) {
                         Text(
-                            text = person.username,
+                            text = user.username,
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp,
                             modifier = Modifier.padding(top = 18.dp,bottom = 10.dp)
 
                             )
                         Text(
-                            text = "Point : " + person.point.toString(),
+                            text = "Point : " + user.point,
                             fontSize = 18.sp
                         )
 
@@ -117,7 +126,7 @@ fun ProfileScreen(
                                 width = 30.dp,
                                 height = 30.dp
                             )
-                            .clickable {}
+                            .clickable { onEdit() }
                     )
 
                 }
@@ -152,7 +161,7 @@ fun ProfileScreen(
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Text(
-                            text = person.username,
+                            text = user.username,
                             fontSize = 16.sp,
 
                             )
@@ -193,7 +202,7 @@ fun ProfileScreen(
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Text(
-                            text = person.gender,
+                            text = user.gender,
                             fontSize = 16.sp,
 
                             )
@@ -232,7 +241,7 @@ fun ProfileScreen(
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Text(
-                            text = person.dob,
+                            text = formattedDate(user.dob,"date"),
                             fontSize = 16.sp,
 
                             )
@@ -273,7 +282,7 @@ fun ProfileScreen(
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Text(
-                            text = person.email,
+                            text = user.email,
                             fontSize = 16.sp,
 
                             )
@@ -312,7 +321,7 @@ fun ProfileScreen(
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Text(
-                            text = person.password,
+                            text = user.password,
                             fontSize = 16.sp,
 
                             )
@@ -351,7 +360,7 @@ fun ProfileScreen(
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Text(
-                            text = person.phoneNo,
+                            text = user.phoneNo,
                             fontSize = 16.sp,
 
                             )
@@ -363,6 +372,7 @@ fun ProfileScreen(
                 ElevatedButton(
                     onClick = {
                         Toast.makeText(context, "Logout Successfully", Toast.LENGTH_SHORT).show()
+                        onLogin()
                     },
                     colors = ButtonDefaults.buttonColors(
                         colorResource(R.color.primary)
@@ -401,7 +411,7 @@ fun ProfileScreen(
                     ) {
                         Text(
                             modifier =  Modifier
-                                .clickable {  },
+                                .clickable { onDelete() },
                             text = "Request Account Deletion",
                             fontSize = 16.sp,
                             color = colorResource(id = R.color.primary)
@@ -425,8 +435,6 @@ fun ProfileScreen(
 @Composable
 fun ProfileScreenPreview() {
     ProfileScreen(
-        onEdit = {},
-        onDelete = {},
-        onLogin = {}
+        onDelete = {}, onLogin = {}, onEdit = {}
     )
 }
