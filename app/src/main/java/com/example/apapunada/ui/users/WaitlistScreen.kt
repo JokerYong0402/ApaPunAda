@@ -62,6 +62,7 @@ import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.MyTopTitleBar
 import com.example.apapunada.ui.components.PopupWindowAlert
 import com.example.apapunada.ui.components.PopupWindowDialog
+import com.example.apapunada.viewmodel.AuthViewModel
 import com.example.apapunada.viewmodel.WaitlistIDState
 import com.example.apapunada.viewmodel.WaitlistListState
 import com.example.apapunada.viewmodel.WaitlistState
@@ -75,14 +76,12 @@ import kotlinx.coroutines.launch
 fun WaitlistScreen(
     modifier: Modifier = Modifier,
     onBackButtonClicked: () -> Unit = {},
-    viewModel: WaitlistViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: WaitlistViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    authViewModel: AuthViewModel
 ){
     var waitlistListState = viewModel.waitlistWithUsernameState.collectAsState(initial = WaitlistWithUsernameState())
     var waitlistIDState = viewModel.waitlistID.collectAsState(initial = WaitlistIDState())
     var waitlists: List<WaitlistWithUsername> = listOf()
-
-    //TODO hardcode user
-    var user = PrepopulateData.users[0]
 
     if (waitlistListState.value.isLoading) {
         Box( modifier = Modifier
@@ -118,13 +117,12 @@ fun WaitlistScreen(
     val context = LocalContext.current
     val countDownDuration = 10000L
     var displayTime by remember { mutableStateOf(countDownDuration) }
-    var waitlistID by remember { mutableStateOf(1) }
+    var waitlistID by remember { mutableStateOf(0) }
 
     if (!checkJoin) {
         viewModel.loadWaitlistsByCurrentStatus()
     } else if (checkJoin && !checkQuit) {
-        //TODO
-        viewModel.loadQueueWaitlistID(6)
+        viewModel.loadQueueWaitlistID(authViewModel.userState.value.user.userID)
         waitlistID = waitlistIDState.value.waitlistID
         viewModel.loadInfrontWaitlists(waitlistID)
     }
@@ -145,7 +143,7 @@ fun WaitlistScreen(
                             .padding(horizontal = 35.dp)
                             .fillMaxWidth()
                     ) {
-                        if (waitlists.size == 0){
+                        if (waitlists.size == 0 && checkJoin){
                             Text(
                                 text = stringResource(id = R.string.waitlist_13),
                                 fontSize = 65.sp,
@@ -281,7 +279,7 @@ fun WaitlistScreen(
                                 .height(27.dp)
                         )
                     }
-                    if (waitlists.size > 0) {
+                    if (!checkJoin || (checkJoin && waitlists.size != 0)) {
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -369,13 +367,12 @@ fun WaitlistScreen(
                             }
                         }
                     }
-                    } else if (waitlists.size == 0) {
+                    } else if (waitlists.size == 0 && checkJoin) {
                         if (cuntNumStart == false) {
                             BackgroundCountdown(
                                 duration = countDownDuration,
                                 onTimeUpdate = {displayTime = it},
                                 onFinish = {
-                                    Toast.makeText(context, "Done", Toast.LENGTH_SHORT).show()
                                     checkFinish = true
                                 }
                             )
@@ -523,8 +520,7 @@ fun WaitlistScreen(
                                     //add new waitlist
                                     viewModel.updateWaitlistState(
                                         Waitlist(
-                                            //TODO
-                                            userID = 2,
+                                            userID = authViewModel.userState.value.user.userID,
                                             size = size,
                                             datetime = System.currentTimeMillis(),
                                             status = "Queue"
@@ -535,7 +531,7 @@ fun WaitlistScreen(
                             ) {
                                 Text(text = stringResource(id = R.string.waitlist_7))
                             }
-                        } else if (checkJoin) {
+                        } else if (checkJoin || waitlists.size == 0) {
                             Button(
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = Color.Red
@@ -559,10 +555,9 @@ fun WaitlistScreen(
                                             viewModel.updateWaitlistState(
                                                 Waitlist(
                                                     //TODO
-                                                    waitlistID = 129,
+                                                    waitlistID = waitlistID,
                                                     userID = 2,
                                                     size = size,
-                                                    //TODO
                                                     datetime = System.currentTimeMillis(),
                                                     status = "Cancelled"
                                                 )
@@ -590,8 +585,8 @@ fun WaitlistScreen(
                 size = 1
                 viewModel.updateWaitlistState(
                     Waitlist(
-                        waitlistID = 51,
-                        userID = 2,
+                        waitlistID = waitlistID,
+                        userID = authViewModel.userState.value.user.userID,
                         size = size,
                         datetime = System.currentTimeMillis(),
                         status = "Cancelled"
@@ -606,8 +601,8 @@ fun WaitlistScreen(
                 size = 1
                 viewModel.updateWaitlistState(
                     Waitlist(
-                        waitlistID = 130,
-                        userID = 2,
+                        waitlistID = waitlistID,
+                        userID = authViewModel.userState.value.user.userID,
                         size = size,
                         datetime = System.currentTimeMillis(),
                         status = "Cancelled"
@@ -679,12 +674,4 @@ fun BackgroundCountdown(
             onFinish()
             }
         }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun WaitlistScreenPreview() {
-    WaitlistScreen(
-        modifier = Modifier
-    )
 }

@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.widget.DatePicker
 import android.widget.Toast
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -55,6 +56,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.apapunada.R
 import com.example.apapunada.data.dataclass.User
+import java.io.ByteArrayOutputStream
+import java.io.IOException
 import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -321,15 +324,26 @@ fun DisplayImagesFromByteArray(
     contentDescription: String,
     contentScale: ContentScale
 ) {
-    byteArray?.let {
-        val bitmap: Bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
-        val imageBitmap: ImageBitmap = bitmap.asImageBitmap()
-
-        Image(
-            bitmap = imageBitmap,
-            contentDescription = contentDescription,
-            modifier = modifier,
-            contentScale = contentScale
+    if (byteArray != null && byteArray.isNotEmpty()) {
+        val bitmap: Bitmap? = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+        bitmap?.let {
+            val imageBitmap: ImageBitmap = it.asImageBitmap()
+            Image(
+                bitmap = imageBitmap,
+                contentDescription = contentDescription,
+                modifier = modifier,
+                contentScale = contentScale
+            )
+        } ?: run {
+            Text(
+                text = "Image decoding failed",
+                modifier = modifier
+            )
+        }
+    } else {
+        Text(
+            text = "No image available",
+            modifier = modifier
         )
     }
 }
@@ -434,5 +448,15 @@ fun ReadonlyTextField(
                 .clickable(onClick = onClick),
         )
 
+    }
+}
+
+fun drawableResourceToByteArray(context: Context, @DrawableRes drawableResId: Int): ByteArray? {
+    return try {
+        val inputStream = context.resources.openRawResource(drawableResId)
+        inputStream.readBytes()
+    } catch (e: IOException) {
+        e.printStackTrace()
+        null
     }
 }

@@ -73,7 +73,9 @@ import com.example.apapunada.ui.components.DisplayImagesFromByteArray
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.PopupWindowAlert
 import com.example.apapunada.ui.components.PopupWindowDialog
+import com.example.apapunada.ui.components.drawableResourceToByteArray
 import com.example.apapunada.ui.components.uriToByteArray
+import com.example.apapunada.viewmodel.AuthViewModel
 import com.example.apapunada.viewmodel.FeedbackListState
 import com.example.apapunada.viewmodel.FeedbackViewModel
 
@@ -87,18 +89,18 @@ fun FeedbackScreen(
     //TODO hardcode user
     var user = PrepopulateData.users[0]
 
-    var feedbackListState = viewModel.feedbackListState.collectAsState(initial = FeedbackListState())
+    var feedbackListState =
+        viewModel.feedbackListState.collectAsState(initial = FeedbackListState())
     var feedbacks: List<Feedback> = listOf()
 
     viewModel.loadAllFeedbacks()
 
     if (feedbackListState.value.isLoading) {
-        Box( modifier = Modifier
+        Box(modifier = Modifier
             .fillMaxSize()
             .background(Color.Gray.copy(alpha = 0.5f))
-            .clickable { /* no action */ }
-            .zIndex(2f)
-            ,
+            .clickable {}
+            .zIndex(2f),
             contentAlignment = Alignment.Center
         ) {
             IndeterminateCircularIndicator()
@@ -139,15 +141,11 @@ fun FeedbackScreen(
     val context = LocalContext.current
 
     //upload image
-    var selectedImageUris by remember {
-        mutableStateOf<List<Uri>>(emptyList())
-    }
+    var selectedImageUri by remember { mutableStateOf<Uri>(Uri.EMPTY) }
     val multiplePhotosPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickMultipleVisualMedia(
-            maxItems = 3
-        ),
-        onResult = {
-            selectedImageUris = it
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri: Uri? ->
+            selectedImageUri = uri ?: Uri.EMPTY
         }
     )
 
@@ -156,13 +154,15 @@ fun FeedbackScreen(
     var callPopupWindowAlert by remember { mutableStateOf(false) }
 
     if (callPopupWindowDialog) {
-        val byteArrays: MutableList<ByteArray?> = mutableListOf()
+        //val byteArrays: MutableList<ByteArray?> = mutableListOf()
+        val byteArray = uriToByteArray(context, selectedImageUri)
+        val nonNullableByteArray = byteArray ?: ByteArray(0)
         PopupWindowDialog(
             onDismissRequest = { callPopupWindowDialog = false },
             onConfirmation = {
-                for (selectedImageUri in selectedImageUris) {
-                    byteArrays.add(uriToByteArray(context, selectedImageUri))
-                }
+//                for (selectedImageUri in selectedImageUris) {
+//                    byteArrays.add(uriToByteArray(context, selectedImageUri))
+//                }
                 viewModel.updateFeedbackState(
                     Feedback(
                         //TODO
@@ -170,7 +170,7 @@ fun FeedbackScreen(
                         star = star,
                         category = selectedOption,
 //                        images = selectedImageUris.toString(),TODO
-                        //images = byteArrays,
+                        images = nonNullableByteArray,
                         comments = textInput
                     )
                 )
@@ -203,11 +203,11 @@ fun FeedbackScreen(
                 )
             },
             text = {
-                   Text(
-                       text = stringResource(id = R.string.feedback_11),
-                       modifier = Modifier
-                           .padding(horizontal = 10.dp)
-                   )
+                Text(
+                    text = stringResource(id = R.string.feedback_11),
+                    modifier = Modifier
+                        .padding(horizontal = 10.dp)
+                )
             },
             buttonModifier = Modifier
                 .padding(start = 5.dp)
@@ -256,9 +256,11 @@ fun FeedbackScreen(
         else -> R.drawable.feedback1
     }
     //surface is to make it scrollable
-    Surface(modifier = Modifier
-        .fillMaxSize()
-        .verticalScroll(rememberScrollState())) {
+    Surface(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
         Column(
             modifier = modifier
                 .fillMaxSize(),
@@ -506,12 +508,24 @@ fun FeedbackScreen(
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = stringResource(id = R.string.feedback_4,selectedImageUris.size),
+                    text = stringResource(id = R.string.feedback_4),
                     textAlign = TextAlign.Start,
                     modifier = modifier
                         .padding(top = 50.dp, start = 30.dp)
                 )
                 Row {
+//                    DisplayImagesFromByteArray(
+//                        byteArray = drawableResourceToByteArray(context, R.drawable.feedback7),
+//                        modifier = Modifier
+//                            .size(
+//                                width = 82.dp,
+//                                height = 67.dp
+//                            )
+//                            .padding(start = 10.dp, top = 2.dp)
+//                            .border(BorderStroke(1.dp, colorResource(id = R.color.primary))),
+//                        contentDescription = "Image",
+//                        contentScale = ContentScale.FillBounds
+//                    )
                     Image(
                         painter = painterResource(id = R.drawable.feedback3),
                         contentDescription = "1",
@@ -529,8 +543,8 @@ fun FeedbackScreen(
                             )
                             .padding(start = 30.dp)
                     )
-                    LazyRow {
-                        items(selectedImageUris){selectedImageUri->
+                    Row {
+                        if (selectedImageUri != Uri.EMPTY) {
                             DisplayImagesFromByteArray(
                                 byteArray = uriToByteArray(context = context, selectedImageUri),
                                 modifier = Modifier
@@ -539,11 +553,20 @@ fun FeedbackScreen(
                                         height = 67.dp
                                     )
                                     .padding(start = 10.dp, top = 2.dp)
-                                    .border(BorderStroke(1.dp, colorResource(id = R.color.primary))),
+                                    .border(
+                                        BorderStroke(
+                                            1.dp,
+                                            colorResource(id = R.color.primary)
+                                        )
+                                    ),
                                 contentDescription = "Image",
                                 contentScale = ContentScale.FillBounds
                             )
                         }
+
+//                        items(selectedImageUris){selectedImageUri->
+//
+//                        }
                     }
                 }
             }
@@ -578,7 +601,7 @@ fun FeedbackScreen(
                         .widthIn(min = 300.dp)
                         .align(Alignment.CenterHorizontally),
                     onClick = {
-                        if (selectedOption == ""){
+                        if (selectedOption == "") {
                             callPopupWindowAlert = true
                         } else {
                             callPopupWindowDialog = true
@@ -646,14 +669,5 @@ fun EditTextField(
             color = colorResource(id = R.color.primary)
         ),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun FeedbackScreenPreview() {
-    FeedbackScreen(
-        onSubmit = {},
-        modifier = Modifier
     )
 }

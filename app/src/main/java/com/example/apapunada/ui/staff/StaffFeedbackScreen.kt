@@ -43,9 +43,11 @@ import com.example.apapunada.R
 import com.example.apapunada.data.dataclass.Feedback
 import com.example.apapunada.data.dataclass.User
 import com.example.apapunada.ui.AppViewModelProvider
+import com.example.apapunada.ui.components.DisplayImagesFromByteArray
 import com.example.apapunada.ui.components.DropDownMenu
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.SearchBar
+import com.example.apapunada.ui.components.uriToByteArray
 import com.example.apapunada.viewmodel.FeedbackListState
 import com.example.apapunada.viewmodel.FeedbackViewModel
 import com.example.apapunada.viewmodel.UserState
@@ -60,7 +62,31 @@ fun StaffFeedbackScreen(
     val feedbackListState = viewModel.feedbackListState.collectAsState(initial = FeedbackListState())
     var feedbacks: List<Feedback> = listOf()
 
-    viewModel.loadAllFeedbacks()
+    //viewModel.deleteFeedback()
+//    for (id in 53 .. 102){
+//        Log.i("Feedback","11 is goin to be delete")
+//        viewModel.updateFeedbackState(
+//            Feedback(
+//                //TODO
+//                feedbackID = id,
+//                userID = id,
+//                star = 0,
+//                category = "",
+//                images = ByteArray(0),
+//                comments = ""
+//            )
+//        )
+//        viewModel.deleteFeedback()
+//        Log.i("Feedback","11 is deleted")
+//    }
+
+    var selectField by remember { mutableStateOf("Field") }
+    val context = LocalContext.current
+    var textInput by remember { mutableStateOf("") }
+
+    if (textInput == "") {
+        viewModel.loadAllFeedbacks()
+    }
 
     if (feedbackListState.value.isLoading) {
         IndeterminateCircularIndicator("Loading Feedback...")
@@ -72,10 +98,6 @@ fun StaffFeedbackScreen(
             feedbacks = feedbackListState.value.feedbackList
         }
     }
-
-    var selectField by remember { mutableStateOf("Field") }
-    val context = LocalContext.current
-    var textInput by remember { mutableStateOf("") }
 
     val headerList = listOf(
         // (Header name, Column width)
@@ -159,6 +181,7 @@ fun StaffFeedbackScreen(
                     user = userViewModel.userState.value.user
                 } while (user.userID != feedback.userID)
 
+
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
@@ -191,58 +214,56 @@ fun StaffFeedbackScreen(
                             .width(headerList[3].second)
                     )
 
-//                    LazyRow (
-//                        modifier = Modifier
-//                            .width(headerList[4].second)
-//                    ) {
-//                        items(feedback.images){selectedImageUri->
-//                            DisplayImagesFromByteArray(
-//                                byteArray = uriToByteArray(context = context, selectedImageUri),
-//                                modifier = Modifier
-//                                    .size(
-//                                        width = 85.dp,
-//                                        height = 70.dp
-//                                    )
-//                                    .padding(end = 10.dp)
-//                                    .border(
-//                                        BorderStroke(
-//                                            1.dp,
-//                                            colorResource(id = R.color.primary)
-//                                        )
-//                                    ),
-//                                contentDescription = "Image",
-//                                contentScale = ContentScale.FillBounds
-//                            )
-//                        }
-//                    }
-                    //TODO delete below and uncomment above
-                    Row(
+                    Row (
                         modifier = Modifier
                             .width(headerList[4].second)
-                    ){
-                        images.forEach { imageUrl ->
-                            Column {
-                                AsyncImage(
-                                    modifier = Modifier
-                                        .size(
-                                            width = 85.dp,
-                                            height = 70.dp
-                                        )
-                                        .padding(end = 10.dp)
-                                        .border(
-                                            BorderStroke(
-                                                1.dp,
-                                                colorResource(id = R.color.primary)
-                                            )
-                                        ),
-                                    model = imageUrl,
-                                    contentDescription = "testing",
-                                    contentScale = ContentScale.FillBounds
+                    ) {
+                        DisplayImagesFromByteArray(
+                            byteArray = feedback.images,
+                            modifier = Modifier
+                                .size(
+                                    width = 85.dp,
+                                    height = 70.dp
                                 )
-                            }
-                        }
-
+                                .padding(end = 10.dp)
+                                .border(
+                                    BorderStroke(
+                                        1.dp,
+                                        colorResource(id = R.color.primary)
+                                    )
+                                ),
+                            contentDescription = "Image",
+                            contentScale = ContentScale.FillBounds
+                        )
                     }
+                    //TODO delete below and uncomment above
+//                    Row(
+//                        modifier = Modifier
+//                            .width(headerList[4].second)
+//                    ){
+//                        images.forEach { imageUrl ->
+//                            Column {
+//                                AsyncImage(
+//                                    modifier = Modifier
+//                                        .size(
+//                                            width = 85.dp,
+//                                            height = 70.dp
+//                                        )
+//                                        .padding(end = 10.dp)
+//                                        .border(
+//                                            BorderStroke(
+//                                                1.dp,
+//                                                colorResource(id = R.color.primary)
+//                                            )
+//                                        ),
+//                                    model = imageUrl,
+//                                    contentDescription = "testing",
+//                                    contentScale = ContentScale.FillBounds
+//                                )
+//                            }
+//                        }
+//
+//                    }
 
                     Text(
                         text = feedback.comments,
@@ -256,59 +277,6 @@ fun StaffFeedbackScreen(
         }
     }
 }
-
-//TODO callUser
-//@Composable
-//fun callUser(
-//    userID: Int,
-//    userViewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory)
-//) :User {
-//    userViewModel.loadUserByUserId(userID)
-//    var user: User
-//
-//    do {
-//        user = userViewModel.userState.value.user
-//    } while (user.userID != userID)
-//
-//    return user
-//}
-
-@Composable
-fun callUser(
-    userID: Int,
-    userViewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory)
-) : User {
-//    val userState = userViewModel.userState.collectAsState(initial = UserState())
-//    var user by remember { mutableStateOf(User()) }
-//    userViewModel.loadUserByUserId(userID)
-//    LaunchedEffect(Unit) {
-//        launch {
-//            delay(0)
-//            user = userState.value.user
-//        }
-//    }
-    val userState by userViewModel.userState.collectAsState(initial = UserState())
-
-    // Trigger loading the user data
-    LaunchedEffect(userID) {
-        userViewModel.loadUserByUserId(userID)
-    }
-
-    // Observe user state
-    var user by remember { mutableStateOf(User()) }
-    LaunchedEffect(userState) {
-            user = userState.user
-
-    }
-    Log.i("User","${userState.user}")
-
-    return user
-}
-//    do {
-//
-//        user = userState.value.user
-//
-//    } while (user.userID != userID)
 
 @Composable
 @Preview(showBackground = true, device = Devices.TABLET)

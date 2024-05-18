@@ -62,13 +62,20 @@ import com.example.apapunada.viewmodel.WaitlistWithUsernameState
 fun StaffWaitlistScreen(
     waitlistViewModel: WaitlistViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    var isSelected by remember { mutableStateOf("current") }
-    var isSearch by remember { mutableStateOf(false) }
-
     var waitlistWithUsernameState = waitlistViewModel.waitlistWithUsernameState.collectAsState(initial = WaitlistWithUsernameState())
     var waitlistsWithUsername: List<WaitlistWithUsername> = listOf()
 
-    waitlistViewModel.loadAllWaitlists()
+    val primaryColor = colorResource(R.color.primary)
+    var textInput by remember { mutableStateOf("") }
+    var currentWaitlist by remember { mutableStateOf(WaitlistWithUsername()) }
+    var selectField by remember { mutableStateOf("Field") }
+    var isSelected by remember { mutableStateOf("current") }
+
+    if (isSelected == "current" && textInput == "") {
+        waitlistViewModel.loadWaitlistsByCurrentStatus()
+    } else if (isSelected == "history" && textInput == "") {
+        waitlistViewModel.loadWaitlistsByHistoryStatus()
+    }
 
     if (waitlistWithUsernameState.value.isLoading) {
         IndeterminateCircularIndicator("Loading waitlist...")
@@ -81,12 +88,6 @@ fun StaffWaitlistScreen(
         }
     }
 
-    if (isSelected == "current" && !isSearch) {
-        waitlistViewModel.loadWaitlistsByCurrentStatus()
-    } else if (isSelected == "history" && !isSearch) {
-        waitlistViewModel.loadWaitlistsByHistoryStatus()
-    }
-
     //screen width
     val config  = LocalConfiguration.current
     val width by remember(config) {
@@ -95,11 +96,6 @@ fun StaffWaitlistScreen(
 
     var callAccept by remember { mutableStateOf(false) }
     var callCancel by remember { mutableStateOf(false) }
-
-    val primaryColor = colorResource(R.color.primary)
-    var textInput by remember { mutableStateOf("") }
-    var currentWaitlist by remember { mutableStateOf(WaitlistWithUsername()) }
-    var selectField by remember { mutableStateOf("Field") }
 
     if (callAccept) {
         AcceptStatus(

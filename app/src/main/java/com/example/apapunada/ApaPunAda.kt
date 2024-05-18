@@ -155,7 +155,8 @@ fun UserNavigation(
 
         composable(UserScreen.Waitlist.name) {
             WaitlistScreen(
-                onBackButtonClicked = { navController.navigateUp() }
+                onBackButtonClicked = { navController.navigateUp() },
+                authViewModel = authViewModel
             )
         }
 

@@ -134,9 +134,8 @@ class FeedbackViewModel(
         }
     }
 
-    private suspend fun deleteFeedback() {
+    fun deleteFeedback() {
         viewModelScope.launch(Dispatchers.IO) {
-            if (validateFeedbackInput()) {
                 try {
                     feedbackRepository.deleteFeedback(feedbackState.value.feedback)
                 } catch (e: Exception) {
@@ -145,4 +144,3 @@ class FeedbackViewModel(
             }
         }
     }
-}
