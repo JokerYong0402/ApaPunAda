@@ -3,7 +3,9 @@ package com.example.apapunada
 //import com.example.apapunada.ui.staff.StaffWaitlistScreen
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -67,6 +69,7 @@ import com.example.apapunada.ui.users.OrderCartScreen
 import com.example.apapunada.ui.users.OrderCheckoutScreen
 import com.example.apapunada.ui.users.OrderCustomizeScreen
 import com.example.apapunada.ui.users.OrderFailedScreen
+import com.example.apapunada.ui.users.OrderHistoryScreen
 import com.example.apapunada.ui.users.OrderMenuScreen
 import com.example.apapunada.ui.users.OrderOptionScreen
 import com.example.apapunada.ui.users.OrderPaymentScreen
@@ -227,7 +230,8 @@ fun ApaPunAdaApp(
                     OrderOptionScreen(
                         onBackButtonClicked = { navController.navigate("UserLoggedIn") },
                         onNextButtonClicked = { navController.navigate(OrderScreen.Menu.name) },
-                        viewModel = orderViewModel
+                        viewModel = orderViewModel,
+                        authViewModel = authViewModel
                     )
                 }
 
@@ -469,7 +473,10 @@ fun ApaPunAdaApp(
 
                 // More: Order History
                 composable(MoreScreen.OrderHistory.name) {
-                    MoreScreen(navController = navController, authViewModel = authViewModel)
+                    OrderHistoryScreen(
+                        onBackClicked = { navController.navigateUp() },
+                        authViewModel = authViewModel
+                    )
                 }
 
                 // More: Faq
@@ -509,9 +516,11 @@ fun StaffUI(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(colorResource(R.color.primary))
+                        .background(Color.White)
+                        .border(10.dp, colorResource(R.color.primary))
                         .height(100.dp)
                 ) {
+                    Image(painter = painterResource(R.drawable.logo), contentDescription = "logo")
                     Text(text = stringResource(R.string.app_name))
                 }
 

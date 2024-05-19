@@ -2,10 +2,12 @@ package com.example.apapunada.data.repository
 
 import com.example.apapunada.data.dao.OrderDao
 import com.example.apapunada.data.dataclass.Order
-import com.example.apapunada.viewmodel.OrderIdState
 import kotlinx.coroutines.flow.Flow
 
 class OrderOfflineRepository(private val orderDao: OrderDao): OrderRepository {
+
+    override fun getDescOrderByUserIdStream(id: Int): Flow<List<Order>>
+        = orderDao.getDescOrderByUserID(id)
 
     override fun getLatestOrderId(): Flow<Int> = orderDao.getLatestOrderID()
 

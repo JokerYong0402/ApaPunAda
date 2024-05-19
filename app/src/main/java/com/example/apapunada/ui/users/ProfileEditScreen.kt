@@ -347,21 +347,21 @@ fun ProfileEditScreen(
                 Button(
                     onClick = {
                         val latestUser = User(
-//                            image = imageUrl.value, TODO
                             userID = user.userID,
                             username = editedname,
                             email = editedemail,
+                            image = user.image,
                             password = editedpassword,
                             phoneNo = editedphonenum,
                             gender = editedgender,
-                            dob = editeddob.toLong(),
+                            dob = editeddob,
                             role = user.role,
                             point = user.point,
                             status = user.status
                         )
                         viewModel.updateUserState(latestUser)
-
                         viewModel.updateUser()
+                        authViewModel.updateLoggedInUserState(viewModel.userState.value.user)
                         Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
                         onProfile()
                         openAlertDialog = true

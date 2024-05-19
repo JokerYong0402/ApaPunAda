@@ -54,7 +54,6 @@ import com.example.apapunada.data.dataclass.MenuItem
 import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.MyBottomNavBar
 import com.example.apapunada.ui.components.MyTopAppBar
-import com.example.apapunada.ui.components.SetPortraitOrientationOnly
 import com.example.apapunada.viewmodel.AuthViewModel
 import com.example.apapunada.viewmodel.MenuItemViewModel
 import kotlinx.coroutines.Dispatchers
@@ -69,7 +68,6 @@ fun HomeScreen(
     authViewModel: AuthViewModel,
     menuItemViewModel: MenuItemViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    SetPortraitOrientationOnly()
 
     val density = LocalDensity.current
     val primaryColor = colorResource(R.color.primary)

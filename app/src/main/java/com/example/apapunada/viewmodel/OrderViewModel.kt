@@ -132,6 +132,19 @@ class OrderViewModel(
         }
     }
 
+    fun loadDescOrderByUserId(id: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            orderRepository.getDescOrderByUserIdStream(id)
+                .map { OrderListState(isLoading = false, orderList = it) }
+                .onStart { emit(OrderListState(isLoading = true)) }
+                .catch {
+                    emit(OrderListState(errorMessage = it.message.toString()))
+                    Log.i("Order", "loadOrderByUserId: " + it.message.toString())
+                }
+                .collect { _orderListState.value = it }
+        }
+    }
+
     fun loadOrderDetailsByOrderDetailsId(id: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             orderDetailsRepository.getOrderDetailsByOrderDetailsIdStream(id)

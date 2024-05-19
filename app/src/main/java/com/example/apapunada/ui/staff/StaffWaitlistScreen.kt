@@ -298,88 +298,88 @@ fun StaffWaitlistScreen(
             }
             items(waitlistsWithUsername.size) { i ->
                 val waitlist = waitlistsWithUsername[i]
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp)
+                ) {
+                    Text(
+                        text = (i+1).toString(),
+                        fontSize = 22.sp,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(100.dp)
-                    ) {
+                            .width(currentHeaderList[0].second)
+                            .padding(start = 20.dp)
+                    )
+                    Text(
+                        text = waitlist.username,
+                        fontSize = 22.sp,
+                        modifier = Modifier
+                            .width(currentHeaderList[1].second)
+                    )
+                    Text(
+                        text = waitlist.size.toString(),
+                        fontSize = 22.sp,
+                        modifier = Modifier
+                            .width(currentHeaderList[2].second)
+                    )
+                    Text(
+                        text = formattedDate(waitlist.datetime, "date"),
+                        fontSize = 22.sp,
+                        modifier = Modifier
+                            .width(currentHeaderList[3].second)
+                    )
+                    if (isSelected == "current") {
                         Text(
-                            text = (i+1).toString(),
+                            text = (((System.currentTimeMillis() - (waitlist.datetime))/60000).toString() + " mins"),
                             fontSize = 22.sp,
                             modifier = Modifier
-                                .width(currentHeaderList[0].second)
-                                .padding(start = 20.dp)
+                                .width(currentHeaderList[4].second)
                         )
-                        Text(
-                            text = waitlist.username,
-                            fontSize = 22.sp,
-                            modifier = Modifier
-                                .width(currentHeaderList[1].second)
-                        )
-                        Text(
-                            text = waitlist.size.toString(),
-                            fontSize = 22.sp,
-                            modifier = Modifier
-                                .width(currentHeaderList[2].second)
-                        )
-                        Text(
-                            text = formattedDate(waitlist.datetime, "date"),
-                            fontSize = 22.sp,
-                            modifier = Modifier
-                                .width(currentHeaderList[3].second)
-                        )
-                        if (isSelected == "current") {
-                            Text(
-                                text = (((System.currentTimeMillis() - (waitlist.datetime))/60000).toString() + " mins"),
-                                fontSize = 22.sp,
-                                modifier = Modifier
-                                    .width(currentHeaderList[4].second)
-                            )
-                        }
-                        if (waitlist.status == "Queue") {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.width(currentHeaderList[5].second)
+                    }
+                    if (waitlist.status == "Queue") {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.width(currentHeaderList[5].second)
+                        ) {
+                            IconButton(
+                                onClick = {
+                                    currentWaitlist = waitlist
+                                    callAccept = true
+                                }
                             ) {
-                                IconButton(
-                                    onClick = {
-                                        currentWaitlist = waitlist
-                                        callAccept = true
-                                    }
-                                ) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.waitlist5),
-                                        contentDescription = "Edit button",
-                                        modifier = Modifier.size(30.dp)
-                                    )
-                                }
-                                IconButton(
-                                    onClick = {
-                                        currentWaitlist = waitlist
-                                        callCancel = true
-                                    }
-                                ) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.waitlist6),
-                                        contentDescription = "Detail button",
-                                        modifier = Modifier.size(30.dp)
-                                    )
-                                }
+                                Icon(
+                                    painter = painterResource(id = R.drawable.waitlist5),
+                                    contentDescription = "Edit button",
+                                    modifier = Modifier.size(30.dp)
+                                )
                             }
-                        } else {
-                            Text(
-                                text = waitlist.status,
-                                fontSize = 22.sp,
-                                modifier = Modifier
-                                    .width(currentHeaderList[4].second)
-                            )
+                            IconButton(
+                                onClick = {
+                                    currentWaitlist = waitlist
+                                    callCancel = true
+                                }
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.waitlist6),
+                                    contentDescription = "Detail button",
+                                    modifier = Modifier.size(30.dp)
+                                )
+                            }
                         }
+                    } else {
+                        Text(
+                            text = waitlist.status,
+                            fontSize = 22.sp,
+                            modifier = Modifier
+                                .width(currentHeaderList[4].second)
+                        )
                     }
                 }
             }
         }
     }
+}
 
 @Composable
 fun AcceptStatus(

@@ -234,7 +234,7 @@ fun MoreScreen(
                             MoreCard(
                                 title = "Order History",
                                 id = R.drawable.historyicon,
-                                onClicked = { navController.navigate("") }
+                                onClicked = { navController.navigate(MoreScreen.OrderHistory.name) }
                             )
                         }
 
@@ -247,13 +247,13 @@ fun MoreScreen(
                             MoreCard(
                                 title = "Faq",
                                 id = R.drawable.faqicon,
-                                onClicked = { navController.navigate("") }
+                                onClicked = { navController.navigate(MoreScreen.Faq.name) }
                             )
 
                             MoreCard(
                                 title = "T&C",
                                 id = R.drawable.tncicon,
-                                onClicked = { navController.navigate("") }
+                                onClicked = { navController.navigate(MoreScreen.Tnc.name) }
                             )
                         }
                     }

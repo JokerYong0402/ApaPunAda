@@ -8,6 +8,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -58,10 +59,13 @@ import com.example.apapunada.data.dataclass.Order
 import com.example.apapunada.data.dataclass.OrderDetails
 import com.example.apapunada.data.dataclass.User
 import com.example.apapunada.ui.AppViewModelProvider
+import com.example.apapunada.ui.components.DropDownMenu
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
+import com.example.apapunada.ui.components.SearchBar
 import com.example.apapunada.ui.components.formattedDate
 import com.example.apapunada.ui.components.formattedString
 import com.example.apapunada.ui.components.getEnumList
+import com.example.apapunada.viewmodel.MenuItemViewModel
 import com.example.apapunada.viewmodel.OrderDetailsListState
 import com.example.apapunada.viewmodel.OrderListState
 import com.example.apapunada.viewmodel.OrderStatus
@@ -71,17 +75,21 @@ import com.example.apapunada.viewmodel.UserViewModel
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun StaffOrderScreen(
-    viewModel: OrderViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    orderViewModel: OrderViewModel = viewModel(factory = AppViewModelProvider.Factory),
     userViewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    menuItemViewModel: MenuItemViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
 
-    val orderListState = viewModel.orderListState.collectAsState(initial = OrderListState())
-    val orderDetailsListState = viewModel.orderDetailsListState
+    val orderListState = orderViewModel.orderListState.collectAsState(initial = OrderListState())
+    val orderDetailsListState = orderViewModel.orderDetailsListState
         .collectAsState(initial = OrderDetailsListState())
 
     var orders: List<Order> = listOf()
 
-    viewModel.loadAllOrders()
+    var searchInput by remember { mutableStateOf("") }
+    var selectedField by remember { mutableStateOf("") }
+
+    orderViewModel.loadAllOrders()
 
     if (orderListState.value.isLoading) {
         IndeterminateCircularIndicator("Loading Order...")
@@ -91,6 +99,16 @@ fun StaffOrderScreen(
             Log.i("Order", "StaffOrderScreen: ${orderListState.value.errorMessage}")
         } else {
             orders = orderListState.value.orderList
+        }
+    }
+
+    orders = orders.filter { it.orderStatus != "Pending" }
+
+    if (searchInput.isNotBlank()) {
+        when (selectedField) {
+            "OrderID" -> orders = orders.filter { it.orderID.toString() == searchInput }
+            "Amount" -> orders = orders.filter { it.amount.toString().contains(searchInput) }
+            "Status" -> orders = orders.filter { it.orderStatus.contains(searchInput) }
         }
     }
 
@@ -115,22 +133,26 @@ fun StaffOrderScreen(
         DialogOfEditOrder(
             onDismissRequest = { editButton = false },
             onConfirmation = {
+                val latestOrder = it
+                orderViewModel.updateOrderState(latestOrder)
+                orderViewModel.updateOrder()
                 editButton = false
-                // TODO save data
             },
             order = currentOrder
         )
     }
 
     if (detailButton) {
-        viewModel.loadOrderDetailsByOrderId(currentOrder.orderID)
+        orderViewModel.loadOrderDetailsByOrderId(currentOrder.orderID)
         currentDetails = orderDetailsListState.value.orderDetails
 
         DialogOfOrderDetail(
             onDismissRequest = { detailButton = false },
             order = currentOrder,
             details = currentDetails,
-            labelList = headerList
+            labelList = headerList,
+            userViewModel = userViewModel,
+            menuItemViewModel = menuItemViewModel
         )
     }
 
@@ -141,6 +163,18 @@ fun StaffOrderScreen(
             .fillMaxSize()
             .padding(dimensionResource(R.dimen.padding_large))
     ) {
+
+        Row {
+            selectedField = DropDownMenu(listOf("OrderID", "Amount", "Status"))
+            SearchBar(
+                value = searchInput,
+                onValueChange = { searchInput = it },
+                modifier = Modifier
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(10.dp))
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -186,7 +220,7 @@ fun StaffOrderScreen(
                         .height(100.dp)
                 ) {
                     Text(
-                        text = o.orderID.toString(),
+                        text = (i+1).toString(),
                         fontSize = 22.sp,
                         modifier = Modifier
                             .width(headerList[0].second)
@@ -201,7 +235,6 @@ fun StaffOrderScreen(
                     )
 
                     Row {
-//                        Icon(painter = painterResource(R.id))
                         Text(
                             text = user.username,
                             fontSize = 22.sp,
@@ -279,7 +312,7 @@ fun StaffOrderScreen(
 @Composable
 fun DialogOfEditOrder(
     onDismissRequest: () -> Unit = {},
-    onConfirmation: () -> Unit,
+    onConfirmation: (Order) -> Unit,
     order: Order
 ) {
     val context = LocalContext.current
@@ -343,7 +376,21 @@ fun DialogOfEditOrder(
                         Text(text = "Dismiss")
                     }
 
-                    TextButton(onClick = { onConfirmation() }) {
+                    TextButton(
+                        onClick = {
+                            onConfirmation(
+                                Order(
+                                    orderID = order.orderID,
+                                    userID = order.userID,
+                                    method = order.method,
+                                    amount = order.amount,
+                                    dateTime = order.dateTime,
+                                    paymentStatus = order.paymentStatus,
+                                    orderStatus = selectedStatus
+                                )
+                            )
+                        }
+                    ) {
                         Text(text = "Confirm")
                     }
                 }
@@ -358,7 +405,9 @@ fun DialogOfOrderDetail(
     onDismissRequest: () -> Unit = {},
     order: Order,
     details: List<OrderDetails>,
-    labelList: List<Pair<String, Dp>>
+    labelList: List<Pair<String, Dp>>,
+    userViewModel: UserViewModel,
+    menuItemViewModel: MenuItemViewModel
 ) {
 
     val orderHeader = listOf(
@@ -369,6 +418,11 @@ fun DialogOfOrderDetail(
         Pair("Price", 100.dp),
         Pair("Remark", 200.dp),
     )
+
+    userViewModel.loadUserByUserId(order.userID)
+    val user = userViewModel.userState.value.user
+
+    val fDetails = details.filter { it.status != getEnumList(OrderStatus::class.java)[0] }
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
@@ -416,7 +470,7 @@ fun DialogOfOrderDetail(
                                     fontSize = 22.sp
                                 )
                                 Text(
-                                    text = order.userID.toString(), // user
+                                    text = user.username,
                                     fontSize = 20.sp
                                 )
                             }
@@ -520,7 +574,12 @@ fun DialogOfOrderDetail(
                                 }
                             }
 
-                            items(details.size) { i ->
+                            items(fDetails.size) { i ->
+                                val detail = fDetails[i]
+
+                                menuItemViewModel.loadMenuItemByMenuItemId(detail.menuItemID)
+                                val food = menuItemViewModel.menuItemState.value.menuItem
+
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier
@@ -535,21 +594,21 @@ fun DialogOfOrderDetail(
                                     )
 
                                     Text(
-                                        text = details[i].menuItemID.toString(), // TODO
+                                        text = food.itemName,
                                         fontSize = 18.sp,
                                         modifier = Modifier
                                             .width(orderHeader[1].second)
                                     )
 
                                     Text(
-                                        text = details[i].quantity.toString(),
+                                        text = detail.quantity.toString(),
                                         fontSize = 18.sp,
                                         modifier = Modifier
                                             .width(orderHeader[2].second)
                                     )
 
                                     Text(
-                                        text = "RM" + formattedString(details[i].total),
+                                        text = "RM" + formattedString(detail.total),
                                         fontSize = 18.sp,
                                         textAlign = TextAlign.Start,
                                         modifier = Modifier
@@ -557,7 +616,7 @@ fun DialogOfOrderDetail(
                                     )
 
                                     Text(
-                                        text = details[i].remark,
+                                        text = detail.remark,
                                         fontSize = 18.sp,
                                         textAlign = TextAlign.Start,
                                         modifier = Modifier

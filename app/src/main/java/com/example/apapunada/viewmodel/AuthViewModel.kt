@@ -75,6 +75,10 @@ class AuthViewModel(
         }
     }
 
+    fun updateLoggedInUserState(user: User) {
+        _userState.value = _userState.value.copy(user = user)
+    }
+
     fun logout() {
         _userState.value = _userState.value.copy(
             user = User(),

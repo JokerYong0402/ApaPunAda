@@ -35,6 +35,7 @@ import com.example.apapunada.data.dataclass.Order
 import com.example.apapunada.ui.components.MyBottomButton
 import com.example.apapunada.ui.components.MyTopTitleBar
 import com.example.apapunada.ui.components.getEnumList
+import com.example.apapunada.viewmodel.AuthViewModel
 import com.example.apapunada.viewmodel.OrderStatus
 import com.example.apapunada.viewmodel.OrderViewModel
 
@@ -43,9 +44,10 @@ fun OrderOptionScreen(
     onBackButtonClicked: () -> Unit,
     onNextButtonClicked: () -> Unit,
     viewModel: OrderViewModel,
+    authViewModel: AuthViewModel,
 ) {
 
-    val currentUserID = 1
+    val currentUserID = authViewModel.userState.value.user.userID
 
     val orderOptions = listOf(
         Pair("Dine-in", R.drawable.ordermethod1),

@@ -96,20 +96,20 @@ inline fun <reified T : Enum<*>> getEnumList(
     return enumClass.enumConstants!!.map { (it as Enum<*>).name }
 }
 
-@Composable
-fun SetPortraitOrientationOnly() {
-    val context = LocalContext.current
-    val activity = context.findActivity()
-
-    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-}
-
-@Composable
-fun EnableScreenOrientation() {
-    val context = LocalContext.current
-    val activity = context.findActivity()
-    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER
-}
+//@Composable
+//fun SetPortraitOrientationOnly() {
+//    val context = LocalContext.current
+//    val activity = context.findActivity()
+//
+//    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+//}
+//
+//@Composable
+//fun EnableScreenOrientation() {
+//    val context = LocalContext.current
+//    val activity = context.findActivity()
+//    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER
+//}
 
 fun Context.findActivity(): Activity? = when (this) {
     is Activity -> this

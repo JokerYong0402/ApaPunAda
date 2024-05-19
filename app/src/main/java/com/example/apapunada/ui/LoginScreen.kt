@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.Face
@@ -54,7 +56,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.apapunada.R
 import com.example.apapunada.StartScreen
-import com.example.apapunada.ui.components.EnableScreenOrientation
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.viewmodel.AuthViewModel
 import com.example.apapunada.viewmodel.LoginUserState
@@ -71,7 +72,6 @@ fun LoginScreen(
     authViewModel: AuthViewModel,
     navController: NavHostController
 ) {
-    EnableScreenOrientation()
 
     val loginUserState = authViewModel.userState.collectAsState(initial = LoginUserState())
 
@@ -123,17 +123,17 @@ fun LoginScreen(
             )
         }
     ) { innerPadding ->
+        if (isVerifying) {
+            IndeterminateCircularIndicator("Logging in...")
+        }
         Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
             ,
             verticalArrangement = Arrangement.SpaceAround
         ) {
-
-            if (isVerifying) {
-                IndeterminateCircularIndicator("Logging in...")
-            }
 
             // Logo
             Column(
@@ -290,7 +290,6 @@ fun LoginScreen(
                             )
                             isVerifying = true
                         },
-                        enabled = !isVerifying,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = primaryColor
                         ),

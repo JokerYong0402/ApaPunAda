@@ -4,6 +4,9 @@ import com.example.apapunada.data.dataclass.Order
 import kotlinx.coroutines.flow.Flow
 
 interface OrderRepository {
+
+    fun getDescOrderByUserIdStream(id: Int): Flow<List<Order>>
+
     fun getLatestOrderId(): Flow<Int>
 
     fun getOrderByUserIdStream(id: Int): Flow<List<Order>>
