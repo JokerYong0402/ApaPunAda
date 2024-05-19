@@ -35,7 +35,7 @@ import com.example.apapunada.data.dataclass.Waitlist
         Voucher::class,
         Waitlist::class
    ],
-    version = 7
+    version = 8
 )
 abstract class ApaPunAdaDatabase: RoomDatabase() {
 

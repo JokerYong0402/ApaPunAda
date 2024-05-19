@@ -44,6 +44,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -86,30 +87,51 @@ import com.example.apapunada.ui.components.uriToByteArray
 import com.example.apapunada.viewmodel.Cuisine
 import com.example.apapunada.viewmodel.FoodDetailsState
 import com.example.apapunada.viewmodel.MenuItemViewModel
-import com.example.apapunada.viewmodel.MenuListState
 import com.example.apapunada.viewmodel.NutritionFactsState
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun StaffMenuScreen(
     viewModel: MenuItemViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
-    val menuListState = viewModel.menuListState.collectAsState(initial = MenuListState())
-    var menus: List<MenuItem> = listOf()
+//    val menuListState = viewModel.menuListState.collectAsState(initial = MenuListState())
+    var menus by remember { mutableStateOf(listOf(MenuItem())) }
     var menuType by remember { mutableStateOf("All") }
 
-    if (menuListState.value.isLoading) {
-        IndeterminateCircularIndicator("Loading menu...")
-    } else {
-        if (menuListState.value.errorMessage.isNotEmpty()) {
-            Text(text = "Error loading menus: ${menuListState.value.errorMessage}")
-            Log.i("Menu", "StaffMenuScreen: ${menuListState.value.errorMessage}")
+    var search by remember { mutableStateOf("") }
+    var launchAll by remember { mutableStateOf(false) }
+    var launchMenuItem by remember { mutableStateOf(false) }
+    var isSearching by remember { mutableStateOf(false) }
+
+    if(isSearching){
+        if (launchMenuItem) {
+            viewModel.loadMenuItemByName(search)
+            launchMenuItem = false
+        }
+    }
+    else {
+        if (menuType == "All") {
+            viewModel.loadAllMenuItem()
         } else {
-            menus = menuListState.value.menuItemList
+            viewModel.loadMenuItemByCuisine(menuType)
         }
     }
 
-    val context = LocalContext.current
+    var isLoading by remember { mutableStateOf(true) }
+    if (isLoading) {
+        IndeterminateCircularIndicator("Loading...")
+    }
+
+    LaunchedEffect(Unit){
+        launch {
+            delay(5000)
+            isLoading = false
+
+            menus = viewModel.menuListState.value.menuItemList
+        }
+    }
 
     val dishCuisine = getEnumList(Cuisine::class.java)
 
@@ -222,28 +244,6 @@ fun StaffMenuScreen(
             labelList = headerList
         )
     }
-
-    var search by remember { mutableStateOf("") }
-    var launchAll by remember { mutableStateOf(false) }
-    var launchMenuItem by remember { mutableStateOf(false) }
-    var isSearching by remember { mutableStateOf(false) }
-
-    if(isSearching){
-        if (launchMenuItem) {
-            viewModel.loadMenuItemByName(search)
-            launchMenuItem = false
-        }
-    }
-    else {
-        if (menuType == "All") {
-            viewModel.loadAllMenuItem()
-        } else {
-            viewModel.loadMenuItemByCuisine(menuType)
-        }
-    }
-
-
-
 
     Column(
         modifier = Modifier
@@ -503,8 +503,8 @@ fun StaffMenuScreen(
                     }
                 } else {
                     launchMenuItem = true
-                    if (menuListState.value.menuItemList.isNotEmpty()) {
-                        items(menuListState.value.menuItemList.size) { i ->
+                    if (menus.isNotEmpty()) {
+                        items(menus.size) { i ->
                             val menu = menus[i]
 
                             Row(
