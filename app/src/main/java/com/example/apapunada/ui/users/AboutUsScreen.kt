@@ -20,9 +20,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -32,15 +37,27 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
+import com.example.apapunada.data.dataclass.MenuItem
+import com.example.apapunada.ui.AppViewModelProvider
+import com.example.apapunada.ui.components.DisplayImagesFromByteArray
 import com.example.apapunada.ui.components.MyTopTitleBar
+import com.example.apapunada.viewmodel.MenuItemViewModel
 
 @Composable
 fun AboutUsScreen(
+    viewModel: MenuItemViewModel = viewModel(factory = AppViewModelProvider.Factory),
     onBackClicked: () -> Unit,
     onFeedbackClicked: () -> Unit,
     onOrderClicked: () -> Unit,
 ) {
+    viewModel.loadMenuItemByMenuItemId(1)
+    val image1 = viewModel.menuItemState.value.menuItem.image
+    viewModel.loadMenuItemByMenuItemId(2)
+    val image2 = viewModel.menuItemState.value.menuItem.image
+    viewModel.loadMenuItemByMenuItemId(3)
+    val image3 = viewModel.menuItemState.value.menuItem.image
     val text = buildAnnotatedString {
         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
             append(stringResource(id = R.string.app_name))
@@ -102,10 +119,11 @@ fun AboutUsScreen(
                             .fillMaxSize()
                     ) {
                         Row{
-                            Image(
+                            DisplayImagesFromByteArray(
+                                byteArray = image1,
                                 modifier = Modifier.size(100.dp),
-                                painter = painterResource(R.drawable.intro2),
-                                contentDescription = "Beef Burger"
+                                contentDescription = "Classic Cheeseburger",
+                                contentScale = ContentScale.Fit
                             )
                             Row (
                                 modifier = Modifier.fillMaxWidth()
@@ -114,7 +132,7 @@ fun AboutUsScreen(
                                     modifier = Modifier.padding(10.dp)
                                 ) {
                                     Text(
-                                        text = "Beef Burger",
+                                        text = "Classic Cheeseburger",
                                         fontWeight = FontWeight.SemiBold
                                     )
                                     Row {
@@ -124,7 +142,7 @@ fun AboutUsScreen(
                                             tint = Color(0xFFFFD700)
                                         )
                                         Text(
-                                            text = "4.7",
+                                            text = "4.8",
                                             fontWeight = FontWeight.SemiBold
                                         )
                                     }
@@ -132,10 +150,11 @@ fun AboutUsScreen(
                             }
                         }
                         Row{
-                            Image(
+                            DisplayImagesFromByteArray(
+                                byteArray = image2,
                                 modifier = Modifier.size(100.dp),
-                                painter = painterResource(R.drawable.intro2),
-                                contentDescription = "Prawn Noodle"
+                                contentDescription = "California Roll",
+                                contentScale = ContentScale.Fit
                             )
                             Row (
                                 modifier = Modifier.fillMaxWidth()
@@ -144,7 +163,7 @@ fun AboutUsScreen(
                                     modifier = Modifier.padding(10.dp)
                                 ) {
                                     Text(
-                                        text = "Prawn Noodle",
+                                        text = "California Roll",
                                         fontWeight = FontWeight.SemiBold
                                     )
                                     Row {
@@ -154,7 +173,7 @@ fun AboutUsScreen(
                                             tint = Color(0xFFFFD700)
                                         )
                                         Text(
-                                            text = "4.5",
+                                            text = "4.8",
                                             fontWeight = FontWeight.SemiBold
                                         )
                                     }
@@ -162,10 +181,11 @@ fun AboutUsScreen(
                             }
                         }
                         Row{
-                            Image(
+                            DisplayImagesFromByteArray(
+                                byteArray = image3,
                                 modifier = Modifier.size(100.dp),
-                                painter = painterResource(R.drawable.intro2),
-                                contentDescription = "Grilled Salmon"
+                                contentDescription = "Bibimbap",
+                                contentScale = ContentScale.Fit
                             )
                             Row (
                                 modifier = Modifier.fillMaxWidth()
@@ -174,7 +194,7 @@ fun AboutUsScreen(
                                     modifier = Modifier.padding(10.dp)
                                 ) {
                                     Text(
-                                        text = "Grilled Salmon",
+                                        text = "Bibimbap",
                                         fontWeight = FontWeight.SemiBold
                                     )
                                     Row {
