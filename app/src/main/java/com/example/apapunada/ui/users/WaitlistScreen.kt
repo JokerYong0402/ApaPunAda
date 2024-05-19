@@ -114,7 +114,6 @@ fun WaitlistScreen(
     var numsInSecond :Long by remember{ mutableStateOf(10) }
     var cuntNumStart by remember { mutableStateOf(false) }
 
-    val context = LocalContext.current
     val countDownDuration = 10000L
     var displayTime by remember { mutableStateOf(countDownDuration) }
     var waitlistID by remember { mutableStateOf(0) }
@@ -145,7 +144,7 @@ fun WaitlistScreen(
                     ) {
                         if (waitlists.size == 0 && checkJoin){
                             Text(
-                                text = stringResource(id = R.string.waitlist_13),
+                                text = stringResource(id = R.string.waitlist_13) + authViewModel.userState.value.user.username,
                                 fontSize = 65.sp,
                                 lineHeight = 65.sp,
                                 color = colorResource(R.color.primary)
@@ -153,14 +152,14 @@ fun WaitlistScreen(
                         }
                         else if (checkJoin) {
                             Text(
-                                text = stringResource(id = R.string.waitlist_9),
+                                text = stringResource(id = R.string.waitlist_9) + authViewModel.userState.value.user.username,
                                 fontSize = 65.sp,
                                 lineHeight = 65.sp,
                                 color = colorResource(R.color.primary)
                             )
                         } else if (!checkJoin) {
                             Text(
-                                text = stringResource(id = R.string.waitlist_1),
+                                text = stringResource(id = R.string.waitlist_1) + authViewModel.userState.value.user.username,
                                 fontSize = 65.sp,
                                 lineHeight = 65.sp,
                                 color = colorResource(R.color.primary)
@@ -552,6 +551,7 @@ fun WaitlistScreen(
                                         onConfirmation = {
                                             checkJoin = false
                                             checkQuit = false
+                                            displayTime = 10000
                                             viewModel.updateWaitlistState(
                                                 Waitlist(
                                                     //TODO
@@ -582,6 +582,7 @@ fun WaitlistScreen(
                 checkFinish = false
                 checkQuit = false
                 checkJoin = false
+                displayTime = 10000
                 size = 1
                 viewModel.updateWaitlistState(
                     Waitlist(
@@ -598,6 +599,7 @@ fun WaitlistScreen(
                 checkFinish = false
                 checkQuit = false
                 checkJoin = false
+                displayTime = 10000
                 size = 1
                 viewModel.updateWaitlistState(
                     Waitlist(
