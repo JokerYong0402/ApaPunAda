@@ -40,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
@@ -424,6 +425,12 @@ fun DialogOfOrderDetail(
 
     val fDetails = details.filter { it.status != getEnumList(OrderStatus::class.java)[0] }
 
+    //screen width
+    val config  = LocalConfiguration.current
+    val width by remember(config) {
+        mutableStateOf(config.screenWidthDp)
+    }
+
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
             colors = CardDefaults.cardColors(Color.White),
@@ -443,14 +450,8 @@ fun DialogOfOrderDetail(
                         .fillMaxWidth()
                         .height(520.dp)
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(50.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(15.dp),
-                            modifier = Modifier.width(150.dp)
-                        ) {
+                    if (width <= 600) {
+                        Column {
                             Column {
                                 Text(
                                     text = labelList[1].first,
@@ -462,7 +463,7 @@ fun DialogOfOrderDetail(
                                     fontSize = 20.sp
                                 )
                             }
-
+                            Spacer(modifier = Modifier.size(10.dp))
                             Column {
                                 Text(
                                     text = labelList[2].first,
@@ -474,7 +475,7 @@ fun DialogOfOrderDetail(
                                     fontSize = 20.sp
                                 )
                             }
-
+                            Spacer(modifier = Modifier.size(10.dp))
                             Column {
                                 Text(
                                     text = labelList[3].first,
@@ -486,12 +487,7 @@ fun DialogOfOrderDetail(
                                     fontSize = 20.sp
                                 )
                             }
-                        }
-
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(15.dp),
-                            modifier = Modifier.width(150.dp)
-                        ) {
+                            Spacer(modifier = Modifier.size(10.dp))
                             Column {
                                 Text(
                                     text = labelList[4].first,
@@ -503,7 +499,7 @@ fun DialogOfOrderDetail(
                                     fontSize = 20.sp
                                 )
                             }
-
+                            Spacer(modifier = Modifier.size(10.dp))
                             Column {
                                 Text(
                                     text = labelList[5].first,
@@ -515,7 +511,7 @@ fun DialogOfOrderDetail(
                                     fontSize = 20.sp
                                 )
                             }
-
+                            Spacer(modifier = Modifier.size(10.dp))
                             Column {
                                 Text(
                                     text = labelList[6].first,
@@ -528,7 +524,95 @@ fun DialogOfOrderDetail(
                                 )
                             }
                         }
+                    } else {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(50.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(15.dp),
+                                modifier = Modifier.width(150.dp)
+                            ) {
+                                Column {
+                                    Text(
+                                        text = labelList[1].first,
+                                        fontWeight = FontWeight.Medium,
+                                        fontSize = 22.sp
+                                    )
+                                    Text(
+                                        text = order.orderID.toString(),
+                                        fontSize = 20.sp
+                                    )
+                                }
+
+                                Column {
+                                    Text(
+                                        text = labelList[2].first,
+                                        fontWeight = FontWeight.Medium,
+                                        fontSize = 22.sp
+                                    )
+                                    Text(
+                                        text = user.username,
+                                        fontSize = 20.sp
+                                    )
+                                }
+
+                                Column {
+                                    Text(
+                                        text = labelList[3].first,
+                                        fontWeight = FontWeight.Medium,
+                                        fontSize = 22.sp
+                                    )
+                                    Text(
+                                        text = "RM " + formattedString(order.amount),
+                                        fontSize = 20.sp
+                                    )
+                                }
+                            }
+
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(15.dp),
+                                modifier = Modifier.width(150.dp)
+                            ) {
+                                Column {
+                                    Text(
+                                        text = labelList[4].first,
+                                        fontWeight = FontWeight.Medium,
+                                        fontSize = 22.sp
+                                    )
+                                    Text(
+                                        text = formattedDate(order.dateTime, "date"),
+                                        fontSize = 20.sp
+                                    )
+                                }
+
+                                Column {
+                                    Text(
+                                        text = labelList[5].first,
+                                        fontWeight = FontWeight.Medium,
+                                        fontSize = 22.sp
+                                    )
+                                    Text(
+                                        text = formattedDate(order.dateTime, "time"),
+                                        fontSize = 20.sp
+                                    )
+                                }
+
+                                Column {
+                                    Text(
+                                        text = labelList[6].first,
+                                        fontWeight = FontWeight.Medium,
+                                        fontSize = 22.sp
+                                    )
+                                    Text(
+                                        text = order.orderStatus,
+                                        fontSize = 20.sp
+                                    )
+                                }
+                            }
+                        }
                     }
+
 
                     Column(
                         modifier = Modifier

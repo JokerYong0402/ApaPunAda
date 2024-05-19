@@ -400,7 +400,7 @@ fun ProfileEditScreen(
                             image = nonNullableByteArray,
                             username = editedname,
                             email = editedemail,
-                            image = user.image,
+                            //image = user.image,
                             password = editedpassword,
                             phoneNo = editedphonenum,
                             gender = editedgender,

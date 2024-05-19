@@ -89,30 +89,7 @@ fun FeedbackScreen(
     viewModel: FeedbackViewModel = viewModel(factory = AppViewModelProvider.Factory),
     authViewModel: AuthViewModel
 ) {
-    var feedbackListState =
-        viewModel.feedbackListState.collectAsState(initial = FeedbackListState())
-    var feedbacks: List<Feedback> = listOf()
-
     viewModel.loadAllFeedbacks()
-
-    if (feedbackListState.value.isLoading) {
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Gray.copy(alpha = 0.5f))
-            .clickable {}
-            .zIndex(2f),
-            contentAlignment = Alignment.Center
-        ) {
-            IndeterminateCircularIndicator()
-        }
-    } else {
-        if (feedbackListState.value.errorMessage.isNotEmpty()) {
-            Text(text = "Error loading users: ${feedbackListState.value.errorMessage}")
-            Log.i("User", "StaffUserScreen: ${feedbackListState.value.errorMessage}")
-        } else {
-            feedbacks = feedbackListState.value.feedbackList
-        }
-    }
 
     val options1 = listOf(
         "Packaging",
