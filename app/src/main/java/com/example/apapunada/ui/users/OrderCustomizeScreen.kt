@@ -1,7 +1,6 @@
 package com.example.apapunada.ui.users
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -42,7 +41,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -55,6 +53,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
 import com.example.apapunada.data.dataclass.OrderDetails
 import com.example.apapunada.ui.AppViewModelProvider
+import com.example.apapunada.ui.components.DisplayImagesFromByteArray
 import com.example.apapunada.ui.components.MyBottomButton
 import com.example.apapunada.ui.components.formattedString
 import com.example.apapunada.ui.components.getEnumList
@@ -155,8 +154,9 @@ fun OrderCustomizeScreen(
                         .fillMaxWidth()
                         .height(225.dp)
                 ) {
-                    Image(
-                        painter = painterResource(R.drawable.intro2),
+
+                    DisplayImagesFromByteArray(
+                        byteArray = currentMenu.image,
                         contentDescription = currentMenu.itemName,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
