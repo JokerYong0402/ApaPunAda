@@ -56,6 +56,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
@@ -242,11 +243,15 @@ fun StaffMenuScreen(
     }
 
 
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = dimensionResource(R.dimen.padding_large))
-    ) {
+            //.verticalScroll(rememberScrollState()),
+
+        ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -1597,199 +1602,396 @@ fun DishDetailDialog(
         Pair("Nutrition", 100.dp)
     )
 
-    Dialog(onDismissRequest = { onDismissRequest() }) {
-        Card(
-            colors = CardDefaults.cardColors(Color.White),
-            elevation = CardDefaults.cardElevation(15.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(600.dp)
-                .padding(horizontal = dimensionResource(R.dimen.padding_medium))
-        ) {
-            Column(
+    //screen width
+    val config  = LocalConfiguration.current
+    val width by remember(config) {
+        mutableStateOf(config.screenWidthDp)
+    }
+    if(width > 600){
+        Dialog(onDismissRequest = { onDismissRequest() }) {
+            Card(
+                colors = CardDefaults.cardColors(Color.White),
+                elevation = CardDefaults.cardElevation(15.dp),
                 modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .padding(dimensionResource(R.dimen.padding_medium))
+                    .fillMaxWidth()
+                    .height(600.dp)
+                    .padding(horizontal = dimensionResource(R.dimen.padding_medium))
             ) {
-                Row(//Title
-                    horizontalArrangement = Arrangement.Center,
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 10.dp)
+                        .verticalScroll(rememberScrollState())
+                        .padding(dimensionResource(R.dimen.padding_medium))
                 ) {
-                    Text(
-                        text = "Detail of $name",
-                        fontSize = 25.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Row(//Image
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 10.dp, bottom = 10.dp)
-                ) {
-                    Column {
-
-                        DisplayImagesFromByteArray(
-                            byteArray = menu.image,
-                            modifier = Modifier
-                                .size(200.dp),
-                            contentDescription = "",
-                            contentScale = ContentScale.Crop
-                        )
-                    }
-                }
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(50.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 30.dp)
-                ) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(20.dp),
+                    Row(//Title
+                        horizontalArrangement = Arrangement.Center,
                         modifier = Modifier
-                            .width(250.dp)
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp)
                     ) {
-
-                        Column {
-                            Text(//name
-                                text = userHeader[1].first,
-                                fontWeight = FontWeight.Medium,
-                                fontSize = 22.sp
-                            )
-                            Text(
-                                text = name,
-                                fontSize = 20.sp
-                            )
-                        }
-
-                        Column {
-                            Text(//description
-                                text = userHeader[2].first,
-                                fontWeight = FontWeight.Medium,
-                                fontSize = 22.sp
-                            )
-                            Text(
-                                text = description,
-                                fontSize = 20.sp
-                            )
-                        }
-
-                        Column {
-                            Text(//cuisine
-                                text = userHeader[3].first,
-                                fontWeight = FontWeight.Medium,
-                                fontSize = 22.sp
-                            )
-                            Text(
-                                text = cuisine,
-                                fontSize = 20.sp
-                            )
-                        }
+                        Text(
+                            text = "Detail of $name",
+                            fontSize = 25.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(15.dp),
-                        modifier = Modifier.width(200.dp)
+
+                    Row(//Image
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp, bottom = 10.dp)
                     ) {
                         Column {
-                            Text(//price
-                                text = userHeader[4].first,
+
+                            DisplayImagesFromByteArray(
+                                byteArray = menu.image,
+                                modifier = Modifier
+                                    .size(200.dp),
+                                contentDescription = "",
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+                    }
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(50.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 30.dp)
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(20.dp),
+                            modifier = Modifier
+                                .width(250.dp)
+                        ) {
+
+                            Column {
+                                Text(//name
+                                    text = userHeader[1].first,
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 22.sp
+                                )
+                                Text(
+                                    text = name,
+                                    fontSize = 20.sp
+                                )
+                            }
+
+                            Column {
+                                Text(//description
+                                    text = userHeader[2].first,
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 22.sp
+                                )
+                                Text(
+                                    text = description,
+                                    fontSize = 20.sp
+                                )
+                            }
+
+                            Column {
+                                Text(//cuisine
+                                    text = userHeader[3].first,
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 22.sp
+                                )
+                                Text(
+                                    text = cuisine,
+                                    fontSize = 20.sp
+                                )
+                            }
+                        }
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(15.dp),
+                            modifier = Modifier.width(200.dp)
+                        ) {
+                            Column {
+                                Text(//price
+                                    text = userHeader[4].first,
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 22.sp
+                                )
+                                Text(
+                                    text = "RM $price",
+                                    fontSize = 20.sp
+                                )
+                            }
+
+                            Column {
+                                Text(//rating
+                                    text = userHeader[5].first,
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 22.sp
+                                )
+                                Text(
+                                    text = rating.toString(),
+                                    fontSize = 20.sp
+                                )
+                            }
+
+
+                            Column {
+                                Text(//status
+                                    text = userHeader[6].first,
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 22.sp
+                                )
+                                Text(
+                                    text = status,
+                                    fontSize = 20.sp,
+                                    color = Color.Green
+                                )
+                            }
+
+                        }
+                    }
+
+                    Row(
+                        horizontalArrangement = Arrangement.Start,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 20.dp, bottom = 10.dp)
+                    ) {
+                        Column {
+                            Text(//ingredient
+                                text = userHeader[7].first,
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 22.sp
                             )
                             Text(
-                                text = "RM $price",
+                                text = ingredient,
                                 fontSize = 20.sp
                             )
                         }
+                    }
 
+                    Row(
+                        horizontalArrangement = Arrangement.Start,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 20.dp, bottom = 10.dp)
+                    ) {
                         Column {
-                            Text(//rating
-                                text = userHeader[5].first,
+                            Text(//nutrition
+                                text = userHeader[8].first,
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 22.sp
                             )
                             Text(
-                                text = rating.toString(),
-                                fontSize = 20.sp
+                                text = "Carbohydrates : " + nutritionCarbohydrates.toString() + "g\n" +
+                                        "Protein  : " + nutritionProtein.toString() + "g\n" +
+                                        "Fats         : " + nutritionFat.toString() + "g\n" +
+                                        "Salt         : " + nutritionSalt.toString() + "g\n" +
+                                        "Sugar        : " + nutritionSugar.toString() + "g\n"
+
+                                ,fontSize = 20.sp
                             )
+
                         }
+                    }
 
-
-                        Column {
-                            Text(//status
-                                text = userHeader[6].first,
-                                fontWeight = FontWeight.Medium,
-                                fontSize = 22.sp
-                            )
-                            Text(
-                                text = status,
-                                fontSize = 20.sp,
-                                color = Color.Green
-                            )
+                    // Buttons
+                    Row(
+                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        TextButton(onClick = { onDismissRequest() }) {
+                            Text(text = "Dismiss")
                         }
-
-                    }
-                }
-
-                Row(
-                    horizontalArrangement = Arrangement.Start,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 20.dp, bottom = 10.dp)
-                ) {
-                    Column {
-                        Text(//ingredient
-                            text = userHeader[7].first,
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 22.sp
-                        )
-                        Text(
-                            text = ingredient,
-                            fontSize = 20.sp
-                        )
-                    }
-                }
-
-                Row(
-                    horizontalArrangement = Arrangement.Start,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 20.dp, bottom = 10.dp)
-                ) {
-                    Column {
-                        Text(//nutrition
-                            text = userHeader[8].first,
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 22.sp
-                        )
-                        Text(
-                            text = "Carbohydrates : " + nutritionCarbohydrates.toString() + "g\n" +
-                                    "Protein  : " + nutritionProtein.toString() + "g\n" +
-                                    "Fats         : " + nutritionFat.toString() + "g\n" +
-                                    "Salt         : " + nutritionSalt.toString() + "g\n" +
-                                    "Sugar        : " + nutritionSugar.toString() + "g\n"
-
-                                    ,fontSize = 20.sp
-                        )
-
-                    }
-                }
-
-                // Buttons
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    TextButton(onClick = { onDismissRequest() }) {
-                        Text(text = "Dismiss")
                     }
                 }
             }
         }
     }
+    else {
+        Dialog(onDismissRequest = { onDismissRequest() }) {
+            Card(
+                colors = CardDefaults.cardColors(Color.White),
+                elevation = CardDefaults.cardElevation(15.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(600.dp)
+                    .padding(horizontal = dimensionResource(R.dimen.padding_medium))
+            ) {
+                Column(
+                    modifier = Modifier
+                        .verticalScroll(rememberScrollState())
+                        .padding(dimensionResource(R.dimen.padding_medium))
+                ) {
+                    Row(//Title
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp)
+                    ) {
+                        Text(
+                            text = "Detail of $name",
+                            fontSize = 25.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Row(//Image
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp, bottom = 10.dp)
+                    ) {
+                        Column {
+
+                            DisplayImagesFromByteArray(
+                                byteArray = menu.image,
+                                modifier = Modifier
+                                    .size(200.dp),
+                                contentDescription = "",
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+                    }
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(50.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 30.dp)
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(20.dp),
+                            modifier = Modifier
+                                .width(250.dp)
+                        ) {
+
+                            Column {
+                                Text(//name
+                                    text = userHeader[1].first,
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 22.sp
+                                )
+                                Text(
+                                    text = name,
+                                    fontSize = 20.sp
+                                )
+                            }
+
+                            Column {
+                                Text(//description
+                                    text = userHeader[2].first,
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 22.sp
+                                )
+                                Text(
+                                    text = description,
+                                    fontSize = 20.sp
+                                )
+                            }
+
+                            Column {
+                                Text(//cuisine
+                                    text = userHeader[3].first,
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 22.sp
+                                )
+                                Text(
+                                    text = cuisine,
+                                    fontSize = 20.sp
+                                )
+                            }
+                        }
+                            Column {
+                                Text(//price
+                                    text = userHeader[4].first,
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 22.sp
+                                )
+                                Text(
+                                    text = "RM $price",
+                                    fontSize = 20.sp
+                                )
+                            }
+
+                            Column {
+                                Text(//rating
+                                    text = userHeader[5].first,
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 22.sp
+                                )
+                                Text(
+                                    text = rating.toString(),
+                                    fontSize = 20.sp
+                                )
+                            }
+
+                            Column {
+                                Text(//status
+                                    text = userHeader[6].first,
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 22.sp
+                                )
+                                Text(
+                                    text = status,
+                                    fontSize = 20.sp,
+                                    color = Color.Green
+                                )
+                            }
+                    }
+
+                    Row(
+                        horizontalArrangement = Arrangement.Start,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 20.dp, bottom = 10.dp)
+                    ) {
+                        Column {
+                            Text(//ingredient
+                                text = userHeader[7].first,
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 22.sp
+                            )
+                            Text(
+                                text = ingredient,
+                                fontSize = 20.sp
+                            )
+                        }
+                    }
+
+                    Row(
+                        horizontalArrangement = Arrangement.Start,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 20.dp, bottom = 10.dp)
+                    ) {
+                        Column {
+                            Text(//nutrition
+                                text = userHeader[8].first,
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 22.sp
+                            )
+                            Text(
+                                text = "Carbohydrates : " + nutritionCarbohydrates.toString() + "g\n" +
+                                        "Protein  : " + nutritionProtein.toString() + "g\n" +
+                                        "Fats         : " + nutritionFat.toString() + "g\n" +
+                                        "Salt         : " + nutritionSalt.toString() + "g\n" +
+                                        "Sugar        : " + nutritionSugar.toString() + "g\n"
+
+                                ,fontSize = 20.sp
+                            )
+
+                        }
+                    }
+
+                    // Buttons
+                    Row(
+                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        TextButton(onClick = { onDismissRequest() }) {
+                            Text(text = "Dismiss")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
 }
 
 private fun getMenu(
