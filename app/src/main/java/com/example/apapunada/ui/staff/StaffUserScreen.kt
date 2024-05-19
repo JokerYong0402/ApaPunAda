@@ -251,6 +251,7 @@ fun StaffUserScreen(
                 launchAll = true
                 items(users.size) { i ->
                     val user = users[i]
+                    val image by remember { mutableStateOf(user.image) }
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
@@ -274,7 +275,9 @@ fun StaffUserScreen(
                                     .size(70.dp)
                             ){
                                 DisplayImagesFromByteArray(
-                                    byteArray = user.image,
+                                    byteArray =
+                                    if (image.isNotEmpty()) image
+                                    else drawableResourceToByteArray(context, R.drawable.defaultprofilepicture),
                                     contentDescription = "",
                                     modifier = Modifier,
                                     contentScale = ContentScale.Crop
@@ -297,7 +300,6 @@ fun StaffUserScreen(
                         )
 
                         Row {
-//                        Icon(painter = painterResource(R.id))
                             Text(
                                 text = user.phoneNo,
                                 fontSize = 22.sp,
@@ -356,6 +358,7 @@ fun StaffUserScreen(
                 if (userListState.value.userList.isNotEmpty()) {
                     items(userListState.value.userList.size) { i ->
                         val user = users[i]
+                        val image by remember { mutableStateOf(user.image) }
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
@@ -379,7 +382,9 @@ fun StaffUserScreen(
                                         .size(70.dp)
                                 ) {
                                     DisplayImagesFromByteArray(
-                                        byteArray = user.image,
+                                        byteArray =
+                                        if (image.isNotEmpty()) image
+                                        else drawableResourceToByteArray(context, R.drawable.defaultprofilepicture),
                                         contentDescription = "",
                                         modifier = Modifier,
                                         contentScale = ContentScale.Crop
@@ -400,7 +405,6 @@ fun StaffUserScreen(
                             )
 
                             Row {
-                                //                        Icon(painter = painterResource(R.id))
                                 Text(
                                     text = user.phoneNo,
                                     fontSize = 22.sp,
@@ -493,7 +497,6 @@ fun DialogOfAddUser(
     val userGender: List<Gender> = enumValues<Gender>().toList()
     var expandedG by remember { mutableStateOf(false) }
     var imageUri by remember { mutableStateOf<Uri>(Uri.EMPTY) }
-
     val byteArray = uriToByteArray(context, imageUri)
     val userImage = byteArray ?: ByteArray(0)
     val launcher = rememberLauncherForActivityResult(
@@ -527,9 +530,8 @@ fun DialogOfAddUser(
                     ){
                         DisplayImagesFromByteArray(
                             byteArray =
-                            if (imageUri != Uri.EMPTY) uriToByteArray(context, imageUri)
-                            //TODO change drawable
-                            else drawableResourceToByteArray(context, R.drawable.profile_image),
+                            if (imageUri != Uri.EMPTY) userImage
+                            else drawableResourceToByteArray(context, R.drawable.defaultprofilepicture),
                             contentDescription = "",
                             modifier = Modifier
                                 .clickable { launcher.launch(
@@ -632,7 +634,6 @@ fun DialogOfAddUser(
                     dob = MyDatePickerDialog(context, user)
                 }
 
-                // Buttons
                 Row(
                     horizontalArrangement = Arrangement.End,
                     modifier = Modifier.fillMaxWidth()
@@ -680,12 +681,13 @@ fun DialogOfEditUser(
     var dob by remember { mutableStateOf(user.dob) }
     var point by remember { mutableStateOf(user.point) }
     var status by remember { mutableStateOf(user.status) }
-    var image by remember { mutableStateOf(user.image) }
+    val image by remember { mutableStateOf(user.image) }
+    val role by remember { mutableStateOf(user.role) }
 
     var imageUri by remember { mutableStateOf<Uri>(Uri.EMPTY) }
 
     val byteArray = uriToByteArray(LocalContext.current, imageUri)
-    val userImage = byteArray ?: ByteArray(0)
+    var userImage = byteArray ?: ByteArray(0)
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = {uri: Uri? ->
@@ -699,10 +701,6 @@ fun DialogOfEditUser(
     var expandedG by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
-
-    if (userImage.isNotEmpty()) {
-        image = userImage
-    }
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
@@ -725,9 +723,13 @@ fun DialogOfEditUser(
                         modifier = Modifier
                             .align(Alignment.CenterHorizontally)
                             .size(70.dp)
-                    ){
+                    ) {
+                        Log.i("Check User Image", "DialogOfEditUser: "+userImage.size)
                         DisplayImagesFromByteArray(
-                            byteArray = image,
+                            byteArray =
+                            if (imageUri != Uri.EMPTY) userImage
+                            else if (image.isNotEmpty()) image
+                            else drawableResourceToByteArray(context, R.drawable.defaultprofilepicture),
                             contentDescription = "",
                             modifier = Modifier
                                 .clickable { launcher.launch(
@@ -888,9 +890,12 @@ fun DialogOfEditUser(
                         Text(text = "Dismiss")
                     }
                     TextButton(onClick = {
+                        if (userImage.isEmpty()) {
+                            userImage = user.image
+                        }
                         onConfirmation(
                             User(
-                                image = image,
+                                image = userImage,
                                 userID = user.userID,
                                 username = username,
                                 email = email,
@@ -898,7 +903,7 @@ fun DialogOfEditUser(
                                 phoneNo = phoneNo,
                                 gender = gender,
                                 dob = dob,
-                                role = "User",
+                                role = role,
                                 point = point,
                                 status = status,
                             )
@@ -917,6 +922,8 @@ fun DialogOfUserDetail(
     onDismissRequest: () -> Unit = {},
     user: User,
 ) {
+    val context = LocalContext.current
+    val image = user.image
     val username = user.username
     val email = user.email
     val password = user.password
@@ -960,7 +967,9 @@ fun DialogOfUserDetail(
 
                 ){
                     DisplayImagesFromByteArray(
-                        byteArray = user.image,
+                        byteArray =
+                        if (image.isNotEmpty()) image
+                        else drawableResourceToByteArray(context, R.drawable.defaultprofilepicture),
                         contentDescription = "",
                         modifier = Modifier,
                         contentScale = ContentScale.Crop
