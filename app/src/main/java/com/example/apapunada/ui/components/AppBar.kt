@@ -415,7 +415,10 @@ fun StaffAppBar(
                         enabled = false
                     )
 
-                    HorizontalDivider()
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 5.dp),
+                        thickness = 3.dp
+                    )
 
                     DropdownMenuItem(
                         text = { Text("Logout") },

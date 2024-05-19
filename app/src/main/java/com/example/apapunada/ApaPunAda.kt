@@ -1,21 +1,28 @@
 package com.example.apapunada
 
 //import com.example.apapunada.ui.staff.StaffWaitlistScreen
-import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.List
+import androidx.compose.material.icons.rounded.AccountBox
+import androidx.compose.material.icons.rounded.Email
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.ShoppingCart
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -32,6 +39,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -103,13 +112,13 @@ enum class UserScreen(@StringRes val title: Int) {
     More(R.string.more),
 }
 
-enum class StaffScreen(@StringRes val title: Int, @DrawableRes val icon: Int) {
-    Dashboard(R.string.app_name, R.drawable.editprofilepicicon),
-    UserMgmt(R.string.user_mgmt, R.drawable.editprofilepicicon),
-    MenuMgmt(R.string.menu_mgmt, R.drawable.editprofilepicicon),
-    WaitlistMgmt(R.string.waitlist_mgmt, R.drawable.editprofilepicicon),
-    OrderingMgmt(R.string.order_mgmt, R.drawable.editprofilepicicon),
-    FeedbackMgmt(R.string.feedback_mgmt, R.drawable.editprofilepicicon)
+enum class StaffScreen(@StringRes val title: Int, val icon: ImageVector) {
+    Dashboard(R.string.app_name, Icons.Rounded.Home),
+    UserMgmt(R.string.user_mgmt, Icons.Rounded.Person),
+    MenuMgmt(R.string.menu_mgmt, Icons.AutoMirrored.Rounded.List),
+    WaitlistMgmt(R.string.waitlist_mgmt, Icons.Rounded.AccountBox),
+    OrderingMgmt(R.string.order_mgmt, Icons.Rounded.ShoppingCart),
+    FeedbackMgmt(R.string.feedback_mgmt, Icons.Rounded.Email)
 }
 
 enum class OrderScreen(@StringRes val routeResId: Int) {
@@ -516,13 +525,20 @@ fun StaffUI(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color.White)
-                        .border(10.dp, colorResource(R.color.primary))
-                        .height(100.dp)
+                        .background(Color.Black)
+                        .border(2.dp, colorResource(R.color.primary))
+                        .height(200.dp)
                 ) {
-                    Image(painter = painterResource(R.drawable.logo), contentDescription = "logo")
-                    Text(text = stringResource(R.string.app_name))
+                    Image(
+                        painter = painterResource(R.drawable.home_1),
+                        contentDescription = "logo",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxSize()
+                    )
                 }
+                
+                Spacer(modifier = Modifier.height(5.dp))
 
                 Column(
                     modifier = Modifier.verticalScroll(rememberScrollState())
@@ -531,7 +547,7 @@ fun StaffUI(
                         NavigationDrawerItem(
                             icon = {
                                 Icon(
-                                    painter = painterResource(screen.icon),
+                                    imageVector = screen.icon,
                                     contentDescription = stringResource(screen.title),
                                     modifier = Modifier.size(25.dp)
                                 )
@@ -550,12 +566,12 @@ fun StaffUI(
                                 navController.navigate(screen.name)
                             },
                             colors = NavigationDrawerItemDefaults.colors(
-//                                colorResource(R.color.primary)
-                                Color.Transparent
+                                colorResource(R.color.primary_200)
+//                                Color.Transparent
                             ),
                             modifier = Modifier.padding(5.dp)
                         )
-                        HorizontalDivider(Modifier.padding(horizontal = 10.dp))
+                        Spacer(Modifier.padding(horizontal = 12.dp))
                     }
                 }
             }

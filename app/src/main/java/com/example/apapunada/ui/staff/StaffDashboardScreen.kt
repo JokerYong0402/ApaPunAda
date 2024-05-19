@@ -1,5 +1,6 @@
 package com.example.apapunada.ui.staff
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Devices.TABLET
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,11 +55,11 @@ fun StaffDashboardLandscape(
 
 ) {
 
-
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = dimensionResource(R.dimen.padding_large))
+            .verticalScroll(rememberScrollState())
     ) {
         Column(
             modifier = Modifier
@@ -72,7 +76,7 @@ fun StaffDashboardLandscape(
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly,
+            horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth()
         ) {
             repeat(3) {
@@ -84,6 +88,36 @@ fun StaffDashboardLandscape(
                 }
             }
         }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = dimensionResource(R.dimen.padding_large))
+        ) {
+            Text(
+                text = "Detailed reports",
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+
+        Column {
+            Row {
+                Image(
+                    painter = painterResource(R.drawable.chart1),
+                    contentDescription = "chart1",
+                    modifier = Modifier.size(900.dp, 400.dp)
+                )
+
+                Image(
+                    painter = painterResource(R.drawable.chart2),
+                    contentDescription = "chart2",
+                    modifier = Modifier.size(800.dp, 400.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(30.dp))
     }
 }
 
