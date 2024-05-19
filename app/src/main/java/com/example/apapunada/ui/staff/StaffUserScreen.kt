@@ -279,7 +279,7 @@ fun StaffUserScreen(
                                     if (image.isNotEmpty()) image
                                     else drawableResourceToByteArray(context, R.drawable.defaultprofilepicture),
                                     contentDescription = "",
-                                    modifier = Modifier,
+                                    modifier = Modifier.fillMaxSize(),
                                     contentScale = ContentScale.Crop
                                 )
                             }
@@ -386,7 +386,7 @@ fun StaffUserScreen(
                                         if (image.isNotEmpty()) image
                                         else drawableResourceToByteArray(context, R.drawable.defaultprofilepicture),
                                         contentDescription = "",
-                                        modifier = Modifier,
+                                        modifier = Modifier.fillMaxSize(),
                                         contentScale = ContentScale.Crop
                                     )
                                 }

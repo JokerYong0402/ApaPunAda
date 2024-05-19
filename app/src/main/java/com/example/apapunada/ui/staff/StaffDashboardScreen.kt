@@ -84,7 +84,7 @@ fun StaffDashboardPortrait(
 
     LaunchedEffect(Unit) {
         launch {
-            delay(2000)
+            delay(3000)
             withContext(Dispatchers.Main) {
                 isLoading = false
                 users = userViewModel.userListState.value.userList

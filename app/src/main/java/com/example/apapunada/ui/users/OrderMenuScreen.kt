@@ -1,6 +1,5 @@
 package com.example.apapunada.ui.users
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,7 +42,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -54,6 +52,7 @@ import com.example.apapunada.data.dataclass.MenuItem
 import com.example.apapunada.data.dataclass.Order
 import com.example.apapunada.data.dataclass.OrderDetails
 import com.example.apapunada.ui.AppViewModelProvider
+import com.example.apapunada.ui.components.DisplayImagesFromByteArray
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.MyAlertDialog
 import com.example.apapunada.ui.components.MyBottomButton
@@ -249,10 +248,8 @@ fun OrderMenuScreen(
                                         modifier = Modifier.fillMaxSize()
                                     ) {
                                         Column {
-                                            Image(
-                                                painter = painterResource(
-                                                    R.drawable.cabonarapastapic
-                                                ),
+                                            DisplayImagesFromByteArray(
+                                                byteArray = menu.image,
                                                 contentDescription = menu.itemName,
                                                 contentScale = ContentScale.Crop,
                                                 modifier = Modifier
