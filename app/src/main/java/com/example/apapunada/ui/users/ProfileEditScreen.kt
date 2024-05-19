@@ -4,6 +4,7 @@ import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -36,6 +37,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +51,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -56,9 +59,12 @@ import coil.compose.rememberImagePainter
 import com.example.apapunada.R
 import com.example.apapunada.data.dataclass.User
 import com.example.apapunada.ui.AppViewModelProvider
+import com.example.apapunada.ui.components.DisplayImagesFromByteArray
 import com.example.apapunada.ui.components.MyDatePickerDialog
 import com.example.apapunada.ui.components.MyTopTitleBar
+import com.example.apapunada.ui.components.uriToByteArray
 import com.example.apapunada.viewmodel.AuthViewModel
+import com.example.apapunada.viewmodel.UserState
 import com.example.apapunada.viewmodel.UserViewModel
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -69,10 +75,8 @@ fun ProfileEditScreen(
     onProfile: () -> Unit,
     onBackButtonClicked: () -> Unit
     ) {
-
     val user = authViewModel.userState.value.user
 
-    val imageUrl = rememberSaveable{mutableStateOf("")}
     var editedname by remember { mutableStateOf(user.username) }
     var editedgender by remember { mutableStateOf(user.gender) }
     var editeddob by remember { mutableStateOf(user.dob) }
@@ -88,9 +92,35 @@ fun ProfileEditScreen(
     val options = listOf("Male", "Female")
     var changeGender by remember { mutableStateOf("") }
 
+    var checkImage by remember { mutableStateOf(false) }
+    var selectedImageUri by remember { mutableStateOf<Uri>(Uri.EMPTY) }
+    val multiplePhotosPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri: Uri? ->
+            selectedImageUri = uri ?: Uri.EMPTY
+        }
+    )
+
+
+    var byteArray = uriToByteArray(context, selectedImageUri)
+    if (selectedImageUri == Uri.EMPTY){
+        byteArray = user.image
+    }
+
+//    if (!checkImage && selectedImageUri == Uri.EMPTY){
+//        byteArray = user.image
+//        checkImage = true
+//    } else if(checkImage && selectedImageUri != Uri.EMPTY){
+//        byteArray = user.image
+//
+//    }
+
+    val nonNullableByteArray = byteArray?:ByteArray(0)
+
+
+
     Scaffold(
         topBar = { MyTopTitleBar(title = stringResource(R.string.edit_profile), onBackButtonClicked = onBackButtonClicked) },
-        //bottomBar = { MyBottomNavBar() }
     ) { innerPadding ->
         Surface(
             modifier = Modifier
@@ -102,9 +132,30 @@ fun ProfileEditScreen(
                 modifier = Modifier.padding(innerPadding)
             ) {
                 Column (
-                    modifier = Modifier.padding(top = 10.dp)
+                   horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .padding(top = 10.dp)
+                        .fillMaxWidth()
                 ){
-                    ChangeProfilePic()
+                    DisplayImagesFromByteArray(
+                        byteArray = nonNullableByteArray,
+                        modifier = Modifier.size(100.dp),
+                        contentDescription = "",
+                        contentScale = ContentScale.Crop
+                    )
+                    Text(
+                        text = "Change profile picture",
+                        color = colorResource(R.color.primary),
+                        textAlign = TextAlign.Center,
+                        fontSize = 14.sp,
+                        modifier = Modifier
+                            .padding(top = 10.dp)
+                            .clickable {
+                                multiplePhotosPickerLauncher.launch(
+                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                )
+                            }
+                    )
                 }
 
 
@@ -304,7 +355,6 @@ fun ProfileEditScreen(
                             textlabel = "Password",
                             onValueChange = { editedpassword = it },
                             modifier = Modifier
-                            //    .fillMaxWidth()
                         )
                     }
                 }
@@ -322,7 +372,6 @@ fun ProfileEditScreen(
                         contentDescription = "Gender Icon",
                         modifier = Modifier
                             .padding(dimensionResource(R.dimen.padding_small))
-                            //.fillMaxSize()
                             .size(
                                 width = 40.dp,
                                 height = 40.dp
@@ -348,6 +397,7 @@ fun ProfileEditScreen(
                     onClick = {
                         val latestUser = User(
                             userID = user.userID,
+                            image = nonNullableByteArray,
                             username = editedname,
                             email = editedemail,
                             image = user.image,
@@ -394,51 +444,51 @@ fun ProfileEditScreen(
     }
 }
 
-@Composable
-fun ChangeProfilePic() {
-    val imageUrl = rememberSaveable{mutableStateOf("")}
-    val painter = rememberImagePainter(
-        if (imageUrl.value.isEmpty())
-        R.drawable.ic_android_black_24dp
-        else
-        imageUrl.value
-    )
-    val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) {
-        uri: Uri? ->
-        uri?.let { imageUrl.value = it.toString() }
-
-    }
-    Column(
-        modifier = Modifier
-            //.padding(8.dp)
-            .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Card(
-            shape = CircleShape,
-            modifier = Modifier
-                //.padding(8.dp)
-                .size(80.dp)
-
-        ){
-            Image(
-                painter = painter,
-                contentDescription = "",
-                 modifier = Modifier
-                     .wrapContentSize(),
-                contentScale = ContentScale.Crop
-            )
-
-        }
-        Text(
-            text = "Change profile picture",
-            color = colorResource(R.color.primary),
-            fontSize = 14.sp,
-            modifier = Modifier
-                .clickable { launcher.launch("image/*") }
-        )
-    }
-}
+//@Composable
+//fun ChangeProfilePic() {
+//    val imageUrl = rememberSaveable{mutableStateOf("")}
+//    val painter = rememberImagePainter(
+//        if (imageUrl.value.isEmpty())
+//        R.drawable.ic_android_black_24dp
+//        else
+//        imageUrl.value
+//    )
+//    val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) {
+//        uri: Uri? ->
+//        uri?.let { imageUrl.value = it.toString() }
+//
+//    }
+//    Column(
+//        modifier = Modifier
+//            //.padding(8.dp)
+//            .fillMaxWidth(),
+//        horizontalAlignment = Alignment.CenterHorizontally
+//    ) {
+//        Card(
+//            shape = CircleShape,
+//            modifier = Modifier
+//                //.padding(8.dp)
+//                .size(80.dp)
+//
+//        ){
+//            Image(
+//                painter = painter,
+//                contentDescription = "",
+//                 modifier = Modifier
+//                     .wrapContentSize(),
+//                contentScale = ContentScale.Crop
+//            )
+//
+//        }
+//        Text(
+//            text = "Change profile picture",
+//            color = colorResource(R.color.primary),
+//            fontSize = 14.sp,
+//            modifier = Modifier
+//                .clickable { launcher.launch("image/*") }
+//        )
+//    }
+//}
 
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)

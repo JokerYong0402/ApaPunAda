@@ -1,14 +1,10 @@
 package com.example.apapunada.ui.users
 
 import android.util.Log
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,7 +21,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -34,7 +29,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -52,14 +46,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
 import com.example.apapunada.data.dataclass.MenuItem
 import com.example.apapunada.ui.AppViewModelProvider
-import com.example.apapunada.ui.components.IndeterminateCircularIndicator
+import com.example.apapunada.ui.components.DisplayImagesFromByteArray
 import com.example.apapunada.ui.components.MyTopTitleBar
-import com.example.apapunada.viewmodel.MenuItemState
 import com.example.apapunada.viewmodel.MenuItemViewModel
 import com.example.apapunada.viewmodel.MenuListState
 
@@ -75,25 +67,20 @@ fun MenuScreen(
     var menus: List<MenuItem> = listOf()
 
     var currentDishId by remember { mutableIntStateOf(0) }
-    //var currentMenu by remember { mutableStateOf(MenuItem()) }
-
-    //viewModel.loadMenuItemByMenuItemId(currentDishId)
 
     viewModel.loadAllMenuItem()
 
-    var textInput by remember { mutableStateOf("") }
-
     if (menuListState.value.isLoading) {
-        Box( modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Gray.copy(alpha = 0.5f))
-            .clickable { /* no action */ }
-            .zIndex(2f)
-            ,
-            contentAlignment = Alignment.Center
-        ) {
-            IndeterminateCircularIndicator()
-        }
+//        Box( modifier = Modifier
+//            .fillMaxSize()
+//            .background(Color.Gray.copy(alpha = 0.5f))
+//            .clickable { /* no action */ }
+//            .zIndex(2f)
+//            ,
+//            contentAlignment = Alignment.Center
+//        ) {
+//            IndeterminateCircularIndicator()
+//        }
     } else {
         if (menuListState.value.errorMessage.isNotEmpty()) {
             Text(text = "Error loading menus: ${menuListState.value.errorMessage}")
@@ -105,7 +92,6 @@ fun MenuScreen(
 
     Scaffold(
         topBar = { MyTopTitleBar(title = stringResource(R.string.menu), onBackClicked) },
-        //bottomBar = { MyBottomNavBar() }
     ) { innerPadding ->
         Surface(
             modifier = Modifier
@@ -296,9 +282,7 @@ fun MenuScreen(
                             color = colorResource(R.color.primary),
                             fontSize = 15.sp,
                             textAlign = TextAlign.End
-
                         )
-
                     }
                 }
 
@@ -338,15 +322,16 @@ fun MenuScreen(
                                         .padding(dimensionResource(R.dimen.padding_small))
                                         .fillMaxSize()
                                 ) {
-                                    Image(
-                                        painter = painterResource(R.drawable.staricon),
-                                        contentDescription = "Beef Burger",
-                                        contentScale = ContentScale.Crop,
+                                    DisplayImagesFromByteArray(
+                                        byteArray = menu.image,
                                         modifier = Modifier
-                                            .height(120.dp)
-                                            .fillMaxWidth()
                                             .clip(RoundedCornerShape(20.dp, 20.dp))
+                                            .fillMaxWidth()
+                                            .height(120.dp),
+                                        contentDescription = "",
+                                        contentScale = ContentScale.Crop
                                     )
+
                                     Text(
                                         text = menu.itemName,
                                         fontSize = 14.sp,
@@ -364,7 +349,6 @@ fun MenuScreen(
                                             modifier = Modifier
                                                 .height(25.dp)
                                                 .width(25.dp)
-                                            //.clip(RoundedCornerShape(16.dp, 16.dp))
                                         )
                                         Text(
                                             text = (menu.rating).toString(),
@@ -399,20 +383,6 @@ fun MenuScreen(
 
                         )
                     Spacer(modifier = Modifier.width(130.dp))
-//                    TextButton(
-//                        onClick = {},
-//                        modifier = Modifier
-//                            .fillMaxSize(),
-//                    ) {
-//                        Text(
-//                            text = "View all--",
-//                            color = colorResource(R.color.primary),
-//                            fontSize = 15.sp,
-//                            textAlign = TextAlign.End
-//
-//                        )
-//
-//                    }
                 }
 
                 Row( //Recommended dishes pic
@@ -451,23 +421,22 @@ fun MenuScreen(
                                         .padding(dimensionResource(R.dimen.padding_small))
                                         .fillMaxSize()
                                 ) {
-                                    Image(
-                                        painter = painterResource(R.drawable.staricon),
-                                        contentDescription = "Beef Burger",
-                                        contentScale = ContentScale.Crop,
+                                    DisplayImagesFromByteArray(
+                                        byteArray = menu.image,
                                         modifier = Modifier
-                                            .height(120.dp)
-                                            .fillMaxWidth()
-                                            //.fillMaxSize()
                                             .clip(RoundedCornerShape(20.dp, 20.dp))
+                                            .fillMaxWidth()
+                                            .height(120.dp),
+                                        contentDescription = "",
+                                        contentScale = ContentScale.Crop
                                     )
+
                                     Text(
                                         text = menu.itemName,
                                         fontSize = 17.sp,
                                         textAlign = TextAlign.Start
                                     )
                                     Row(
-                                        //modifier = Modifier
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Image(
@@ -477,7 +446,6 @@ fun MenuScreen(
                                             modifier = Modifier
                                                 .height(25.dp)
                                                 .width(25.dp)
-                                            //.clip(RoundedCornerShape(16.dp, 16.dp))
                                         )
                                         Text(
                                             text = (menu.rating).toString(),
@@ -530,7 +498,6 @@ fun MenuScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(200.dp)
-                        //.padding(vertical = 10.dp)
                         .horizontalScroll(rememberScrollState()),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start,
@@ -561,14 +528,14 @@ fun MenuScreen(
                                         .padding(dimensionResource(R.dimen.padding_small))
                                         .fillMaxSize()
                                 ) {
-                                    Image(
-                                        painter = painterResource(R.drawable.staricon),
-                                        contentDescription = menu.itemName,
-                                        contentScale = ContentScale.Crop,
+                                    DisplayImagesFromByteArray(
+                                        byteArray = menu.image,
                                         modifier = Modifier
-                                            .height(120.dp)
-                                            .fillMaxWidth()
                                             .clip(RoundedCornerShape(20.dp, 20.dp))
+                                            .fillMaxWidth()
+                                            .height(120.dp),
+                                        contentDescription = "",
+                                        contentScale = ContentScale.Crop
                                     )
                                     Text(
                                         text = menu.itemName,
@@ -576,7 +543,6 @@ fun MenuScreen(
                                         textAlign = TextAlign.Start
                                     )
                                     Row(
-                                        //modifier = Modifier
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.Center
                                     ) {
@@ -587,7 +553,6 @@ fun MenuScreen(
                                             modifier = Modifier
                                                 .height(25.dp)
                                                 .width(25.dp)
-                                            //.clip(RoundedCornerShape(16.dp, 16.dp))
                                         )
                                         Text(
                                             text = (menu.rating).toString(),
@@ -609,53 +574,6 @@ fun MenuScreen(
             }
         }
     }
-}
-
-
-
-@Composable
-fun MenuScreenSearchBar(
-    value: String,
-    onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        singleLine = true,
-        modifier = modifier
-            .padding(start = 5.dp, top = 10.dp, bottom = 10.dp, end = 20.dp)
-            .height(50.dp)
-            .clip(
-                shape = RoundedCornerShape(
-                    size = 20.dp,
-                ),
-            )
-            .background(color = Color.White)
-            .border(
-                BorderStroke(width = 1.dp, colorResource(R.color.primary)),
-                shape = RoundedCornerShape(
-                    size = 20.dp,
-                )
-            ),
-        shape = RoundedCornerShape(20.dp),
-        placeholder = {
-            Text(
-                text = "Search",
-                fontSize = 14.sp,
-                color = colorResource(id = R.color.black),
-                modifier = modifier
-                    .fillMaxSize()
-            )
-        },
-    )
-}
-
-private fun getMenu(
-    index: Int,
-    menus: List<MenuItem>
-): MenuItem {
-    return menus[index] // TODO
 }
 
 //@Preview(showBackground = true)

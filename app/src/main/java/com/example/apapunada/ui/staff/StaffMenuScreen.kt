@@ -4,6 +4,7 @@ import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -21,7 +22,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -76,13 +76,14 @@ import com.example.apapunada.data.dataclass.FoodDetails
 import com.example.apapunada.data.dataclass.MenuItem
 import com.example.apapunada.data.dataclass.NutritionFacts
 import com.example.apapunada.ui.AppViewModelProvider
+import com.example.apapunada.ui.components.DisplayImagesFromByteArray
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.SearchBar
 import com.example.apapunada.ui.components.formattedString
 import com.example.apapunada.ui.components.getEnumList
+import com.example.apapunada.ui.components.uriToByteArray
 import com.example.apapunada.viewmodel.Cuisine
 import com.example.apapunada.viewmodel.FoodDetailsState
-import com.example.apapunada.viewmodel.MenuItemState
 import com.example.apapunada.viewmodel.MenuItemViewModel
 import com.example.apapunada.viewmodel.MenuListState
 import com.example.apapunada.viewmodel.NutritionFactsState
@@ -107,6 +108,7 @@ fun StaffMenuScreen(
         }
     }
 
+    val context = LocalContext.current
 
     val dishCuisine = getEnumList(Cuisine::class.java)
 
@@ -119,14 +121,13 @@ fun StaffMenuScreen(
         Pair("Amount(RM)", 180.dp),
         Pair("Status", 160.dp),
         Pair("Action", 180.dp),
-
         )
+
     var openAddDishDialog by remember { mutableStateOf(false) }
     var openEditDishDialog by remember { mutableStateOf(false) }
     var openStatusDishDialog by remember { mutableStateOf(false) }
     var openDishDetailDialog by remember { mutableStateOf(false) }
 
-    var search by remember { mutableStateOf("") }
 
     var currentMenu by remember { mutableStateOf(MenuItem()) }
     val addMenu by remember { mutableStateOf(MenuItem()) }
@@ -185,7 +186,6 @@ fun StaffMenuScreen(
 
     if (openStatusDishDialog) {
         viewModel.loadMenuItemByMenuItemId(currentMenuItemId)
-        val menuItemsState = viewModel.menuItemState.collectAsState(initial = MenuItemState())
 
         ChangeDishStatusDialog(
             menu = currentMenu,
@@ -222,6 +222,7 @@ fun StaffMenuScreen(
         )
     }
 
+    var search by remember { mutableStateOf("") }
     var launchAll by remember { mutableStateOf(false) }
     var launchMenuItem by remember { mutableStateOf(false) }
     var isSearching by remember { mutableStateOf(false) }
@@ -245,7 +246,6 @@ fun StaffMenuScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = dimensionResource(R.dimen.padding_large))
-
     ) {
         Row(
             modifier = Modifier
@@ -260,14 +260,11 @@ fun StaffMenuScreen(
                 value = search,
                 onValueChange = {
                     search = it
-                    if(search.isNotEmpty()){
-                        isSearching = true
-                    }
-                    else{
-                        isSearching = false
-                    } },
+                    isSearching = search.isNotEmpty()
+                },
 
-                modifier = Modifier.padding(start = 20.dp)
+                modifier = Modifier
+                    .padding(start = 20.dp)
             )
             Column(
                 horizontalAlignment = Alignment.End,
@@ -406,21 +403,18 @@ fun StaffMenuScreen(
                                     .width(headerList[0].second)
                                     .padding(start = 10.dp)
                             )
-                            Image(
-                                painter = painterResource(R.drawable.steakpic), // TODO
-                                contentDescription = "",
+                            Column(
                                 modifier = Modifier
-                                    //.padding(12.dp)
                                     .width(headerList[1].second)
-                                    .fillMaxSize()
-                                    .size(
-                                        width = 50.dp,
-                                        height = 50.dp
-                                    ),
-                                contentScale = ContentScale.Fit,
-                                alignment = Alignment.CenterStart
-                            )
-
+                            ) {
+                                DisplayImagesFromByteArray(
+                                    byteArray = menu.image,
+                                    modifier = Modifier
+                                        .size(150.dp),
+                                    contentDescription = "",
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
                             Text(
                                 text = menu.itemName,
                                 fontSize = 22.sp,
@@ -627,35 +621,7 @@ fun StaffMenuScreen(
 
 }
 
-@Composable
-fun UploadAddDishImage(){
-    val imageUri = rememberSaveable { mutableStateOf("") }
-    val painter = rememberAsyncImagePainter(imageUri.value.ifEmpty { R.drawable.dishimage }
-    )
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) {uri: Uri? ->
-        uri?.let { imageUri.value = it.toString() }
-    }
 
-    Column(
-        modifier = Modifier
-    ){
-        Card(shape = CircleShape,
-            modifier = Modifier
-                //.padding(10.dp)
-                .size(70.dp)
-        ){
-            Image(
-                painter = painter,
-                contentDescription = null,
-                //contentScale = ContentScale.Crop,
-
-                modifier = Modifier.clickable { launcher.launch("image/*") }
-            )
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -682,7 +648,6 @@ fun AddDishDialog(
     var newDishSugar by remember { mutableStateOf("") }
 
 
-    var isUploadImage by remember { mutableStateOf(false) }
     val dialogTitle = "ADD NEW DISH"
 
     var expandedCuisine by remember { mutableStateOf(false) }
@@ -693,6 +658,16 @@ fun AddDishDialog(
     var selectedStatus by remember { mutableStateOf("") }
     val menuStatus = listOf("Active","Disabled","Deleted")
 
+    var newSelectedImageUri by remember { mutableStateOf<Uri>(Uri.EMPTY) }
+    val multiplePhotosPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri: Uri? ->
+            newSelectedImageUri = uri ?: Uri.EMPTY
+        }
+    )
+
+    val byteArray = uriToByteArray(context, newSelectedImageUri)
+    val nonNullableByteArray = byteArray?:ByteArray(0)
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
@@ -713,12 +688,22 @@ fun AddDishDialog(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 10.dp)
                 )
-                UploadAddDishImage()
+                DisplayImagesFromByteArray(
+                    byteArray = uriToByteArray(context, newSelectedImageUri),
+                    modifier = Modifier.size(150.dp),
+                    contentDescription = "",
+                    contentScale = ContentScale.Crop
+                )
                 Text(
                     text = "Upload Image",
                     fontSize = 18.sp,
                     modifier = Modifier
                         .padding(top = 12.dp)
+                        .clickable {
+                            multiplePhotosPickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        }
                 )
                 OutlinedTextField(//new dish name
                     value = newDishName,
@@ -992,6 +977,7 @@ fun AddDishDialog(
                         {
                             val newMenuItem = MenuItem(
                                 itemName = newDishName,
+                                image = nonNullableByteArray,
                                 description = newDishDescription,
                                 cuisine = newDishCuisine,
                                 rating = newDishRating.toDouble(),
@@ -1048,15 +1034,13 @@ fun EditDishDialog(
     var editDishSalt by remember { mutableStateOf(nutritionFacts.salt.toString()) }
     var editDishSugar by remember { mutableStateOf(nutritionFacts.sugar.toString()) }
 
-    if (foodDetails != null) {
-        editDishIngredient = foodDetails.ingredient
-        editDishServingSize = foodDetails.servingSize.toString()
-        editDishCarbohydrates = nutritionFacts.carbohydrates.toString()
-        editDishProtein = nutritionFacts.proteins.toString()
-        editDishFat = nutritionFacts.fats.toString()
-        editDishSalt = nutritionFacts.salt.toString()
-        editDishSugar = nutritionFacts.sugar.toString()
-    }
+    editDishIngredient = foodDetails.ingredient
+    editDishServingSize = foodDetails.servingSize.toString()
+    editDishCarbohydrates = nutritionFacts.carbohydrates.toString()
+    editDishProtein = nutritionFacts.proteins.toString()
+    editDishFat = nutritionFacts.fats.toString()
+    editDishSalt = nutritionFacts.salt.toString()
+    editDishSugar = nutritionFacts.sugar.toString()
 
     val dialogTitle = "EDIT DISH"
 
@@ -1071,11 +1055,17 @@ fun EditDishDialog(
     val imageUri = rememberSaveable { mutableStateOf("") }
     val painter = rememberAsyncImagePainter(imageUri.value.ifEmpty {menu.image }
     )
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) {uri: Uri? ->
-        uri?.let { imageUri.value = it.toString() }
-    }
+
+    var selectedImageUri by remember { mutableStateOf<Uri>(Uri.EMPTY) }
+    val multiplePhotosPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri: Uri? ->
+            selectedImageUri = uri ?: Uri.EMPTY
+        }
+    )
+
+    val byteArray = uriToByteArray(context, selectedImageUri)
+    val nonNullableByteArray = byteArray?:ByteArray(0)
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
@@ -1105,22 +1095,26 @@ fun EditDishDialog(
                             //.padding(10.dp)
                             .size(80.dp)
                     ){
-                        Image(
-                            painter = painter,
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-
-                            modifier = Modifier.clickable { launcher.launch("image/*") }
+                        DisplayImagesFromByteArray(
+                            byteArray = uriToByteArray(context, selectedImageUri),
+                            modifier = Modifier,
+                            contentDescription = "",
+                            contentScale = ContentScale.Crop
                         )
+
                     }
                 }
-                //UploadDishImage()
 
                 Text(
                     text = "Upload Image",
                     fontSize = 18.sp,
                     modifier = Modifier
                         .padding(top = 12.dp)
+                        .clickable {
+                            multiplePhotosPickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        }
                 )
 
                 OutlinedTextField(//edit dish name
@@ -1387,8 +1381,6 @@ fun EditDishDialog(
                         .padding(bottom = 20.dp)
                 )
 
-
-
                 // Buttons
                 Row(
                     horizontalArrangement = Arrangement.End,
@@ -1401,12 +1393,17 @@ fun EditDishDialog(
                     ) {
                         Text(text = "Cancel")
                     }
-
+                    //TODO
+                    //val tempByteArray = drawableResourceToByteArray(context, R.drawable.asamlaksa)
+                    //val tempNonNullableByteArray = tempByteArray?:ByteArray(0)
                     TextButton(
                         onClick =
                         {
+
                             val latestMenuItem = MenuItem(
                                 menuItemID = menu.menuItemID,
+                                image = nonNullableByteArray,
+                                //image  = tempNonNullableByteArray,
                                 itemName = editDishName,
                                 description = editDishDescription,
                                 cuisine = editDishCuisine,
@@ -1634,11 +1631,13 @@ fun DishDetailDialog(
                         .padding(top = 10.dp, bottom = 10.dp)
                 ) {
                     Column {
-                        Image(
-                            painter = painterResource(R.drawable.cabonarapastapic),
-                            contentDescription = "Dish Image",
+
+                        DisplayImagesFromByteArray(
+                            byteArray = menu.image,
                             modifier = Modifier
-                                .size(120.dp)
+                                .size(200.dp),
+                            contentDescription = "",
+                            contentScale = ContentScale.Crop
                         )
                     }
                 }

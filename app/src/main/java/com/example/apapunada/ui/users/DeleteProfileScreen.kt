@@ -61,9 +61,7 @@ fun DeleteProfileScreen(
     val userState = viewModel.userState.collectAsState(initial = UserState())
     viewModel.loadUserByUserId(3)
 
-    var user = userState.value.user
-
-    val currentUser by remember { mutableStateOf(User()) }
+    val user = userState.value.user
 
     if(openAlertDialog) {
         DeleteProfileAlertDialog(
@@ -248,7 +246,6 @@ fun DeleteProfileAlertDialog(
     //var userState = viewModel.userState.collectAsState(initial = UserState())
     //var user = userState.value.user
     val imageUrl = rememberSaveable{mutableStateOf(user.image)}
-    val deletedStatus = "Deleted"
 
     val context = LocalContext.current
     AlertDialog(

@@ -28,6 +28,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
@@ -39,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
 import com.example.apapunada.ui.AppViewModelProvider
+import com.example.apapunada.ui.components.DisplayImagesFromByteArray
 import com.example.apapunada.ui.components.MyTopTitleBar
 import com.example.apapunada.ui.components.formattedDate
 import com.example.apapunada.viewmodel.AuthViewModel
@@ -85,25 +87,37 @@ fun ProfileScreen(
                     verticalAlignment = Alignment.CenterVertically
 
                 ) {
-                    Image(//contain image
-                        painter = painterResource(R.drawable.profile_image),
-                        contentDescription = "Profile picture",
+                    DisplayImagesFromByteArray(
+                        byteArray = user.image,
                         modifier = Modifier
-                            //.fillMaxSize()
                             .size(
                                 width = 100.dp,
                                 height = 100.dp
                             )
                             .clip(CircleShape)
                             .padding(dimensionResource(R.dimen.padding_medium))
+                        ,
+                        contentDescription = "",
+                        contentScale = ContentScale.Crop
                     )
+//                    Image(//contain image
+//                        painter = painterResource(R.drawable.profile_image),
+//                        contentDescription = "Profile picture",
+//                        modifier = Modifier
+//                            //.fillMaxSize()
+//                            .size(
+//                                width = 100.dp,
+//                                height = 100.dp
+//                            )
+//                            .clip(CircleShape)
+//                            .padding(dimensionResource(R.dimen.padding_medium))
+//                    )
                     Column(//second column
                         modifier = Modifier
                             //.padding(top = 10.dp)
                             .width(210.dp)
                             .height(100.dp),
                         horizontalAlignment = Alignment.Start,
-                        //verticalArrangement = Arrangement.SpaceAround
                     ) {
                         Text(
                             text = user.username,
