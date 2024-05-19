@@ -53,6 +53,7 @@ import com.example.apapunada.R
 import com.example.apapunada.UserScreen
 import com.example.apapunada.data.dataclass.MenuItem
 import com.example.apapunada.ui.AppViewModelProvider
+import com.example.apapunada.ui.components.DisplayImagesFromByteArray
 import com.example.apapunada.ui.components.MyBottomNavBar
 import com.example.apapunada.ui.components.MyTopAppBar
 import com.example.apapunada.viewmodel.AuthViewModel
@@ -228,14 +229,15 @@ fun HomeScreen(
                                             .padding(dimensionResource(R.dimen.padding_small))
                                             .fillMaxSize()
                                     ) {
-                                        Image(
-                                            painter = painterResource(R.drawable.staricon), // TODO
-                                            contentDescription = "Food",
-                                            contentScale = ContentScale.Crop,
+                                        DisplayImagesFromByteArray(
+                                            byteArray = food.image,
+                                            contentDescription = "Food Image",
                                             modifier = Modifier
                                                 .height(110.dp)
                                                 .fillMaxWidth()
                                                 .clip(RoundedCornerShape(16.dp, 16.dp))
+                                            ,
+                                            contentScale = ContentScale.Crop
                                         )
 
                                         Text(

@@ -1,9 +1,11 @@
 package com.example.apapunada
 
 import android.app.Application
+import android.content.Context
 import com.example.apapunada.data.AppContainer
 import com.example.apapunada.data.AppDataContainer
 import com.example.apapunada.data.PrepopulateData
+import com.example.apapunada.ui.components.drawableResourceToByteArray
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -13,10 +15,12 @@ import kotlinx.coroutines.launch
 class ApaPunAdaApplication: Application() {
 
     lateinit var container: AppContainer
+    lateinit var context: Context
 
     override fun onCreate() {
         super.onCreate()
         container = AppDataContainer(this)
+        context = applicationContext
 
         initializeDatabase()
     }
@@ -34,7 +38,7 @@ class ApaPunAdaApplication: Application() {
         val waitlistRepository = container.waitlistRepository
 
         GlobalScope.launch(Dispatchers.IO) {
-            if (feedbackRepository.getAllFeedbacksStream().first().isEmpty()) {
+            if (userRepository.getAllUsersStream().first().isEmpty()) {
 
                 val initialUserList = PrepopulateData.users
                 val initialWaitlistList = PrepopulateData.waitlist
@@ -46,21 +50,31 @@ class ApaPunAdaApplication: Application() {
                 val initialOrderDetailsList = PrepopulateData.orderDetailsList
                 val initialVoucherList = PrepopulateData.voucherList
 
+                val initialMenuItemImageList = PrepopulateData.menuListImage
+
                 for(user in initialUserList) {
-                    userRepository.insertUser(user)
+                    userRepository.insertUser(user.copy(
+                        image = drawableResourceToByteArray(context, R.drawable.profile_image)!!
+                    ))
                 }
                 for(waitlist in initialWaitlistList) {
                     waitlistRepository.insertWaitlist(waitlist)
                 }
                 for(feedback in initialFeedbackList) {
-                    feedbackRepository.insertFeedback(feedback)
+                    feedbackRepository.insertFeedback(feedback.copy(
+                        images = drawableResourceToByteArray(context, R.drawable.chickenkatsu)!!
+                    ))
                 }
                 for(order in initialOrderList) {
                     orderRepository.insertOrder(order)
                 }
-                for(menuItem in initialMenuItemList) {
-                    menuItemRepository.insertMenuItem(menuItem)
+
+                initialMenuItemList.forEachIndexed { i, menuItem ->
+                    menuItemRepository.insertMenuItem(menuItem.copy(
+                        image = drawableResourceToByteArray(context, initialMenuItemImageList[i])!!
+                    ))
                 }
+
                 for(food in initialFoodDetailsList) {
                     foodDetailsRepository.insertFoodDetails(food)
                 }

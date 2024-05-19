@@ -1,5 +1,6 @@
 package com.example.apapunada.data
 
+import com.example.apapunada.R
 import com.example.apapunada.data.dataclass.Feedback
 import com.example.apapunada.data.dataclass.FoodDetails
 import com.example.apapunada.data.dataclass.MenuItem
@@ -504,6 +505,39 @@ object PrepopulateData {
         Voucher(image = "voucher_image_rm1.jpg", description = "RM1 Off", code = "VOUCHERRM1", value = 1.0, expiryDateTime = 1719705600000, status = "Active"),
         Voucher(image = "voucher_image_rm3.jpg", description = "RM3 Off", code = "VOUCHERRM3", value = 3.0, expiryDateTime = 1719705600000, status = "Active"),
         Voucher(image = "voucher_image_rm10.jpg", description = "RM10 Off", code = "VOUCHERRM10", value = 10.0, expiryDateTime = 1719705600000, status = "Active")
+    )
+
+    val menuListImage = listOf(
+        R.drawable.classiccheeseburger,
+        R.drawable.californiaroll,
+        R.drawable.bibimbap,
+        R.drawable.nasilemak,
+        R.drawable.tomyumsouppic,
+        R.drawable.latte,
+        R.drawable.bbqribs,
+        R.drawable.sushiplatter,
+        R.drawable.kimchifriedrice,
+        R.drawable.satay,
+        R.drawable.meerebus,
+        R.drawable.mangostickyrice,
+        R.drawable.kimchifriedrice,
+        R.drawable.chickenkatsu,
+        R.drawable.pineapplefriedrice,
+        R.drawable.greencurry,
+        R.drawable.prawnmee,
+        R.drawable.asamlaksa,
+        R.drawable.bakkutteh,
+        R.drawable.bubbletea,
+        R.drawable.spaghettiaglioolio,
+        R.drawable.tempuraplatter,
+        R.drawable.bulgogi,
+        R.drawable.roticanai,
+        R.drawable.greenpapayasalad,
+        R.drawable.lemontea,
+        R.drawable.tehtarik,
+        R.drawable.chawanmushi,
+        R.drawable.bibimnaengmyeon,
+        R.drawable.airbandung,
     )
 
 }
