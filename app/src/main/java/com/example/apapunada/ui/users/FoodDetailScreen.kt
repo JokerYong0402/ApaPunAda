@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
 import com.example.apapunada.ui.AppViewModelProvider
+import com.example.apapunada.ui.components.DisplayImagesFromByteArray
 import com.example.apapunada.ui.components.MyTopTitleBar
 import com.example.apapunada.ui.components.formattedString
 import com.example.apapunada.viewmodel.FoodDetailsState
@@ -115,20 +116,18 @@ fun FoodDetailScreen(
                     modifier = Modifier
                         .fillMaxSize()
                 ) {
-                    Image(
-                        painter = painterResource(R.drawable.apa_points),
-                        contentDescription = "",
-                        //contentScale = ContentScale.Crop,
+                    DisplayImagesFromByteArray(
+                        byteArray = menu.image,
                         modifier = Modifier
-                            .clip(RoundedCornerShape(20.dp, 20.dp))
                             .width(400.dp)
-                            .height(400.dp)
+                            .height(400.dp),
+                        contentDescription = "",
+                        contentScale = ContentScale.Crop
                     )
                 }
                     Column(
                         modifier = Modifier
                             .fillMaxWidth(),
-                            //.padding(vertical = 10.dp)
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
@@ -138,10 +137,6 @@ fun FoodDetailScreen(
                             ),
                             modifier = Modifier
                                 .fillMaxSize()
-                                /*.size(
-                                    250.dp,
-                                    150.dp
-                                )*/
                                 .padding(horizontal = 8.dp)
                                 .shadow(
                                     elevation = 15.dp,
@@ -166,7 +161,6 @@ fun FoodDetailScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 10.dp, vertical = 10.dp),
-                                //.horizontalScroll(rememberScrollState()),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceAround,
                             ){
@@ -194,22 +188,12 @@ fun FoodDetailScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.Center,
                                 ){
-                                    /*Image(
-                                        painter = painterResource(R.drawable.money_icon),
-                                        contentDescription = "",
-                                        alignment = Alignment.Center,
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier
-                                            .height(25.dp)
-                                            .width(25.dp)
-                                    )*/
                                     Text(//price
                                         text = "RM" + formattedString(menu.price),
                                         fontSize = 25.sp,
                                         textAlign = TextAlign.Center,
                                         fontWeight = FontWeight.Bold
                                     )
-
                                 }
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
@@ -238,7 +222,6 @@ fun FoodDetailScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 20.dp, vertical = 5.dp),
-                                //.horizontalScroll(rememberScrollState()),
                                 verticalAlignment = Alignment.Top,
                                 horizontalArrangement = Arrangement.Start,
                             ){

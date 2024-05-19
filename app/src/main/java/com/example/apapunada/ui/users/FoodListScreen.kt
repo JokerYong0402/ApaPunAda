@@ -44,6 +44,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
 import com.example.apapunada.data.dataclass.MenuItem
 import com.example.apapunada.ui.AppViewModelProvider
+import com.example.apapunada.ui.components.DisplayImagesFromByteArray
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.MyTopTitleBar
 import com.example.apapunada.viewmodel.MenuItemViewModel
@@ -144,15 +145,24 @@ fun FoodListScreen(
                                                 .padding(dimensionResource(R.dimen.padding_small))
                                                 .fillMaxSize()
                                         ) {
-                                            Image(
-                                                painter = painterResource(R.drawable.dishimage),
-                                                contentDescription = filteredFood[i].description,
-                                                contentScale = ContentScale.Crop,
+                                            DisplayImagesFromByteArray(
+                                                byteArray = filteredFood[i].image,
                                                 modifier = Modifier
-                                                    .height(120.dp)
-                                                    .fillMaxWidth()
                                                     .clip(RoundedCornerShape(20.dp, 20.dp))
+                                                    .fillMaxWidth()
+                                                    .height(120.dp),
+                                                contentDescription = "",
+                                                contentScale = ContentScale.Crop
                                             )
+//                                            Image(
+//                                                painter = painterResource(R.drawable.dishimage),
+//                                                contentDescription = filteredFood[i].description,
+//                                                contentScale = ContentScale.Crop,
+//                                                modifier = Modifier
+//                                                    .height(120.dp)
+//                                                    .fillMaxWidth()
+//                                                    .clip(RoundedCornerShape(20.dp, 20.dp))
+//                                            )
                                             Text(
                                                 text = filteredFood[i].itemName,
                                                 fontSize = 17.sp,
@@ -207,16 +217,16 @@ fun FoodListScreen(
                                                 .padding(dimensionResource(R.dimen.padding_small))
                                                 .fillMaxSize()
                                         ) {
-                                            Image(
-                                                painter = painterResource(R.drawable.dishimage),
-                                                contentDescription = "Beef Burger",
-                                                contentScale = ContentScale.Crop,
+                                            DisplayImagesFromByteArray(
+                                                byteArray = filteredFood[i + 1].image,
                                                 modifier = Modifier
-                                                    .height(120.dp)
-                                                    .fillMaxWidth()
-                                                    //.fillMaxSize()
                                                     .clip(RoundedCornerShape(20.dp, 20.dp))
+                                                    .fillMaxWidth()
+                                                    .height(120.dp),
+                                                contentDescription = "",
+                                                contentScale = ContentScale.Crop
                                             )
+
                                             Text(
                                                 text = filteredFood[i + 1].itemName,
                                                 fontSize = 17.sp,

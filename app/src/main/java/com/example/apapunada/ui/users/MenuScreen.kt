@@ -2,11 +2,9 @@ package com.example.apapunada.ui.users
 
 import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -48,12 +46,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
 import com.example.apapunada.data.dataclass.MenuItem
 import com.example.apapunada.ui.AppViewModelProvider
-import com.example.apapunada.ui.components.IndeterminateCircularIndicator
+import com.example.apapunada.ui.components.DisplayImagesFromByteArray
 import com.example.apapunada.ui.components.MyTopTitleBar
 import com.example.apapunada.viewmodel.MenuItemViewModel
 import com.example.apapunada.viewmodel.MenuListState
@@ -70,24 +67,20 @@ fun MenuScreen(
     var menus: List<MenuItem> = listOf()
 
     var currentDishId by remember { mutableIntStateOf(0) }
-    //var currentMenu by remember { mutableStateOf(MenuItem()) }
-
-    //viewModel.loadMenuItemByMenuItemId(currentDishId)
 
     viewModel.loadAllMenuItem()
 
-
     if (menuListState.value.isLoading) {
-        Box( modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Gray.copy(alpha = 0.5f))
-            .clickable { /* no action */ }
-            .zIndex(2f)
-            ,
-            contentAlignment = Alignment.Center
-        ) {
-            IndeterminateCircularIndicator()
-        }
+//        Box( modifier = Modifier
+//            .fillMaxSize()
+//            .background(Color.Gray.copy(alpha = 0.5f))
+//            .clickable { /* no action */ }
+//            .zIndex(2f)
+//            ,
+//            contentAlignment = Alignment.Center
+//        ) {
+//            IndeterminateCircularIndicator()
+//        }
     } else {
         if (menuListState.value.errorMessage.isNotEmpty()) {
             Text(text = "Error loading menus: ${menuListState.value.errorMessage}")
@@ -289,9 +282,7 @@ fun MenuScreen(
                             color = colorResource(R.color.primary),
                             fontSize = 15.sp,
                             textAlign = TextAlign.End
-
                         )
-
                     }
                 }
 
@@ -331,15 +322,16 @@ fun MenuScreen(
                                         .padding(dimensionResource(R.dimen.padding_small))
                                         .fillMaxSize()
                                 ) {
-                                    Image(
-                                        painter = painterResource(R.drawable.staricon),
-                                        contentDescription = "Beef Burger",
-                                        contentScale = ContentScale.Crop,
+                                    DisplayImagesFromByteArray(
+                                        byteArray = menu.image,
                                         modifier = Modifier
-                                            .height(120.dp)
-                                            .fillMaxWidth()
                                             .clip(RoundedCornerShape(20.dp, 20.dp))
+                                            .fillMaxWidth()
+                                            .height(120.dp),
+                                        contentDescription = "",
+                                        contentScale = ContentScale.Crop
                                     )
+
                                     Text(
                                         text = menu.itemName,
                                         fontSize = 14.sp,
@@ -429,16 +421,16 @@ fun MenuScreen(
                                         .padding(dimensionResource(R.dimen.padding_small))
                                         .fillMaxSize()
                                 ) {
-                                    Image(
-                                        painter = painterResource(R.drawable.staricon),
-                                        contentDescription = "Beef Burger",
-                                        contentScale = ContentScale.Crop,
+                                    DisplayImagesFromByteArray(
+                                        byteArray = menu.image,
                                         modifier = Modifier
-                                            .height(120.dp)
-                                            .fillMaxWidth()
-                                            //.fillMaxSize()
                                             .clip(RoundedCornerShape(20.dp, 20.dp))
+                                            .fillMaxWidth()
+                                            .height(120.dp),
+                                        contentDescription = "",
+                                        contentScale = ContentScale.Crop
                                     )
+
                                     Text(
                                         text = menu.itemName,
                                         fontSize = 17.sp,
@@ -536,14 +528,14 @@ fun MenuScreen(
                                         .padding(dimensionResource(R.dimen.padding_small))
                                         .fillMaxSize()
                                 ) {
-                                    Image(
-                                        painter = painterResource(R.drawable.staricon),
-                                        contentDescription = menu.itemName,
-                                        contentScale = ContentScale.Crop,
+                                    DisplayImagesFromByteArray(
+                                        byteArray = menu.image,
                                         modifier = Modifier
-                                            .height(120.dp)
-                                            .fillMaxWidth()
                                             .clip(RoundedCornerShape(20.dp, 20.dp))
+                                            .fillMaxWidth()
+                                            .height(120.dp),
+                                        contentDescription = "",
+                                        contentScale = ContentScale.Crop
                                     )
                                     Text(
                                         text = menu.itemName,
