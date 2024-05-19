@@ -413,7 +413,7 @@ fun SignUpScreen(
                                         append("Terms & Conditions")
                                     }
                                 },
-                                modifier = Modifier.clickable { /*TODO Navigate to tnc*/ }
+                                modifier = Modifier.clickable {  }
                             )
                         }
 

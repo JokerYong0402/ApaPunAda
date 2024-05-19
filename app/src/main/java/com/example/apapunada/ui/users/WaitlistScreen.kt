@@ -1,8 +1,6 @@
 package com.example.apapunada.ui.users
 
-import android.os.CountDownTimer
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,9 +19,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -31,7 +27,6 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -43,19 +38,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
-import com.example.apapunada.data.PrepopulateData
 import com.example.apapunada.data.dataclass.Waitlist
 import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
@@ -64,8 +56,6 @@ import com.example.apapunada.ui.components.PopupWindowAlert
 import com.example.apapunada.ui.components.PopupWindowDialog
 import com.example.apapunada.viewmodel.AuthViewModel
 import com.example.apapunada.viewmodel.WaitlistIDState
-import com.example.apapunada.viewmodel.WaitlistListState
-import com.example.apapunada.viewmodel.WaitlistState
 import com.example.apapunada.viewmodel.WaitlistViewModel
 import com.example.apapunada.viewmodel.WaitlistWithUsername
 import com.example.apapunada.viewmodel.WaitlistWithUsernameState
@@ -152,14 +142,26 @@ fun WaitlistScreen(
                         }
                         else if (checkJoin) {
                             Text(
-                                text = stringResource(id = R.string.waitlist_9) + authViewModel.userState.value.user.username,
-                                fontSize = 65.sp,
+                                text = stringResource(id = R.string.waitlist_9),
+                                fontSize = 60.sp,
+                                lineHeight = 65.sp,
+                                color = colorResource(R.color.primary)
+                            )
+                            Text(
+                                text = authViewModel.userState.value.user.username,
+                                fontSize = 60.sp,
                                 lineHeight = 65.sp,
                                 color = colorResource(R.color.primary)
                             )
                         } else if (!checkJoin) {
                             Text(
-                                text = stringResource(id = R.string.waitlist_1) + authViewModel.userState.value.user.username,
+                                text = stringResource(id = R.string.waitlist_1),
+                                fontSize = 65.sp,
+                                lineHeight = 65.sp,
+                                color = colorResource(R.color.primary)
+                            )
+                            Text(
+                                text = authViewModel.userState.value.user.username,
                                 fontSize = 65.sp,
                                 lineHeight = 65.sp,
                                 color = colorResource(R.color.primary)

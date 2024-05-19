@@ -33,7 +33,7 @@
     <string name="waitlist_3">LIVE</string>
     <string name="waitlist_4">in queue</string>
     <string name="waitlist_5">Note* : </string>
-    <string name="waitlist_6">You are required to arrive to our restaurant within 5 minutes when your table is ready.</string>
+    <string name="waitlist_6">You are required to arrive to our restaurant within 5 minutes when your table is ready. \nDo NOT quit this page when you are in the queue.</string>
     <string name="waitlist_7">Join the waitlist now</string>
     <string name="waitlist_8">Are you sure you want to quit?</string>
     <string name="waitlist_9">Thank you, </string>
