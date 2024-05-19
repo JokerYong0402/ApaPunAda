@@ -30,6 +30,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,8 +50,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
+import com.example.apapunada.data.dataclass.MenuItem
 import com.example.apapunada.data.dataclass.Order
+import com.example.apapunada.data.dataclass.OrderDetails
 import com.example.apapunada.ui.AppViewModelProvider
+import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.MyAlertDialog
 import com.example.apapunada.ui.components.MyBottomButton
 import com.example.apapunada.ui.components.MyTopTitleBar
@@ -59,7 +63,10 @@ import com.example.apapunada.ui.components.getEnumList
 import com.example.apapunada.viewmodel.Cuisine
 import com.example.apapunada.viewmodel.MenuItemViewModel
 import com.example.apapunada.viewmodel.OrderViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun OrderMenuScreen(
@@ -83,12 +90,31 @@ fun OrderMenuScreen(
 
     // load orderDetails to get number and calculate subtotal
     orderViewModel.loadOrderDetailsByOrderId(orderID)
-    val orderDetailsList = orderViewModel.orderDetailsListState.value.orderDetails
+    var orderDetailsList by remember { mutableStateOf(listOf(OrderDetails())) }
     var detailsNumber = orderViewModel.calculateDetailsNumber(orderDetailsList)
     val detailsAmount = orderViewModel.calculateOrderSubtotal(orderDetailsList)
 
-    menuViewModel.loadAllMenuItem() // TODO load only active
-    val orderMenu = menuViewModel.menuListState.value.menuItemList
+    menuViewModel.loadAllMenuItem()
+    var orderMenu by remember { mutableStateOf(listOf(MenuItem())) }
+
+    var isLoading by remember { mutableStateOf(true) }
+    if (isLoading) {
+        IndeterminateCircularIndicator("Loading...")
+    }
+
+    LaunchedEffect(Unit) {
+        launch {
+            delay(2000)
+            withContext(Dispatchers.Main) {
+                isLoading = false
+
+                orderDetailsList = orderViewModel.orderDetailsListState.value.orderDetails
+
+                orderMenu = menuViewModel.menuListState.value.menuItemList
+                orderMenu = orderMenu.filter { it.status == "Active" }
+            }
+        }
+    }
 
     var back by remember { mutableStateOf(false) }
     if (back) {
@@ -179,7 +205,7 @@ fun OrderMenuScreen(
                                 selected = true,
                                 onClick = {
                                     coroutineScope.launch {
-                                              scrollState.animateScrollTo(300)
+                                              scrollState.animateScrollTo(1000)
                                               /*TODO*/
                                           }
                                 },

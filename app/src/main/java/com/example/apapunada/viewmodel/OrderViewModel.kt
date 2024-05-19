@@ -268,13 +268,11 @@ class OrderViewModel(
         return subtotal
     }
 
-    fun calculateOrderTotal(details: List<OrderDetails>): Double {
+    fun calculateOrderTotal(orders: List<Order>): Double {
         var total: Double = 0.0
-        for (detail in details) {
-            total += detail.total
+        for (order in orders) {
+            total += order.amount
         }
-        //tax
-        //delivery fees
         return total
     }
 

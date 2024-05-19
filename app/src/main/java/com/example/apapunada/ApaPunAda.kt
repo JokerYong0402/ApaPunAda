@@ -67,6 +67,7 @@ import com.example.apapunada.ui.staff.StaffUserScreen
 import com.example.apapunada.ui.staff.StaffWaitlistScreen
 import com.example.apapunada.ui.users.AboutUsScreen
 import com.example.apapunada.ui.users.DeleteProfileScreen
+import com.example.apapunada.ui.users.FAQScreen
 import com.example.apapunada.ui.users.FeedbackScreen
 import com.example.apapunada.ui.users.FeedbackSuccessScreen
 import com.example.apapunada.ui.users.FoodDetailScreen
@@ -447,7 +448,7 @@ fun ApaPunAdaApp(
                     composable(MenuNav.FoodDetail.name) {
                         FoodDetailScreen(
                             onBackButtonClicked = { navController.navigateUp() },
-                            onOrder = { navController.navigate(UserScreen.Order.name) },
+                            onOrder = { navController.navigate("Ordering") },
                             currentDishId = menuId
                         )
                     }
@@ -492,7 +493,9 @@ fun ApaPunAdaApp(
 
                 // More: Faq
                 composable(MoreScreen.Faq.name) {
-                    MoreScreen(navController = navController, authViewModel = authViewModel)
+                    FAQScreen (
+                        onBackClicked = { navController.navigateUp() }
+                    )
                 }
 
                 // More: Tnc

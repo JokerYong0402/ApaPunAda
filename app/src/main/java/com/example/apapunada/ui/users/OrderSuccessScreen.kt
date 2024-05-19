@@ -245,9 +245,7 @@ fun OrderSuccessScreen(
                         Spacer(modifier = Modifier.width(10.dp))
 
                         Text(
-                            text = "RM " + formattedString(total), // TODO
-                            // calculate total in viewmodel
-                            // assign to point also
+                            text = "RM " + formattedString(total),
                             fontSize = 20.sp,
                             color = Color(0xFF0e642a),
                             fontWeight = FontWeight.Bold

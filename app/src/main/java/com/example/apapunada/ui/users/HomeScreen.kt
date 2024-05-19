@@ -220,7 +220,7 @@ fun HomeScreen(
                                             elevation = 15.dp,
                                             spotColor = primaryColor,
                                         )
-                                        .clickable(enabled = false) {}
+                                        .clickable { navController.navigate("UserMenu") }
                                 ) {
                                     Column(
                                         verticalArrangement = Arrangement.SpaceBetween,

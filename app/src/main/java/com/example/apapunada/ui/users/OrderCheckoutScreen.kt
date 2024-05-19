@@ -151,7 +151,8 @@ fun OrderCheckoutScreen(
 
     total = subtotal + fees.second - discount
 
-    val points by remember { mutableStateOf(floor(total).toInt()) }
+    var points by remember { mutableStateOf(floor(total).toInt()) }
+    points = floor(total).toInt()
 
     val datetime = System.currentTimeMillis()
 
@@ -392,7 +393,7 @@ fun OrderCheckoutScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(40.dp)
+                                .height(50.dp)
                                 .background(
                                     colorResource(R.color.primary_200),
                                     RoundedCornerShape(10.dp)
@@ -548,7 +549,7 @@ fun OrderCheckoutScreen(
                                     fontSize = 20.sp
                                 )
                                 Text(
-                                    text = "(${points.toInt()} Points Earned)",
+                                    text = "(${points} Points Earned)",
                                     fontWeight = FontWeight.Light,
                                     fontSize = 13.sp
                                 )
