@@ -37,6 +37,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -71,6 +72,7 @@ import com.example.apapunada.data.dataclass.Feedback
 import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.DisplayImagesFromByteArray
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
+import com.example.apapunada.ui.components.MyTopTitleBar
 import com.example.apapunada.ui.components.PopupWindowAlert
 import com.example.apapunada.ui.components.PopupWindowDialog
 import com.example.apapunada.ui.components.drawableResourceToByteArray
@@ -79,17 +81,14 @@ import com.example.apapunada.viewmodel.AuthViewModel
 import com.example.apapunada.viewmodel.FeedbackListState
 import com.example.apapunada.viewmodel.FeedbackViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedbackScreen(
     onSubmit: () -> Unit,
     onBackClicked: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: FeedbackViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: FeedbackViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    authViewModel: AuthViewModel
 ) {
-    //TODO hardcode user
-    var user = PrepopulateData.users[0]
-
     var feedbackListState =
         viewModel.feedbackListState.collectAsState(initial = FeedbackListState())
     var feedbacks: List<Feedback> = listOf()
@@ -155,28 +154,21 @@ fun FeedbackScreen(
     var callPopupWindowAlert by remember { mutableStateOf(false) }
 
     if (callPopupWindowDialog) {
-        //val byteArrays: MutableList<ByteArray?> = mutableListOf()
         val byteArray = uriToByteArray(context, selectedImageUri)
         val nonNullableByteArray = byteArray ?: ByteArray(0)
         PopupWindowDialog(
             onDismissRequest = { callPopupWindowDialog = false },
             onConfirmation = {
-//                for (selectedImageUri in selectedImageUris) {
-//                    byteArrays.add(uriToByteArray(context, selectedImageUri))
-//                }
                 viewModel.updateFeedbackState(
                     Feedback(
-                        //TODO
-                        userID = 1,
+                        userID = authViewModel.userState.value.user.userID,
                         star = star,
                         category = selectedOption,
-//                        images = selectedImageUris.toString(),TODO
                         images = nonNullableByteArray,
                         comments = textInput
                     )
                 )
                 viewModel.saveFeedback()
-                //TODO navigation
                 onSubmit()
             },
             dialogTitle = stringResource(id = R.string.feedback_9),
@@ -257,295 +249,260 @@ fun FeedbackScreen(
         else -> R.drawable.feedback1
     }
     //surface is to make it scrollable
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-    ) {
-        Column(
-            modifier = modifier
-                .fillMaxSize(),
-
-            ) {
-            TopAppBar(
-                modifier = modifier
-                    .shadow(2.dp),
-                title = {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-
-                            //.contentAlignment(Alignment.Center) // Centers horizontally
-                            .padding(
-                                top = 8.dp,
-                                bottom = 8.dp
-                            )
-                    ) {
-                        Text(text = stringResource(R.string.feedback))
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBackClicked ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back_button)
-                        )
-                    }
-                }
-            )
+    Scaffold(
+        topBar = { MyTopTitleBar(title = stringResource(R.string.feedback),onBackClicked) }
+    ) { innerPadding ->
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = stringResource(R.string.feedback_1),
-                    fontSize = 25.sp,
-                    color = colorResource(R.color.primary),
-                )
-                Text(
-                    text = stringResource(R.string.feedback_2),
-                    fontSize = 16.sp,
-                    color = colorResource(R.color.black)
-                )
-            }
-            Row(
-                horizontalArrangement = Arrangement.Center,
                 modifier = modifier
-                    .fillMaxWidth()
-            ) {
-                Image(
-                    painter = painterResource(id = imageResource1),
-                    contentDescription = "1",
-                    modifier = Modifier
-                        .size(
-                            width = 60.dp,
-                            height = 60.dp
-                        )
-                        .clickable(
-                            onClick = {
-                                star = 1
-                            }
-                        )
-                )
-                Image(
-                    painter = painterResource(id = imageResource2),
-                    contentDescription = "1",
-                    modifier = Modifier
-                        .size(
-                            width = 60.dp,
-                            height = 60.dp
-                        )
-                        .clickable(
-                            onClick = {
-                                star = 2
-                            }
-                        )
-                )
-                Image(
-                    painter = painterResource(id = imageResource3),
-                    contentDescription = "1",
-                    modifier = Modifier
-                        .size(
-                            width = 60.dp,
-                            height = 60.dp
-                        )
-                        .clickable(
-                            onClick = {
-                                star = 3
-                            }
-                        )
-                )
-                Image(
-                    painter = painterResource(id = imageResource4),
-                    contentDescription = "1",
-                    modifier = Modifier
-                        .size(
-                            width = 60.dp,
-                            height = 60.dp
-                        )
-                        .clickable(
-                            onClick = {
-                                star = 4
-                            }
-                        )
-                )
-                Image(
-                    painter = painterResource(id = imageResource5),
-                    contentDescription = "1",
-                    modifier = Modifier
-                        .size(
-                            width = 60.dp,
-                            height = 60.dp
-                        )
-                        .clickable(
-                            onClick = {
-                                star = 5
-                            }
-                        )
-                )
-            }
-            Divider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 25.dp, bottom = 40.dp)
-            )
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = stringResource(R.string.feedback_3),
-                    fontSize = 15.sp,
-                    color = colorResource(R.color.black),
-                    modifier = modifier
-                        .padding(bottom = 10.dp)
-                )
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = modifier
-                        .fillMaxWidth()
+                    .fillMaxSize()
+                    .padding(innerPadding),
+
                 ) {
-                    options1.forEach { text ->
-                        Row(
-                            modifier = Modifier
-                                .padding(
-                                    all = 4.dp,
-                                )
-                                .shadow(
-                                    elevation = 10.dp
-                                ),
-                        ) {
-                            Text(
-                                text = text,
-                                textAlign = TextAlign.Center,
-                                color = if (text == selectedOption) {
-                                    Color.White
-                                } else {
-                                    primaryColor
-                                },
-                                modifier = Modifier
-                                    .clip(
-                                        shape = RoundedCornerShape(
-                                            size = 12.dp,
-                                        ),
-                                    )
-                                    .clickable {
-                                        onSelectionChange(text)
-                                    }
-                                    .background(
-                                        if (text == selectedOption) {
-                                            primaryColor
-                                        } else {
-                                            primary100Color
-                                        }
-                                    )
-                                    .padding(
-                                        vertical = 12.dp,
-                                        horizontal = 16.dp,
-                                    )
-                                    .widthIn(
-                                        min = 90.dp
-                                    )
-                            )
-                        }
-                    }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(R.string.feedback_1),
+                        fontSize = 25.sp,
+                        color = colorResource(R.color.primary),
+                    )
+                    Text(
+                        text = stringResource(R.string.feedback_2),
+                        fontSize = 16.sp,
+                        color = colorResource(R.color.black)
+                    )
                 }
                 Row(
                     horizontalArrangement = Arrangement.Center,
                     modifier = modifier
                         .fillMaxWidth()
                 ) {
-                    options2.forEach { text ->
-                        Row(
-                            modifier = Modifier
-                                .padding(
-                                    all = 4.dp,
-                                )
-                                .shadow(
-                                    elevation = 10.dp
-                                ),
-                        ) {
-                            Text(
-                                text = text,
-                                textAlign = TextAlign.Center,
-                                color = if (text == selectedOption) {
-                                    Color.White
-                                } else {
-                                    primaryColor
-                                },
-                                modifier = Modifier
-                                    .clip(
-                                        shape = RoundedCornerShape(
-                                            size = 12.dp,
-                                        ),
-                                    )
-                                    .clickable {
-                                        onSelectionChange(text)
-                                    }
-                                    .background(
-                                        if (text == selectedOption) {
-                                            primaryColor
-                                        } else {
-                                            primary100Color
-                                        }
-                                    )
-                                    .padding(
-                                        vertical = 12.dp,
-                                        horizontal = 16.dp,
-                                    )
-                                    .widthIn(
-                                        min = 90.dp
-                                    )
-                            )
-                        }
-                    }
-                }
-            }
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                Text(
-                    text = stringResource(id = R.string.feedback_4),
-                    textAlign = TextAlign.Start,
-                    modifier = modifier
-                        .padding(top = 50.dp, start = 30.dp)
-                )
-                Row {
-//                    DisplayImagesFromByteArray(
-//                        byteArray = drawableResourceToByteArray(context, R.drawable.feedback7),
-//                        modifier = Modifier
-//                            .size(
-//                                width = 82.dp,
-//                                height = 67.dp
-//                            )
-//                            .padding(start = 10.dp, top = 2.dp)
-//                            .border(BorderStroke(1.dp, colorResource(id = R.color.primary))),
-//                        contentDescription = "Image",
-//                        contentScale = ContentScale.FillBounds
-//                    )
                     Image(
-                        painter = painterResource(id = R.drawable.feedback3),
-                        contentDescription = "1",
+                        painter = painterResource(id = imageResource1),
+                        contentDescription = "star1",
                         modifier = Modifier
                             .size(
-                                width = 100.dp,
-                                height = 70.dp
+                                width = 60.dp,
+                                height = 60.dp
                             )
                             .clickable(
                                 onClick = {
-                                    multiplePhotosPickerLauncher.launch(
-                                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                                    )
+                                    star = 1
                                 }
                             )
-                            .padding(start = 30.dp)
+                    )
+                    Image(
+                        painter = painterResource(id = imageResource2),
+                        contentDescription = "star2",
+                        modifier = Modifier
+                            .size(
+                                width = 60.dp,
+                                height = 60.dp
+                            )
+                            .clickable(
+                                onClick = {
+                                    star = 2
+                                }
+                            )
+                    )
+                    Image(
+                        painter = painterResource(id = imageResource3),
+                        contentDescription = "star3",
+                        modifier = Modifier
+                            .size(
+                                width = 60.dp,
+                                height = 60.dp
+                            )
+                            .clickable(
+                                onClick = {
+                                    star = 3
+                                }
+                            )
+                    )
+                    Image(
+                        painter = painterResource(id = imageResource4),
+                        contentDescription = "star4",
+                        modifier = Modifier
+                            .size(
+                                width = 60.dp,
+                                height = 60.dp
+                            )
+                            .clickable(
+                                onClick = {
+                                    star = 4
+                                }
+                            )
+                    )
+                    Image(
+                        painter = painterResource(id = imageResource5),
+                        contentDescription = "star5",
+                        modifier = Modifier
+                            .size(
+                                width = 60.dp,
+                                height = 60.dp
+                            )
+                            .clickable(
+                                onClick = {
+                                    star = 5
+                                }
+                            )
+                    )
+                }
+                Divider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 25.dp, bottom = 40.dp)
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(R.string.feedback_3),
+                        fontSize = 15.sp,
+                        color = colorResource(R.color.black),
+                        modifier = modifier
+                            .padding(bottom = 10.dp)
+                    )
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = modifier
+                            .fillMaxWidth()
+                    ) {
+                        options1.forEach { text ->
+                            Row(
+                                modifier = Modifier
+                                    .padding(
+                                        all = 4.dp,
+                                    )
+                                    .shadow(
+                                        elevation = 10.dp
+                                    ),
+                            ) {
+                                Text(
+                                    text = text,
+                                    textAlign = TextAlign.Center,
+                                    color = if (text == selectedOption) {
+                                        Color.White
+                                    } else {
+                                        primaryColor
+                                    },
+                                    modifier = Modifier
+                                        .clip(
+                                            shape = RoundedCornerShape(
+                                                size = 12.dp,
+                                            ),
+                                        )
+                                        .clickable {
+                                            onSelectionChange(text)
+                                        }
+                                        .background(
+                                            if (text == selectedOption) {
+                                                primaryColor
+                                            } else {
+                                                primary100Color
+                                            }
+                                        )
+                                        .padding(
+                                            vertical = 12.dp,
+                                            horizontal = 16.dp,
+                                        )
+                                        .widthIn(
+                                            min = 90.dp
+                                        )
+                                )
+                            }
+                        }
+                    }
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = modifier
+                            .fillMaxWidth()
+                    ) {
+                        options2.forEach { text ->
+                            Row(
+                                modifier = Modifier
+                                    .padding(
+                                        all = 4.dp,
+                                    )
+                                    .shadow(
+                                        elevation = 10.dp
+                                    ),
+                            ) {
+                                Text(
+                                    text = text,
+                                    textAlign = TextAlign.Center,
+                                    color = if (text == selectedOption) {
+                                        Color.White
+                                    } else {
+                                        primaryColor
+                                    },
+                                    modifier = Modifier
+                                        .clip(
+                                            shape = RoundedCornerShape(
+                                                size = 12.dp,
+                                            ),
+                                        )
+                                        .clickable {
+                                            onSelectionChange(text)
+                                        }
+                                        .background(
+                                            if (text == selectedOption) {
+                                                primaryColor
+                                            } else {
+                                                primary100Color
+                                            }
+                                        )
+                                        .padding(
+                                            vertical = 12.dp,
+                                            horizontal = 16.dp,
+                                        )
+                                        .widthIn(
+                                            min = 90.dp
+                                        )
+                                )
+                            }
+                        }
+                    }
+                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.feedback_4),
+                        textAlign = TextAlign.Start,
+                        modifier = modifier
+                            .padding(top = 50.dp, start = 30.dp)
                     )
                     Row {
-                        if (selectedImageUri != Uri.EMPTY) {
+                        Image(
+                            painter = painterResource(id = R.drawable.feedback3),
+                            contentDescription = "1",
+                            modifier = Modifier
+                                .size(
+                                    width = 100.dp,
+                                    height = 70.dp
+                                )
+                                .clickable(
+                                    onClick = {
+                                        multiplePhotosPickerLauncher.launch(
+                                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                        )
+                                    }
+                                )
+                                .padding(start = 30.dp)
+                        )
+                        Row {
                             DisplayImagesFromByteArray(
                                 byteArray = uriToByteArray(context = context, selectedImageUri),
                                 modifier = Modifier
@@ -564,52 +521,48 @@ fun FeedbackScreen(
                                 contentScale = ContentScale.FillBounds
                             )
                         }
-
-//                        items(selectedImageUris){selectedImageUri->
-//
-//                        }
                     }
                 }
-            }
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
-            {
-                EditTextField(
-                    value = textInput,
-                    onValueChange = { textInput = it },
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
                 )
-            }
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                Divider(
+                {
+                    EditTextField(
+                        value = textInput,
+                        onValueChange = { textInput = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 30.dp, bottom = 8.dp)
-                )
-                Button(
-
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = primaryColor
-                    ),
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = modifier
-                        .widthIn(min = 300.dp)
-                        .align(Alignment.CenterHorizontally),
-                    onClick = {
-                        if (selectedOption == "") {
-                            callPopupWindowAlert = true
-                        } else {
-                            callPopupWindowDialog = true
-                        }
-                    }
                 ) {
-                    Text(text = "Submit")
+                    Divider(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 30.dp, bottom = 8.dp)
+                    )
+                    Button(
+
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = primaryColor
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = modifier
+                            .widthIn(min = 300.dp)
+                            .align(Alignment.CenterHorizontally),
+                        onClick = {
+                            if (selectedOption == "") {
+                                callPopupWindowAlert = true
+                            } else {
+                                callPopupWindowDialog = true
+                            }
+                        }
+                    ) {
+                        Text(text = "Submit")
+                    }
                 }
             }
         }

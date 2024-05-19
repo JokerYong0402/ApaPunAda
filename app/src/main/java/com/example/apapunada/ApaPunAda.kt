@@ -461,7 +461,8 @@ fun ApaPunAdaApp(
                     composable(FeedbackNav.Feedback.name){
                         FeedbackScreen(
                             onSubmit = { navController.navigate(FeedbackNav.FeedbackSuccess.name)},
-                            onBackClicked = { navController.navigate("UserMore") }
+                            onBackClicked = { navController.navigate("UserMore") },
+                            authViewModel = authViewModel
                         )
                     }
 

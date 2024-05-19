@@ -62,26 +62,7 @@ fun StaffFeedbackScreen(
     val feedbackListState = viewModel.feedbackListState.collectAsState(initial = FeedbackListState())
     var feedbacks: List<Feedback> = listOf()
 
-    //viewModel.deleteFeedback()
-//    for (id in 53 .. 102){
-//        Log.i("Feedback","11 is goin to be delete")
-//        viewModel.updateFeedbackState(
-//            Feedback(
-//                //TODO
-//                feedbackID = id,
-//                userID = id,
-//                star = 0,
-//                category = "",
-//                images = ByteArray(0),
-//                comments = ""
-//            )
-//        )
-//        viewModel.deleteFeedback()
-//        Log.i("Feedback","11 is deleted")
-//    }
-
     var selectField by remember { mutableStateOf("Field") }
-    val context = LocalContext.current
     var textInput by remember { mutableStateOf("") }
 
     if (textInput == "") {
@@ -108,10 +89,6 @@ fun StaffFeedbackScreen(
         Pair("Images", 270.dp),
         Pair("Comments", 350.dp)
     )
-
-    //TODO delete
-    var image = "content://media/picker/0/com.android.providers.media.photopicker/media/100000042,https://www.sidechef.com/recipe/bf2ae123-0553-4605-a564-e790d69d29fb.jpg?d=1408x1120,https://images.deliveryhero.io/image/foodpanda/recipes/chicken-chop-recipe-1.jpg"
-    var images = image.split(",")
 
     val fieldList = listOf(
         "Party",
@@ -170,7 +147,6 @@ fun StaffFeedbackScreen(
                     }
                 }
             }
-
             items(feedbacks.size) { i ->
                 val feedback = feedbacks[i]
 
@@ -180,7 +156,6 @@ fun StaffFeedbackScreen(
                 do {
                     user = userViewModel.userState.value.user
                 } while (user.userID != feedback.userID)
-
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -236,35 +211,6 @@ fun StaffFeedbackScreen(
                             contentScale = ContentScale.FillBounds
                         )
                     }
-                    //TODO delete below and uncomment above
-//                    Row(
-//                        modifier = Modifier
-//                            .width(headerList[4].second)
-//                    ){
-//                        images.forEach { imageUrl ->
-//                            Column {
-//                                AsyncImage(
-//                                    modifier = Modifier
-//                                        .size(
-//                                            width = 85.dp,
-//                                            height = 70.dp
-//                                        )
-//                                        .padding(end = 10.dp)
-//                                        .border(
-//                                            BorderStroke(
-//                                                1.dp,
-//                                                colorResource(id = R.color.primary)
-//                                            )
-//                                        ),
-//                                    model = imageUrl,
-//                                    contentDescription = "testing",
-//                                    contentScale = ContentScale.FillBounds
-//                                )
-//                            }
-//                        }
-//
-//                    }
-
                     Text(
                         text = feedback.comments,
                         fontSize = 22.sp,

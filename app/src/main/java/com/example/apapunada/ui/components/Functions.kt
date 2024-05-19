@@ -340,11 +340,6 @@ fun DisplayImagesFromByteArray(
                 modifier = modifier
             )
         }
-    } else {
-        Text(
-            text = "No image available",
-            modifier = modifier
-        )
     }
 }
 
