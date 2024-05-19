@@ -1,5 +1,6 @@
 package com.example.apapunada.ui.users
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -38,7 +39,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.apapunada.R
+import com.example.apapunada.UserScreen
 import com.example.apapunada.data.dataclass.MenuItem
 import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.MyBottomNavBar
@@ -69,7 +70,6 @@ fun HomeScreen(
     menuItemViewModel: MenuItemViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
 
-    val density = LocalDensity.current
     val primaryColor = colorResource(R.color.primary)
 
     menuItemViewModel.loadAllMenuItem()
@@ -78,9 +78,9 @@ fun HomeScreen(
     var imgPager by remember { mutableStateOf(1) }
 
     val imageRes = when(imgPager){
-        1 -> R.drawable.intro1
-        2 -> R.drawable.intro2
-        else -> R.drawable.intro3
+        1 -> R.drawable.home_1
+        2 -> R.drawable.home_2
+        else -> R.drawable.home_3
     }
 
     LaunchedEffect(Unit) {
@@ -285,71 +285,96 @@ fun HomeScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.SpaceBetween,
                     ) {
-                        for (i in 1..3) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 10.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Card(
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = Color.White
-                                    ),
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(275.dp)
-                                        .shadow(
-                                            elevation = 20.dp,
-                                            spotColor = primaryColor,
-                                        )
-                                        .clip(RoundedCornerShape(10.dp))
-                                        .clickable { }
-                                ) {
-                                    Column(
-                                        verticalArrangement = Arrangement.SpaceBetween,
-                                        modifier = Modifier
-                                            .padding(dimensionResource(R.dimen.padding_medium))
-                                            .fillMaxSize()
-                                    ) {
-                                        Image(
-                                            painter = painterResource(R.drawable.intro2),
-                                            contentDescription = "Food",
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .height(160.dp)
-                                                .clip(RoundedCornerShape(16.dp, 16.dp))
-                                        )
+                        dealsCard(
+                            imageId = R.drawable.deals_waitlist,
+                            text = "Join the waitlist before your arrival to save more time!",
+                            onClicked = { navController.navigate(UserScreen.Waitlist.name) }
+                        )
 
-                                        Text(
-                                            text = "Promotions Order NOW !",
-                                            fontSize = 20.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            overflow = TextOverflow.Ellipsis,
-                                            modifier = Modifier.size(300.dp, 50.dp)
-                                        )
+                        dealsCard(
+                            imageId = R.drawable.deals_food,
+                            text = "Time to enjoy all the delicious food with joy!",
+                            onClicked = { navController.navigate("Ordering") }
+                        )
 
-                                        IconButton(
-                                            onClick = { /*TODO*/ },
-                                            modifier = Modifier
-                                                .background(
-                                                    shape = CircleShape,
-                                                    color = primaryColor
-                                                )
-                                                .align(Alignment.End)
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                                                contentDescription = "Next Icon Button",
-                                                tint = Color.White
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        dealsCard(
+                            imageId = R.drawable.deals_rewards,
+                            text = "Redeem your vouchers with points to get more discounts!",
+                            onClicked = { navController.navigate("Rewarding") }
+                        )
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun dealsCard(
+    @DrawableRes imageId: Int,
+    text: String,
+    onClicked: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 10.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = Color.White
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(275.dp)
+                .shadow(
+                    elevation = 20.dp,
+                    spotColor = colorResource(R.color.primary),
+                )
+                .clip(RoundedCornerShape(10.dp))
+                .clickable { onClicked() }
+        ) {
+            Column(
+                verticalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .padding(dimensionResource(R.dimen.padding_medium))
+                    .fillMaxSize()
+            ) {
+                Image(
+                    painter = painterResource(imageId),
+                    contentDescription = "Food",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(160.dp)
+                        .clip(RoundedCornerShape(16.dp, 16.dp))
+                )
+
+                Text(
+                    text = text,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .size(300.dp, 55.dp)
+                        .padding(top = 5.dp)
+                )
+
+                IconButton(
+                    onClick = onClicked,
+                    modifier = Modifier
+                        .background(
+                            shape = CircleShape,
+                            color = colorResource(R.color.primary)
+                        )
+                        .align(Alignment.End)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        contentDescription = "Next Icon Button",
+                        tint = Color.White
+                    )
                 }
             }
         }

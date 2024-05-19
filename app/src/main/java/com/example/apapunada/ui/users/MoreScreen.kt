@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -41,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.apapunada.MoreScreen
 import com.example.apapunada.R
+import com.example.apapunada.ui.components.DisplayImagesFromByteArray
 import com.example.apapunada.ui.components.MyBottomNavBar
 import com.example.apapunada.ui.components.MyTopAppBar
 import com.example.apapunada.viewmodel.AuthViewModel
@@ -94,12 +96,14 @@ fun MoreScreen(
                                 .height(100.dp)
                         ) {
                             Row {
-                                Image(
-                                    painter = painterResource(R.drawable.profile_image), //TODO user profile
-                                    contentDescription = "profile pic",
+
+                                DisplayImagesFromByteArray(
+                                    byteArray = currentUser.image,
+                                    contentDescription = "Profile pic",
                                     modifier = Modifier
                                         .size(100.dp)
-                                        .padding(10.dp)
+                                        .padding(10.dp),
+                                    contentScale = ContentScale.Crop
                                 )
 
                                 Column(

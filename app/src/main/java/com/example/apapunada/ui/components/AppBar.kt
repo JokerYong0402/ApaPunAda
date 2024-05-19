@@ -2,7 +2,6 @@ package com.example.apapunada.ui.components
 
 import android.content.Intent
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -61,10 +60,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -78,6 +77,7 @@ import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.apapunada.MainActivity
+import com.example.apapunada.MoreScreen
 import com.example.apapunada.R
 import com.example.apapunada.StaffScreen
 import com.example.apapunada.UserScreen
@@ -107,8 +107,8 @@ fun MyTopAppBar(
             )
         },
         actions = {
-            Image(
-                painter = painterResource(R.drawable.staricon), // TODO
+            DisplayImagesFromByteArray(
+                byteArray = user.image,
                 contentDescription = "Profile Image",
                 modifier = Modifier
                     .size(45.dp)
@@ -116,6 +116,8 @@ fun MyTopAppBar(
                     .clickable {
                         expanded = true
                     }
+                ,
+                contentScale = ContentScale.Crop
             )
 
             if (expanded) {
@@ -124,12 +126,20 @@ fun MyTopAppBar(
                     onDismissRequest = { expanded = false },
                 ) {
                     DropdownMenuItem(
-                        text = { Text(user.username) },
-                        onClick = {},
-                        enabled = false
+                        text = {
+                            Text(
+                                text = user.username,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        },
+                        onClick = { navController.navigate(MoreScreen.Profile.name) }
                     )
 
-                    HorizontalDivider()
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 5.dp),
+                        thickness = 3.dp
+                    )
 
                     DropdownMenuItem(
                         text = { Text("Logout") },
@@ -381,13 +391,17 @@ fun StaffAppBar(
             }
         },
         actions = {
-            Image(
-                painter = painterResource(R.drawable.profile_image),
-                contentDescription = "staff",
+            DisplayImagesFromByteArray(
+                byteArray = user.image,
+                contentDescription = "Profile Image",
                 modifier = Modifier
                     .size(45.dp)
                     .clip(CircleShape)
-                    .clickable { expanded = true }
+                    .clickable {
+                        expanded = true
+                    }
+                ,
+                contentScale = ContentScale.Crop
             )
 
             if (expanded) {

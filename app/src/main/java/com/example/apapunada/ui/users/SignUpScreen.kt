@@ -70,6 +70,7 @@ import com.example.apapunada.data.dataclass.User
 import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.MyDatePickerDialog
+import com.example.apapunada.ui.components.drawableResourceToByteArray
 import com.example.apapunada.ui.components.getEnumList
 import com.example.apapunada.viewmodel.Gender
 import com.example.apapunada.viewmodel.UserRole
@@ -96,7 +97,6 @@ fun SignUpScreen(
     val defaultGender = getEnumList(Gender::class.java)
     var passwordVisible by remember { mutableStateOf(false) }
     var invalidUser by remember { mutableStateOf(false) }
-    var isVerifying by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
     var tnc by remember { mutableStateOf(false) }
 
@@ -107,10 +107,13 @@ fun SignUpScreen(
     var gender by remember { mutableStateOf("") }
     var dob by remember { mutableStateOf(0L) }
 
+
+    var isVerifying by remember { mutableStateOf(false) }
     if (isVerifying) {
         LaunchedEffect(Unit) {
             launch {
                 delay(3000)
+                isVerifying = false
                 if (newUserState.value.isValid) {
                     userViewModel.saveUser()
                     withContext(Dispatchers.Main) {
@@ -123,9 +126,27 @@ fun SignUpScreen(
                         Toast.makeText(context, "Invalid Input", Toast.LENGTH_SHORT).show()
                     }
                 }
-                isVerifying = false
             }
         }
+    }
+
+    var isSigningUp by remember { mutableStateOf(false) }
+    if (isSigningUp) {
+        val byteArray = drawableResourceToByteArray(context, R.drawable.profile_image)
+
+        val newUser = User(
+            username = username,
+            email = email,
+            password = password,
+            phoneNo = phoneNo,
+            gender = gender,
+            dob = dob,
+            image = byteArray ?: ByteArray(10),
+            role = getEnumList(UserRole::class.java)[0],
+            status = getEnumList(UserStatus::class.java)[0]
+        )
+        userViewModel.updateUserState(newUser)
+        isSigningUp = false
     }
 
     Scaffold(
@@ -443,19 +464,8 @@ fun SignUpScreen(
                         Button(
                             onClick = {
                                 if (tnc) {
-                                    val newUser = User(
-                                        username = username,
-                                        email = email,
-                                        password = password,
-                                        phoneNo = phoneNo,
-                                        gender = gender,
-                                        dob = dob,
-//                                        image = "", TODO default image
-                                        role = getEnumList(UserRole::class.java)[0],
-                                        status = getEnumList(UserStatus::class.java)[0]
-                                    )
                                     isVerifying = true
-                                    userViewModel.updateUserState(newUser)
+                                    isSigningUp = true
                                 }
                             },
                             enabled = !isVerifying,
