@@ -354,7 +354,7 @@ fun ProfileEditScreen(
                             password = editedpassword,
                             phoneNo = editedphonenum,
                             gender = editedgender,
-                            dob = editeddob.toLong(),
+                            dob = editeddob,
                             role = user.role,
                             point = user.point,
                             status = user.status

@@ -1,10 +1,8 @@
 package com.example.apapunada.ui.users
 
 import android.util.Log
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -25,7 +23,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -34,7 +31,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -59,7 +55,6 @@ import com.example.apapunada.data.dataclass.MenuItem
 import com.example.apapunada.ui.AppViewModelProvider
 import com.example.apapunada.ui.components.IndeterminateCircularIndicator
 import com.example.apapunada.ui.components.MyTopTitleBar
-import com.example.apapunada.viewmodel.MenuItemState
 import com.example.apapunada.viewmodel.MenuItemViewModel
 import com.example.apapunada.viewmodel.MenuListState
 
@@ -81,7 +76,6 @@ fun MenuScreen(
 
     viewModel.loadAllMenuItem()
 
-    var textInput by remember { mutableStateOf("") }
 
     if (menuListState.value.isLoading) {
         Box( modifier = Modifier
@@ -105,7 +99,6 @@ fun MenuScreen(
 
     Scaffold(
         topBar = { MyTopTitleBar(title = stringResource(R.string.menu), onBackClicked) },
-        //bottomBar = { MyBottomNavBar() }
     ) { innerPadding ->
         Surface(
             modifier = Modifier
@@ -364,7 +357,6 @@ fun MenuScreen(
                                             modifier = Modifier
                                                 .height(25.dp)
                                                 .width(25.dp)
-                                            //.clip(RoundedCornerShape(16.dp, 16.dp))
                                         )
                                         Text(
                                             text = (menu.rating).toString(),
@@ -399,20 +391,6 @@ fun MenuScreen(
 
                         )
                     Spacer(modifier = Modifier.width(130.dp))
-//                    TextButton(
-//                        onClick = {},
-//                        modifier = Modifier
-//                            .fillMaxSize(),
-//                    ) {
-//                        Text(
-//                            text = "View all--",
-//                            color = colorResource(R.color.primary),
-//                            fontSize = 15.sp,
-//                            textAlign = TextAlign.End
-//
-//                        )
-//
-//                    }
                 }
 
                 Row( //Recommended dishes pic
@@ -467,7 +445,6 @@ fun MenuScreen(
                                         textAlign = TextAlign.Start
                                     )
                                     Row(
-                                        //modifier = Modifier
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Image(
@@ -477,7 +454,6 @@ fun MenuScreen(
                                             modifier = Modifier
                                                 .height(25.dp)
                                                 .width(25.dp)
-                                            //.clip(RoundedCornerShape(16.dp, 16.dp))
                                         )
                                         Text(
                                             text = (menu.rating).toString(),
@@ -530,7 +506,6 @@ fun MenuScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(200.dp)
-                        //.padding(vertical = 10.dp)
                         .horizontalScroll(rememberScrollState()),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start,
@@ -576,7 +551,6 @@ fun MenuScreen(
                                         textAlign = TextAlign.Start
                                     )
                                     Row(
-                                        //modifier = Modifier
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.Center
                                     ) {
@@ -587,7 +561,6 @@ fun MenuScreen(
                                             modifier = Modifier
                                                 .height(25.dp)
                                                 .width(25.dp)
-                                            //.clip(RoundedCornerShape(16.dp, 16.dp))
                                         )
                                         Text(
                                             text = (menu.rating).toString(),
@@ -609,53 +582,6 @@ fun MenuScreen(
             }
         }
     }
-}
-
-
-
-@Composable
-fun MenuScreenSearchBar(
-    value: String,
-    onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        singleLine = true,
-        modifier = modifier
-            .padding(start = 5.dp, top = 10.dp, bottom = 10.dp, end = 20.dp)
-            .height(50.dp)
-            .clip(
-                shape = RoundedCornerShape(
-                    size = 20.dp,
-                ),
-            )
-            .background(color = Color.White)
-            .border(
-                BorderStroke(width = 1.dp, colorResource(R.color.primary)),
-                shape = RoundedCornerShape(
-                    size = 20.dp,
-                )
-            ),
-        shape = RoundedCornerShape(20.dp),
-        placeholder = {
-            Text(
-                text = "Search",
-                fontSize = 14.sp,
-                color = colorResource(id = R.color.black),
-                modifier = modifier
-                    .fillMaxSize()
-            )
-        },
-    )
-}
-
-private fun getMenu(
-    index: Int,
-    menus: List<MenuItem>
-): MenuItem {
-    return menus[index] // TODO
 }
 
 //@Preview(showBackground = true)

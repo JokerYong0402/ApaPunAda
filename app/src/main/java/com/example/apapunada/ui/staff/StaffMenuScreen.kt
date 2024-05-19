@@ -82,7 +82,6 @@ import com.example.apapunada.ui.components.formattedString
 import com.example.apapunada.ui.components.getEnumList
 import com.example.apapunada.viewmodel.Cuisine
 import com.example.apapunada.viewmodel.FoodDetailsState
-import com.example.apapunada.viewmodel.MenuItemState
 import com.example.apapunada.viewmodel.MenuItemViewModel
 import com.example.apapunada.viewmodel.MenuListState
 import com.example.apapunada.viewmodel.NutritionFactsState
@@ -107,7 +106,6 @@ fun StaffMenuScreen(
         }
     }
 
-
     val dishCuisine = getEnumList(Cuisine::class.java)
 
     val headerList = listOf(
@@ -119,14 +117,13 @@ fun StaffMenuScreen(
         Pair("Amount(RM)", 180.dp),
         Pair("Status", 160.dp),
         Pair("Action", 180.dp),
-
         )
+
     var openAddDishDialog by remember { mutableStateOf(false) }
     var openEditDishDialog by remember { mutableStateOf(false) }
     var openStatusDishDialog by remember { mutableStateOf(false) }
     var openDishDetailDialog by remember { mutableStateOf(false) }
 
-    var search by remember { mutableStateOf("") }
 
     var currentMenu by remember { mutableStateOf(MenuItem()) }
     val addMenu by remember { mutableStateOf(MenuItem()) }
@@ -185,7 +182,6 @@ fun StaffMenuScreen(
 
     if (openStatusDishDialog) {
         viewModel.loadMenuItemByMenuItemId(currentMenuItemId)
-        val menuItemsState = viewModel.menuItemState.collectAsState(initial = MenuItemState())
 
         ChangeDishStatusDialog(
             menu = currentMenu,
@@ -222,6 +218,7 @@ fun StaffMenuScreen(
         )
     }
 
+    var search by remember { mutableStateOf("") }
     var launchAll by remember { mutableStateOf(false) }
     var launchMenuItem by remember { mutableStateOf(false) }
     var isSearching by remember { mutableStateOf(false) }
@@ -260,14 +257,11 @@ fun StaffMenuScreen(
                 value = search,
                 onValueChange = {
                     search = it
-                    if(search.isNotEmpty()){
-                        isSearching = true
-                    }
-                    else{
-                        isSearching = false
-                    } },
+                    isSearching = search.isNotEmpty()
+                },
 
-                modifier = Modifier.padding(start = 20.dp)
+                modifier = Modifier
+                    .padding(start = 20.dp)
             )
             Column(
                 horizontalAlignment = Alignment.End,
@@ -682,7 +676,6 @@ fun AddDishDialog(
     var newDishSugar by remember { mutableStateOf("") }
 
 
-    var isUploadImage by remember { mutableStateOf(false) }
     val dialogTitle = "ADD NEW DISH"
 
     var expandedCuisine by remember { mutableStateOf(false) }
@@ -1048,15 +1041,13 @@ fun EditDishDialog(
     var editDishSalt by remember { mutableStateOf(nutritionFacts.salt.toString()) }
     var editDishSugar by remember { mutableStateOf(nutritionFacts.sugar.toString()) }
 
-    if (foodDetails != null) {
-        editDishIngredient = foodDetails.ingredient
-        editDishServingSize = foodDetails.servingSize.toString()
-        editDishCarbohydrates = nutritionFacts.carbohydrates.toString()
-        editDishProtein = nutritionFacts.proteins.toString()
-        editDishFat = nutritionFacts.fats.toString()
-        editDishSalt = nutritionFacts.salt.toString()
-        editDishSugar = nutritionFacts.sugar.toString()
-    }
+    editDishIngredient = foodDetails.ingredient
+    editDishServingSize = foodDetails.servingSize.toString()
+    editDishCarbohydrates = nutritionFacts.carbohydrates.toString()
+    editDishProtein = nutritionFacts.proteins.toString()
+    editDishFat = nutritionFacts.fats.toString()
+    editDishSalt = nutritionFacts.salt.toString()
+    editDishSugar = nutritionFacts.sugar.toString()
 
     val dialogTitle = "EDIT DISH"
 
@@ -1114,7 +1105,6 @@ fun EditDishDialog(
                         )
                     }
                 }
-                //UploadDishImage()
 
                 Text(
                     text = "Upload Image",
