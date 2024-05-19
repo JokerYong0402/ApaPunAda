@@ -52,12 +52,8 @@ fun AboutUsScreen(
     onFeedbackClicked: () -> Unit,
     onOrderClicked: () -> Unit,
 ) {
-    viewModel.loadMenuItemByMenuItemId(1)
-    val image1 = viewModel.menuItemState.value.menuItem.image
-    viewModel.loadMenuItemByMenuItemId(2)
-    val image2 = viewModel.menuItemState.value.menuItem.image
-    viewModel.loadMenuItemByMenuItemId(3)
-    val image3 = viewModel.menuItemState.value.menuItem.image
+
+
     val text = buildAnnotatedString {
         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
             append(stringResource(id = R.string.app_name))
@@ -119,8 +115,41 @@ fun AboutUsScreen(
                             .fillMaxSize()
                     ) {
                         Row{
+                            viewModel.loadMenuItemByMenuItemId(1)
                             DisplayImagesFromByteArray(
-                                byteArray = image1,
+                                byteArray = viewModel.menuItemState.value.menuItem.image,
+                                modifier = Modifier.size(100.dp),
+                                contentDescription = "Bibimbap",
+                                contentScale = ContentScale.Fit
+                            )
+                            Row (
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(10.dp)
+                                ) {
+                                    Text(
+                                        text = "Bibimbap",
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                    Row {
+                                        Icon(
+                                            imageVector = Icons.Rounded.Star,
+                                            contentDescription = "Star",
+                                            tint = Color(0xFFFFD700)
+                                        )
+                                        Text(
+                                            text = "4.8",
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        Row{
+                            viewModel.loadMenuItemByMenuItemId(2)
+                            DisplayImagesFromByteArray(
+                                byteArray = viewModel.menuItemState.value.menuItem.image,
                                 modifier = Modifier.size(100.dp),
                                 contentDescription = "Classic Cheeseburger",
                                 contentScale = ContentScale.Fit
@@ -150,8 +179,9 @@ fun AboutUsScreen(
                             }
                         }
                         Row{
+                            viewModel.loadMenuItemByMenuItemId(3)
                             DisplayImagesFromByteArray(
-                                byteArray = image2,
+                                byteArray = viewModel.menuItemState.value.menuItem.image,
                                 modifier = Modifier.size(100.dp),
                                 contentDescription = "California Roll",
                                 contentScale = ContentScale.Fit
@@ -164,37 +194,6 @@ fun AboutUsScreen(
                                 ) {
                                     Text(
                                         text = "California Roll",
-                                        fontWeight = FontWeight.SemiBold
-                                    )
-                                    Row {
-                                        Icon(
-                                            imageVector = Icons.Rounded.Star,
-                                            contentDescription = "Star",
-                                            tint = Color(0xFFFFD700)
-                                        )
-                                        Text(
-                                            text = "4.8",
-                                            fontWeight = FontWeight.SemiBold
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                        Row{
-                            DisplayImagesFromByteArray(
-                                byteArray = image3,
-                                modifier = Modifier.size(100.dp),
-                                contentDescription = "Bibimbap",
-                                contentScale = ContentScale.Fit
-                            )
-                            Row (
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Column(
-                                    modifier = Modifier.padding(10.dp)
-                                ) {
-                                    Text(
-                                        text = "Bibimbap",
                                         fontWeight = FontWeight.SemiBold
                                     )
                                     Row {
