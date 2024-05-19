@@ -75,6 +75,7 @@ import com.example.apapunada.ui.users.ProfileEditScreen
 import com.example.apapunada.ui.users.ProfileScreen
 import com.example.apapunada.ui.users.RewardsScreen
 import com.example.apapunada.ui.users.SignUpScreen
+import com.example.apapunada.ui.users.TermsAndCondition
 import com.example.apapunada.ui.users.VoucherDetails
 import com.example.apapunada.ui.users.VoucherRedeem
 import com.example.apapunada.ui.users.WaitlistScreen
@@ -315,7 +316,7 @@ fun ApaPunAdaApp(
                     RewardsScreen(onBackButtonClicked = { navController.navigateUp() },
                         onRedeem = { drawableId, voucherRM -> navController.navigate("VoucherRedeem/$drawableId/$voucherRM") },
                         onDetails = { drawableId, voucherRM -> navController.navigate("VoucherDetails/$drawableId/$voucherRM") },
-                        userId = 6)
+                        authViewModel = authViewModel)
                 }
 
                 composable(
@@ -333,7 +334,7 @@ fun ApaPunAdaApp(
                         onDetails = { drawableId, voucherRM -> navController.navigate("VoucherDetails/$drawableId/$voucherRM") },
                         painterResource(drawableId),
                         voucherRM = voucherRM,
-                        userId = 6
+                        authViewModel = authViewModel
                     )
                 }
 
@@ -479,7 +480,7 @@ fun ApaPunAdaApp(
 
                 // More: Tnc
                 composable(MoreScreen.Tnc.name) {
-                    MoreScreen(navController = navController, authViewModel = authViewModel)
+                    TermsAndCondition(navController = navController)
                 }
             }
         }

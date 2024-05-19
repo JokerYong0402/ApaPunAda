@@ -48,6 +48,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apapunada.R
 import com.example.apapunada.ui.AppViewModelProvider
+import com.example.apapunada.viewmodel.AuthViewModel
+import com.example.apapunada.viewmodel.LoginUserState
 import com.example.apapunada.viewmodel.UserState
 import com.example.apapunada.viewmodel.UserViewModel
 
@@ -58,10 +60,11 @@ fun VoucherRedeem(
     onDetails: (Int, String) -> Unit,
     image: Painter,
     voucherRM: String,
-    userId: Int,
+    authViewModel: AuthViewModel,
     viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
+        val loginUserState = authViewModel.userState.collectAsState(initial = LoginUserState())
         val scrollBehaviour = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
         var tabIndex by remember { mutableStateOf(0) }
         val tabs = listOf("Redeem Rewards", "Available Rewards")
@@ -69,7 +72,7 @@ fun VoucherRedeem(
         var isPopUpVisible by remember { mutableStateOf(false) }
         var able by remember { mutableStateOf(true) }
         val userState = viewModel.userState.collectAsState(initial = UserState())
-        viewModel.loadUserByUserId(userId)
+        viewModel.loadUserByUserId(loginUserState.value.user.userID)
         val user = userState.value.user
         Scaffold(
             topBar = {
@@ -280,5 +283,5 @@ fun VoucherRedeem(
 @Preview(showBackground = true)
 @Composable
 fun VoucherRedeemPreview() {
-    VoucherRedeem({},{drawableId: Int, voucherRM: String -> }, painterResource(R.drawable.voucher_rm1), "RM1", 6)
+    //VoucherRedeem({},{drawableId: Int, voucherRM: String -> }, painterResource(R.drawable.voucher_rm1), "RM1", 6)
 }

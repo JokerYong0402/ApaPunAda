@@ -87,4 +87,16 @@
     <string name="history">history</string>
     <string name="faq">Faq</string>
     <string name="tnc">T&amp;C</string>
+    <string name="TNC1">: You must be at least 18 years old to use the App. By using the App, you represent and warrant that you meet this age requirement.\n</string>
+    <string name="TNC2">: To access certain features of the App, you may be required to create an account. You are responsible for maintaining the confidentiality of your account information and for all activities that occur under your account.\n</string>
+    <string name="TNC3">: You agree to use the App only for lawful purposes and in accordance with these Terms. You must not use the App in any manner that could disable, overburden, damage, or impair the App or interfere with any other party\'s use of the App.\n</string>
+    <string name="TNC4">: When you place an order through the App, you agree to provide accurate and complete information. All orders are subject to acceptance by APAPUNADA and the participating restaurants.\n</string>
+    <string name="TNC5">: You agree to pay for all orders placed through the App. Payment must be made through the payment methods provided in the App. Prices and availability of menu items are subject to change without notice.\n</string>
+    <string name="TNC6">: Once an order is placed, it cannot be canceled or refunded except as provided in our Refund Policy.\n</string>
+    <string name="TNC7">: While we strive to ensure that the information on the App is accurate, we do not guarantee the accuracy, completeness, or reliability of any restaurant listings, menus, or other content available on the App.\n</string>
+    <string name="TNC8">: Participating restaurants are solely responsible for the preparation, quality, and delivery of the food and beverages ordered through the App.\n</string>
+    <string name="TNC9">: The App may allow you to post reviews, comments, and other content (\"User Content\"). By posting User Content, you grant APAPUNADA a non-exclusive, royalty-free, perpetual, and irrevocable right to use, reproduce, modify, and display such content.\n</string>
+    <string name="TNC10">: You agree not to post any User Content that is illegal, offensive, defamatory, or otherwise inappropriate. APAPUNADA reserves the right to remove any User Content that violates these Terms.\n</string>
+    <string name="TNC11">: Your use of the App is also governed by our Privacy Policy, which explains how we collect, use, and disclose information about you. By using the App, you consent to our collection and use of your information as outlined in the Privacy Policy.\n</string>
+
 </resources>

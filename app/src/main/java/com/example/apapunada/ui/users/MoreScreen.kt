@@ -253,7 +253,7 @@ fun MoreScreen(
                             MoreCard(
                                 title = "T&C",
                                 id = R.drawable.tncicon,
-                                onClicked = { navController.navigate("") }
+                                onClicked = { navController.navigate(MoreScreen.Tnc.name) }
                             )
                         }
                     }
