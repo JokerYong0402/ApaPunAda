@@ -53,7 +53,7 @@ class AuthViewModel(
                     userList = userListState.value.userList
                 } while (userList.isEmpty())
 
-                userList = userList.filter { it.status != "Deleted" }
+                userList = userList.filter { it.status == "Active" }
 
                 val loggedInUser = userList.find { it.username == username && it.password == password }
                 if (loggedInUser != null) {
