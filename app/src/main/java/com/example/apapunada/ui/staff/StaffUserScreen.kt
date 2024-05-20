@@ -734,6 +734,7 @@ fun DialogOfEditUser(
                             else drawableResourceToByteArray(context, R.drawable.defaultprofilepicture),
                             contentDescription = "",
                             modifier = Modifier
+                                .fillMaxSize()
                                 .clickable { launcher.launch(
                                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                                 ) },
