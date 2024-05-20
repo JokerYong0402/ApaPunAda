@@ -75,7 +75,7 @@ fun StaffDashboardPortrait(
     orderViewModel.loadAllOrders()
     var orders by remember { mutableStateOf(listOf(Order())) }
 
-    var ordersAmount = orderViewModel.calculateOrderTotal(orders)
+    var ordersAmount by remember { mutableStateOf(0.0) }
 
     var isLoading by remember { mutableStateOf(true) }
     if (isLoading) {
@@ -84,7 +84,7 @@ fun StaffDashboardPortrait(
 
     LaunchedEffect(Unit) {
         launch {
-            delay(3000)
+            delay(2000)
             withContext(Dispatchers.Main) {
                 isLoading = false
                 users = userViewModel.userListState.value.userList
@@ -135,7 +135,7 @@ fun StaffDashboardPortrait(
 
         dashboardCard(
             title = "Sales",
-            value = formattedString(0.0),
+            value = formattedString(ordersAmount),
             icon = R.drawable.dashboard_3
         )
 
