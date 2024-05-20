@@ -53,6 +53,8 @@ class AuthViewModel(
                     userList = userListState.value.userList
                 } while (userList.isEmpty())
 
+                userList = userList.filter { it.status != "Deleted" }
+
                 val loggedInUser = userList.find { it.username == username && it.password == password }
                 if (loggedInUser != null) {
                     _userState.value = userState.value.copy(
