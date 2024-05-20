@@ -722,7 +722,6 @@ fun DialogOfEditUser(
                     Card(
                         shape = CircleShape,
                         modifier = Modifier
-                            .fillMaxSize()
                             .align(Alignment.CenterHorizontally)
                             .size(70.dp)
                     ) {
