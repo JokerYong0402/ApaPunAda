@@ -534,6 +534,7 @@ fun DialogOfAddUser(
                             else drawableResourceToByteArray(context, R.drawable.defaultprofilepicture),
                             contentDescription = "",
                             modifier = Modifier
+                                .fillMaxSize()
                                 .clickable { launcher.launch(
                                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                                 ) },
@@ -721,6 +722,7 @@ fun DialogOfEditUser(
                     Card(
                         shape = CircleShape,
                         modifier = Modifier
+                            .fillMaxSize()
                             .align(Alignment.CenterHorizontally)
                             .size(70.dp)
                     ) {
@@ -971,7 +973,7 @@ fun DialogOfUserDetail(
                         if (image.isNotEmpty()) image
                         else drawableResourceToByteArray(context, R.drawable.defaultprofilepicture),
                         contentDescription = "",
-                        modifier = Modifier,
+                        modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
                 }
