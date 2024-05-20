@@ -61,21 +61,56 @@ fun StaffFeedbackScreen(
     var selectField by remember { mutableStateOf("Field") }
     var textInput by remember { mutableStateOf("") }
 
-    if (textInput == "") {
-        viewModel.loadAllFeedbacks()
-    }
-
     var isLoading by remember { mutableStateOf(true) }
     if (isLoading) {
         IndeterminateCircularIndicator("Loading...")
     }
 
-    LaunchedEffect(Unit) {
-        launch {
-            delay(2000)
-            withContext(Dispatchers.Main) {
-                isLoading = false
-                feedbacks = viewModel.feedbackListState.value.feedbackList
+    if (textInput == "") {
+        viewModel.loadAllFeedbacks()
+
+        LaunchedEffect(Unit) {
+            launch {
+                delay(2000)
+                withContext(Dispatchers.Main) {
+                    isLoading = false
+                    feedbacks = viewModel.feedbackListState.value.feedbackList
+                }
+            }
+        }
+    } else {
+        if (selectField == "Category" && textInput != "") {
+            viewModel.loadFeedbacksByCategory("%" + textInput + "%")
+            LaunchedEffect(Unit) {
+                launch {
+                    delay(2000)
+                    withContext(Dispatchers.Main) {
+                        isLoading = false
+                        feedbacks = viewModel.feedbackListState.value.feedbackList
+                    }
+                }
+            }
+        } else if (selectField == "Star" && textInput != "") {
+            viewModel.loadFeedbacksByStar(textInput.toInt())
+            LaunchedEffect(Unit) {
+                launch {
+                    delay(2000)
+                    withContext(Dispatchers.Main) {
+                        isLoading = false
+                        feedbacks = viewModel.feedbackListState.value.feedbackList
+                    }
+                }
+            }
+        } else if (selectField == "Comments" && textInput != ""){
+            viewModel.loadFeedbacksByComment("%" + textInput + "%")
+            LaunchedEffect(Unit) {
+                launch {
+                    delay(2000)
+                    withContext(Dispatchers.Main) {
+                        isLoading = false
+                        feedbacks = viewModel.feedbackListState.value.feedbackList
+                    }
+                }
             }
         }
     }
