@@ -198,22 +198,22 @@ fun OrderCheckoutScreen(
                 val currentUser = authViewModel.userState.value.user
                 userViewModel.loadUserByUserId(currentUser.userID)
                 val latestPoints = currentUser.point - usedPoints + points
-                userViewModel.updateUserState(
-                    User(
-                        userID = currentUser.userID,
-                        username = currentUser.username,
-                        email = currentUser.email,
-                        password = currentUser.password,
-                        phoneNo = currentUser.phoneNo,
-                        gender = currentUser.gender,
-                        dob = currentUser.dob,
-                        image = currentUser.image,
-                        role = currentUser.role,
-                        point = latestPoints,
-                        status = currentUser.status,
-                    )
+                val latestUser = User(
+                    userID = currentUser.userID,
+                    username = currentUser.username,
+                    email = currentUser.email,
+                    password = currentUser.password,
+                    phoneNo = currentUser.phoneNo,
+                    gender = currentUser.gender,
+                    dob = currentUser.dob,
+                    image = currentUser.image,
+                    role = currentUser.role,
+                    point = latestPoints,
+                    status = currentUser.status,
                 )
+                userViewModel.updateUserState(latestUser)
                 userViewModel.updateUser()
+                authViewModel.updateLoggedInUserState(latestUser)
 
                 onPayButtonClicked()
             },
